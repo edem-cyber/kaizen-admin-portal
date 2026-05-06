@@ -37,7 +37,7 @@ import {
   type QuoteDocumentListItem,
   type QuoteDocumentType,
 } from "@/lib/vendor-quotes";
-import { deleteDocumentApiV1DocumentsDocumentIdDelete } from "@/lib/generated/requisition/documents-v1/documents-v1";
+import { deleteDocumentApiV1DocumentsDocumentIdDelete } from "@/lib/generated/kaizenAdmin/documents-v1/documents-v1";
 import { downloadDocument } from "@/lib/documents";
 import { extractErrorMessage } from "@/lib/api-error";
 import { cn } from "@/lib/utils";

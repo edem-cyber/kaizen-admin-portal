@@ -1,4 +1,4 @@
-import { requisitionRequest } from "@/lib/api-client";
+import { kaizenAdminRequest } from "@/lib/api-client";
 import type { ReportDescriptor } from "./catalog";
 
 /**
@@ -64,7 +64,7 @@ export async function fetchReportJson(opts: RunReportOptions): Promise<unknown> 
   const split = splitFilters(descriptor, filters);
   const { query, body } = injectOrgId(descriptor, split.query, split.body, organizationId);
 
-  return requisitionRequest<unknown>({
+  return kaizenAdminRequest<unknown>({
     url: descriptor.path,
     method: descriptor.method,
     params: { ...query, format: "json" },
@@ -84,7 +84,7 @@ export async function downloadReport(
   const split = splitFilters(descriptor, filters);
   const { query, body } = injectOrgId(descriptor, split.query, split.body, organizationId);
 
-  const blob = await requisitionRequest<Blob>({
+  const blob = await kaizenAdminRequest<Blob>({
     url: descriptor.path,
     method: descriptor.method,
     params: { ...query, format },

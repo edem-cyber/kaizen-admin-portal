@@ -27,11 +27,11 @@ import {
     X,
     Undo2,
 } from "lucide-react";
-import { useListBudgetsApiV1BudgetBudgetsGet } from "@/lib/generated/requisition/budget-v1/budget-v1";
-import { useListFiscalYearsApiV1BudgetFiscalYearsGet } from "@/lib/generated/requisition/budget-v1/budget-v1";
-import { useListVendorCategoriesApiV1VendorsCategoriesGet } from "@/lib/generated/requisition/vendors-v1/vendors-v1";
-import type { BudgetResponse } from "@/lib/generated/requisition/models/budgetResponse";
-import type { PolicyConfiguration } from "@/lib/generated/requisition/models";
+import { useListBudgetsApiV1BudgetBudgetsGet } from "@/lib/generated/kaizenAdmin/budget-v1/budget-v1";
+import { useListFiscalYearsApiV1BudgetFiscalYearsGet } from "@/lib/generated/kaizenAdmin/budget-v1/budget-v1";
+import { useListVendorCategoriesApiV1VendorsCategoriesGet } from "@/lib/generated/kaizenAdmin/vendors-v1/vendors-v1";
+import type { BudgetResponse } from "@/lib/generated/kaizenAdmin/models/budgetResponse";
+import type { PolicyConfiguration } from "@/lib/generated/kaizenAdmin/models";
 import {
     applyAmountThresholds,
     computeVendorPolicyRules,
@@ -57,13 +57,13 @@ import type { FieldErrors } from "react-hook-form";
 const DEFAULT_CURRENCY_FALLBACK = "USD";
 
 /**
- * Complete-form schema. Per Kaizen Admin_Form_Selection.md §"Complete-form
+ * Complete-form schema. Per KaizenAdmin_Form_Selection.md §"Complete-form
  * request body", "all minimal-form rules apply plus [complete-specific
  * additions]" — so the future-only delivery_date rule carries over from
  * minimal. `allowPastDeliveryDate` relaxes the refine for edit flows,
- * same as MinimalKaizen AdminForm.
+ * same as MinimalKaizenAdminForm.
  */
-interface Kaizen AdminSchemaConfig {
+interface KaizenAdminSchemaConfig {
     allowPastDeliveryDate?: boolean;
     requireGlAccount?: boolean;
     requireProjectCode?: boolean;
@@ -73,7 +73,7 @@ interface Kaizen AdminSchemaConfig {
      */
     supportedCurrencies?: string[];
     /**
-     * Per-line currencies on the original requisition, indexed the same
+     * Per-line currencies on the original kaizenAdmin, indexed the same
      * as `budget_lines`. Lets edits round-trip values that are no longer
      * in `supportedCurrencies` — only fresh selections are bound to the
      * new list.
@@ -98,7 +98,7 @@ interface Kaizen AdminSchemaConfig {
     budgetFreezeThreshold?: number;
 }
 
-function buildKaizen AdminSchema({
+function buildKaizenAdminSchema({
     allowPastDeliveryDate = false,
     requireGlAccount = false,
     requireProjectCode = false,
@@ -108,12 +108,12 @@ function buildKaizen AdminSchema({
     baseCurrency,
     allowBudgetOverride = true,
     budgetFreezeThreshold,
-}: Kaizen AdminSchemaConfig) {
-    // `category` is optional per Kaizen Admin_Form_Selection.md (both
+}: KaizenAdminSchemaConfig) {
+    // `category` is optional per KaizenAdmin_Form_Selection.md (both
     // minimal and complete modes). The minimum onboarding configuration
     // doesn't seed any vendor categories, so requiring one here would
     // make it impossible for a freshly-configured org to submit a
-    // complete-mode requisition. `justification` also relaxed to match
+    // complete-mode kaizenAdmin. `justification` also relaxed to match
     // the doc.
     return z.object({
         // Matches minimal form + doc §"Minimal-form request body" (1–200
@@ -170,7 +170,7 @@ function buildKaizen AdminSchema({
         // — Membership: currency must be in supported_currencies (unless
         //   it round-trips an existing line's value, which is allowed so
         //   the form doesn't block an unrelated edit when the org
-        //   narrows the list after the requisition was created).
+        //   narrows the list after the kaizenAdmin was created).
         // — Lock: when allow_multi_currency=false, every line must match
         //   baseCurrency. Redundant with the runtime override in
         //   handleBudgetChange; kept as belt-and-braces so a bypassed
@@ -241,11 +241,11 @@ function buildKaizen AdminSchema({
     });
 }
 
-const requisitionSchema = buildKaizen AdminSchema({});
+const kaizenAdminSchema = buildKaizenAdminSchema({});
 
-export type Kaizen AdminFormValues = z.infer<typeof requisitionSchema>;
+export type KaizenAdminFormValues = z.infer<typeof kaizenAdminSchema>;
 
-export interface Kaizen AdminFormSubmitExtras {
+export interface KaizenAdminFormSubmitExtras {
     newFiles: File[];
     deleteAttachmentIds: string[];
 }
@@ -256,10 +256,10 @@ interface FiscalYearOption {
     year_name?: string;
 }
 
-interface Kaizen AdminFormProps {
-    initialData?: Partial<Kaizen AdminFormValues>;
+interface KaizenAdminFormProps {
+    initialData?: Partial<KaizenAdminFormValues>;
     existingAttachments?: DocumentListItem[];
-    onSubmit: (data: Kaizen AdminFormValues, extras: Kaizen AdminFormSubmitExtras) => void;
+    onSubmit: (data: KaizenAdminFormValues, extras: KaizenAdminFormSubmitExtras) => void;
     onCancel: () => void;
     isLoading?: boolean;
     isUploading?: boolean;
@@ -276,7 +276,7 @@ interface Kaizen AdminFormProps {
     /**
      * If false, every budget line's currency is forced to defaultCurrency
      * and the per-line currency display becomes read-only — per
-     * Kaizen Admin_Form_Selection.md §"Accounting fine-grained rules".
+     * KaizenAdmin_Form_Selection.md §"Accounting fine-grained rules".
      */
     allowMultiCurrency?: boolean;
     /**
@@ -326,7 +326,7 @@ function formatBytes(bytes?: number): string {
     return `${n.toFixed(n < 10 && i > 0 ? 1 : 0)} ${units[i]}`;
 }
 
-export function Kaizen AdminForm({
+export function KaizenAdminForm({
     initialData,
     existingAttachments = [],
     onSubmit,
@@ -345,7 +345,7 @@ export function Kaizen AdminForm({
     allowBudgetOverride = true,
     budgetFreezeThreshold,
     submitLabel,
-}: Kaizen AdminFormProps) {
+}: KaizenAdminFormProps) {
     const baseCurrency = defaultCurrency?.trim() || DEFAULT_CURRENCY_FALLBACK;
     const isEditing = !!initialData;
     const baseRules: VendorPolicyRules = useMemo(
@@ -365,7 +365,7 @@ export function Kaizen AdminForm({
         .join(",");
     const schema = useMemo(
         () =>
-            buildKaizen AdminSchema({
+            buildKaizenAdminSchema({
                 allowPastDeliveryDate,
                 requireGlAccount,
                 requireProjectCode,
@@ -432,7 +432,7 @@ export function Kaizen AdminForm({
 
     const defaultDeliveryDate = initialData?.delivery_date ?? addDaysIso(30);
 
-    const form = useForm<Kaizen AdminFormValues>({
+    const form = useForm<KaizenAdminFormValues>({
         resolver: zodResolver(schema),
         defaultValues: initialData
             ? {
@@ -440,7 +440,7 @@ export function Kaizen AdminForm({
                   delivery_date: defaultDeliveryDate,
                   gl_account: initialData.gl_account ?? "",
                   project_code: initialData.project_code ?? "",
-              } as Kaizen AdminFormValues
+              } as KaizenAdminFormValues
             : {
                   title: "",
                   description: "",
@@ -472,7 +472,7 @@ export function Kaizen AdminForm({
     });
 
     // Backfill `budget_amount` / `available_amount` for lines loaded from
-    // an existing requisition once the budgets list resolves. Without
+    // an existing kaizenAdmin once the budgets list resolves. Without
     // this, the freeze-threshold refine fail-opens on unchanged edit
     // lines; with it, we can gate correctly when the user leaves a line
     // untouched. Only runs when values are missing so the user's manual
@@ -590,7 +590,7 @@ export function Kaizen AdminForm({
     const submitBusy = !!isLoading || !!isUploading;
     const hasFiscalYears = fiscalYears.length > 0;
 
-    const submit = (values: Kaizen AdminFormValues) => {
+    const submit = (values: KaizenAdminFormValues) => {
         // Quote count for the vendor-policy check: attachments that will
         // remain after save (existing minus marked-for-delete, plus newly
         // picked files).
@@ -615,7 +615,7 @@ export function Kaizen AdminForm({
         });
     };
 
-    const collectFirstError = (errors: FieldErrors<Kaizen AdminFormValues>): string | null => {
+    const collectFirstError = (errors: FieldErrors<KaizenAdminFormValues>): string | null => {
         const simple = (
             [
                 "title",
@@ -653,7 +653,7 @@ export function Kaizen AdminForm({
         return null;
     };
 
-    const onInvalid = (errors: FieldErrors<Kaizen AdminFormValues>) => {
+    const onInvalid = (errors: FieldErrors<KaizenAdminFormValues>) => {
         const msg = collectFirstError(errors) ?? "Please fix the highlighted fields";
         toast.error(msg);
     };
@@ -681,7 +681,7 @@ export function Kaizen AdminForm({
                         <Label htmlFor="priority">Priority</Label>
                         <Select
                             onValueChange={(v) =>
-                                form.setValue("priority", v as Kaizen AdminFormValues["priority"])
+                                form.setValue("priority", v as KaizenAdminFormValues["priority"])
                             }
                             defaultValue={form.getValues("priority")}
                         >
@@ -815,7 +815,7 @@ export function Kaizen AdminForm({
                         >
                             Configuration → Fiscal Year
                         </Link>{" "}
-                        before creating a requisition.
+                        before creating a kaizenAdmin.
                     </div>
                 ) : (
                     <div className="space-y-4">
@@ -1009,7 +1009,7 @@ export function Kaizen AdminForm({
                 <div className="flex justify-end pt-4">
                     <div className="text-right">
                         <p className="text-sm text-muted-foreground uppercase tracking-wider font-bold">
-                            Total Kaizen Admin Amount
+                            Total KaizenAdmin Amount
                             <span className="normal-case font-normal">
                                 {taxInclusionSuffix(taxInclusion)}
                             </span>
@@ -1156,7 +1156,7 @@ export function Kaizen AdminForm({
                 onChange={(next) =>
                     form.setValue(
                         "vendor_info",
-                        next as Kaizen AdminFormValues["vendor_info"],
+                        next as KaizenAdminFormValues["vendor_info"],
                         { shouldValidate: true },
                     )
                 }
@@ -1199,7 +1199,7 @@ export function Kaizen AdminForm({
                         : isLoading
                             ? "Processing..."
                             : submitLabel ??
-                              (initialData ? "Update Kaizen Admin" : "Submit Kaizen Admin")}
+                              (initialData ? "Update KaizenAdmin" : "Submit KaizenAdmin")}
                 </Button>
             </div>
         </form>

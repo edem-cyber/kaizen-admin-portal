@@ -2,7 +2,7 @@
  * Extract a user-facing message from an axios-style error response.
  *
  * Tries `response.data.detail` first (FastAPI convention used by the
- * requisition service), then `response.data.message` (camelCase services),
+ * kaizenAdmin service), then `response.data.message` (camelCase services),
  * and finally falls back to the caller-supplied fallback string.
  *
  * FastAPI 422 responses include `detail` as an array of

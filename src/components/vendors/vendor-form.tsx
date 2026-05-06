@@ -10,9 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { VendorStatus, VendorDesignation, PaymentTerms, OrderingMethod } from "@/lib/generated/requisition/models";
-import type { VendorCreate, Vendor } from "@/lib/generated/requisition/models";
-import { useListVendorCategoriesApiV1VendorsCategoriesGet } from "@/lib/generated/requisition/vendors-v1/vendors-v1";
+import { VendorStatus, VendorDesignation, PaymentTerms, OrderingMethod } from "@/lib/generated/kaizenAdmin/models";
+import type { VendorCreate, Vendor } from "@/lib/generated/kaizenAdmin/models";
+import { useListVendorCategoriesApiV1VendorsCategoriesGet } from "@/lib/generated/kaizenAdmin/vendors-v1/vendors-v1";
 import { Store, User, CreditCard, ShieldCheck, Mail, Phone, Globe, MapPin, Loader2, Award, Plus, X, Paperclip, FileText } from "lucide-react";
 import { useState, type KeyboardEvent } from "react";
 import {

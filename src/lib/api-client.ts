@@ -5,7 +5,7 @@ import { handleTokenExpiry, shouldRefreshToken } from "./auth/token-refresh";
 
 // API Configuration - matching Flutter app structure
 export const API_CONFIG = {
-    requisitionBaseUrl: "https://api.sandbox.kaizen-aceit.com/requisition",
+    kaizenAdminBaseUrl: "https://api.sandbox.kaizen-aceit.com/kaizenAdmin",
     orgBaseUrl: "https://api.sandbox.kaizen-aceit.com/org",
     userBaseUrl: "https://api.sandbox.kaizen-aceit.com/user",
     billingBaseUrl: "https://api.sandbox.kaizen-aceit.com/billing",
@@ -105,8 +105,8 @@ export function getBaseUrl(endpoint: string): string {
         return API_CONFIG.userBaseUrl;
     }
 
-    // Default to Kaizen Admin Service
-    return API_CONFIG.requisitionBaseUrl;
+    // Default to KaizenAdmin Service
+    return API_CONFIG.kaizenAdminBaseUrl;
 }
 
 // Helper to make requests with automatic base URL selection
@@ -120,8 +120,8 @@ export async function apiRequest<T>(config: AxiosRequestConfig): Promise<T> {
 }
 
 // Service-specific mutators for Orval (Cleaner approach)
-export const requisitionRequest = <T>(config: AxiosRequestConfig): Promise<T> =>
-    apiRequest({ ...config, baseURL: API_CONFIG.requisitionBaseUrl });
+export const kaizenAdminRequest = <T>(config: AxiosRequestConfig): Promise<T> =>
+    apiRequest({ ...config, baseURL: API_CONFIG.kaizenAdminBaseUrl });
 
 export const orgRequest = <T>(config: AxiosRequestConfig): Promise<T> =>
     apiRequest({ ...config, baseURL: API_CONFIG.orgBaseUrl });

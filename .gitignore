@@ -51,3 +51,4 @@ next-env.d.ts
 # Playwright env + saved auth state
 .env.test
 tests/.auth/
+.env*.local

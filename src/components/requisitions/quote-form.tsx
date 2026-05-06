@@ -17,10 +17,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
-import { PaymentTerms } from "@/lib/generated/requisition/models";
-import { useListVendorsApiV1VendorsGet } from "@/lib/generated/requisition/vendors-v1/vendors-v1";
+import { PaymentTerms } from "@/lib/generated/kaizenAdmin/models";
+import { useListVendorsApiV1VendorsGet } from "@/lib/generated/kaizenAdmin/vendors-v1/vendors-v1";
 import { extractItems } from "@/lib/list-response";
-import type { Vendor } from "@/lib/generated/requisition/models";
+import type { Vendor } from "@/lib/generated/kaizenAdmin/models";
 import type { VendorQuote, VendorQuoteCreate } from "@/lib/vendor-quotes";
 
 function addDaysIso(days: number): string {
@@ -53,7 +53,7 @@ const quoteSchema = z.object({
 type QuoteFormValues = z.infer<typeof quoteSchema>;
 
 interface QuoteFormProps {
-  requisitionId: string;
+  kaizenAdminId: string;
   /** Existing quote for edit mode. Omit for create. */
   initialData?: VendorQuote;
   /** Default currency to pre-fill on create. */
@@ -64,7 +64,7 @@ interface QuoteFormProps {
 }
 
 export function QuoteForm({
-  requisitionId,
+  kaizenAdminId,
   initialData,
   defaultCurrency,
   isSubmitting,
@@ -150,7 +150,7 @@ export function QuoteForm({
   const submit = (values: QuoteFormValues) => {
     const payload: VendorQuoteCreate = {
       vendor_id: values.vendor_id,
-      requisition_id: requisitionId,
+      kaizenAdmin_id: kaizenAdminId,
       quote_number: values.quote_number?.trim() || undefined,
       quote_date: values.quote_date || undefined,
       valid_until: values.valid_until,

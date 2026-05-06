@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "prebuild": "node -e \"process.env.VERCEL ? console.log('Skipping API generation in Vercel') : process.exit(require('child_process').spawnSync('npm', ['run', 'generate:api'], {shell: true, stdio: 'inherit'}).status || 0)\"",
+    "prebuild": "echo Skipping Orval",
     "start": "next start",
     "lint": "eslint",
     "generate:api": "orval",

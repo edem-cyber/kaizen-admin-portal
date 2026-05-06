@@ -1,4 +1,4 @@
-import type { PolicyConfiguration } from "@/lib/generated/requisition/models";
+import type { PolicyConfiguration } from "@/lib/generated/kaizenAdmin/models";
 
 /**
  * Threshold semantics (for both competitive_bidding_threshold and
@@ -40,7 +40,7 @@ export interface VendorPolicyRules {
 
 /**
  * Compute the concrete UI rules from an OrganizationConfiguration's
- * policy_config, per Kaizen Admin_Form_Selection.md §"Policy config".
+ * policy_config, per KaizenAdmin_Form_Selection.md §"Policy config".
  *
  * Defaults to permissive rules (allow_new vendor, no quote count, no tax
  * id / bank details required) when policyConfig is missing — matches the

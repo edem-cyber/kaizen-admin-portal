@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 import {
   useCreateBudgetApiV1BudgetBudgetsPost,
   useListFiscalYearsApiV1BudgetFiscalYearsGet,
-} from "@/lib/generated/requisition/budget-v1/budget-v1";
+} from "@/lib/generated/kaizenAdmin/budget-v1/budget-v1";
 import { extractErrorMessage } from "@/lib/api-error";
 import { extractItems } from "@/lib/list-response";
 import type { IntroAnswers } from "@/lib/onboarding";

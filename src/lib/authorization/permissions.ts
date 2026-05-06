@@ -1,5 +1,5 @@
 /**
- * Permission namespace and requisition status constants.
+ * Permission namespace and kaizenAdmin status constants.
  *
  * Permissions follow a `<resource>:<action>` shape. Wildcards granted by
  * the backend:
@@ -14,13 +14,13 @@
  */
 
 export const PERMISSION = {
-    // Kaizen Admins
-    REQUISITIONS_READ: "requisitions:read",
-    REQUISITIONS_WRITE: "requisitions:write",
-    REQUISITIONS_DELETE: "requisitions:delete",
-    REQUISITIONS_SUBMIT: "requisitions:submit",
-    REQUISITIONS_APPROVE: "requisitions:approve",
-    REQUISITIONS_REJECT: "requisitions:reject",
+    // KaizenAdmins
+    REQUISITIONS_READ: "kaizenAdmins:read",
+    REQUISITIONS_WRITE: "kaizenAdmins:write",
+    REQUISITIONS_DELETE: "kaizenAdmins:delete",
+    REQUISITIONS_SUBMIT: "kaizenAdmins:submit",
+    REQUISITIONS_APPROVE: "kaizenAdmins:approve",
+    REQUISITIONS_REJECT: "kaizenAdmins:reject",
 
     // Budgets
     BUDGETS_READ: "budgets:read",
@@ -71,8 +71,8 @@ export type Permission = (typeof PERMISSION)[keyof typeof PERMISSION];
 export const SUPER_WILDCARD_PERMISSION = "admin:*" as const;
 
 /**
- * Kaizen Admin workflow statuses. Values match the generated
- * `Kaizen AdminStatus` enum (lowercase, snake_case). Kept in this module
+ * KaizenAdmin workflow statuses. Values match the generated
+ * `KaizenAdminStatus` enum (lowercase, snake_case). Kept in this module
  * because most status checks appear alongside permission checks in the
  * same helpers.
  */
@@ -89,13 +89,13 @@ export const REQUISITION_STATUS = {
     cancelled: "cancelled",
 } as const;
 
-export type Kaizen AdminStatusValue =
+export type KaizenAdminStatusValue =
     (typeof REQUISITION_STATUS)[keyof typeof REQUISITION_STATUS];
 
 /**
  * Terminal states — no further action can be taken.
  */
-export const TERMINAL_STATUSES: readonly Kaizen AdminStatusValue[] = [
+export const TERMINAL_STATUSES: readonly KaizenAdminStatusValue[] = [
     REQUISITION_STATUS.approved,
     REQUISITION_STATUS.rejected,
     REQUISITION_STATUS.cancelled,

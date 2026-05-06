@@ -1,4 +1,4 @@
-import { requisitionRequest } from "./api-client";
+import { kaizenAdminRequest } from "./api-client";
 
 /**
  * VendorDocumentType enum mirrored from the OpenAPI spec. Kept in sync
@@ -61,7 +61,7 @@ export function readVendorDocument(
 export async function listVendorDocuments(
   vendorId: string,
 ): Promise<VendorDocumentListItem[]> {
-  const raw = await requisitionRequest<unknown>({
+  const raw = await kaizenAdminRequest<unknown>({
     url: `/api/v1/vendors/${vendorId}/documents`,
     method: "GET",
   });
@@ -89,7 +89,7 @@ export async function uploadVendorDocument(
   if (input.is_required !== undefined) {
     form.append("is_required", String(input.is_required));
   }
-  const raw = await requisitionRequest<Record<string, unknown>>({
+  const raw = await kaizenAdminRequest<Record<string, unknown>>({
     url: `/api/v1/vendors/${vendorId}/documents`,
     method: "POST",
     data: form,

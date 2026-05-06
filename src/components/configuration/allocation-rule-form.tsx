@@ -17,8 +17,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2, Plus, X, Wand2 } from "lucide-react";
-import { PeriodType } from "@/lib/generated/requisition/models";
-import type { BudgetAllocationRuleResponse } from "@/lib/generated/requisition/models";
+import { PeriodType } from "@/lib/generated/kaizenAdmin/models";
+import type { BudgetAllocationRuleResponse } from "@/lib/generated/kaizenAdmin/models";
 
 const PERIOD_TEMPLATES: Record<string, string[]> = {
   [PeriodType.monthly]: [
@@ -385,7 +385,7 @@ export function AllocationRuleForm({
               Enforce strict allocation
             </Label>
             <p className="text-xs text-muted-foreground">
-              Block requisitions that exceed the allocated amount for any period.
+              Block kaizenAdmins that exceed the allocated amount for any period.
             </p>
           </div>
           <Switch

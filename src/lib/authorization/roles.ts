@@ -21,7 +21,7 @@ export type RoleCode = (typeof ROLE)[keyof typeof ROLE];
 
 export const TAB = {
     dashboard: "dashboard",
-    requisitions: "requisitions",
+    kaizenAdmins: "kaizenAdmins",
     approvals: "approvals",
     vendors: "vendors",
     budget: "budget",
@@ -38,7 +38,7 @@ export type TabKey = (typeof TAB)[keyof typeof TAB];
 
 export const TAB_ROUTES: Record<TabKey, string> = {
     dashboard: "/admin",
-    requisitions: "/requisitions",
+    kaizenAdmins: "/kaizenAdmins",
     approvals: "/approvals",
     vendors: "/vendors",
     budget: "/budget",
@@ -65,7 +65,7 @@ export const ROLE_TAB_VISIBILITY: Record<RoleCode, TabKey[]> = {
     [ROLE.ADMINISTRATOR]: [],
     [ROLE.CORPORATE_ADMIN]: [
         "dashboard",
-        "requisitions",
+        "kaizenAdmins",
         "approvals",
         "vendors",
         "budget",
@@ -79,7 +79,7 @@ export const ROLE_TAB_VISIBILITY: Record<RoleCode, TabKey[]> = {
     ],
     [ROLE.CORPORATE_APPROVER]: [
         "dashboard",
-        "requisitions",
+        "kaizenAdmins",
         "approvals",
         "vendors",
         "budget",
@@ -92,7 +92,7 @@ export const ROLE_TAB_VISIBILITY: Record<RoleCode, TabKey[]> = {
     ],
     [ROLE.CORPORATE_EMPLOYEE]: [
         "dashboard",
-        "requisitions",
+        "kaizenAdmins",
         "vendors",
         "notifications",
         "settings",

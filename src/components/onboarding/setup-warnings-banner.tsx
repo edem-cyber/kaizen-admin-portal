@@ -60,8 +60,8 @@ export function SetupWarningsBanner() {
       return {
         tone: "destructive" as const,
         text: canEdit
-          ? "Your workspace isn't fully set up yet. Finish onboarding to start creating requisitions."
-          : "Your workspace isn't fully set up yet. Your administrator needs to finish configuration before you can create requisitions.",
+          ? "Your workspace isn't fully set up yet. Finish onboarding to start creating kaizenAdmins."
+          : "Your workspace isn't fully set up yet. Your administrator needs to finish configuration before you can create kaizenAdmins.",
       };
     }
     if (status.warnings.length > 0) {

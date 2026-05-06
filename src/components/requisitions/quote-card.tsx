@@ -51,7 +51,7 @@ import { cn } from "@/lib/utils";
 
 interface QuoteCardProps {
   quote: VendorQuote;
-  requisitionId: string;
+  kaizenAdminId: string;
   vendorNameById: Record<string, string>;
   defaultCurrency?: string;
   onChanged: () => void | Promise<void>;
@@ -78,7 +78,7 @@ function formatDate(iso?: string | null): string {
 
 export function QuoteCard({
   quote,
-  requisitionId,
+  kaizenAdminId,
   vendorNameById,
   defaultCurrency,
   onChanged,
@@ -100,7 +100,7 @@ export function QuoteCard({
     setIsBusy(true);
     try {
       // Strip immutable fields before sending the partial update
-      const { vendor_id: _v, requisition_id: _r, ...updatable } = payload;
+      const { vendor_id: _v, kaizenAdmin_id: _r, ...updatable } = payload;
       void _v;
       void _r;
       await updateVendorQuote(quote.id, updatable as VendorQuoteUpdate);
@@ -313,7 +313,7 @@ export function QuoteCard({
             </DialogDescription>
           </DialogHeader>
           <QuoteForm
-            requisitionId={requisitionId}
+            kaizenAdminId={kaizenAdminId}
             initialData={quote}
             defaultCurrency={defaultCurrency}
             isSubmitting={isBusy}
@@ -338,7 +338,7 @@ export function QuoteCard({
             <DialogDescription>
               Mark <strong>{vendorName}</strong>&rsquo;s quote (
               {formatMoney(Number(quote.total_amount), currency)}) as the
-              selected vendor for this requisition. Add an optional note to
+              selected vendor for this kaizenAdmin. Add an optional note to
               explain the decision.
             </DialogDescription>
           </DialogHeader>

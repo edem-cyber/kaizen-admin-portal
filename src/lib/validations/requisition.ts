@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const requisitionCreateSchema = z.object({
+export const kaizenAdminCreateSchema = z.object({
   title: z
     .string()
     .min(1, "Title is required")

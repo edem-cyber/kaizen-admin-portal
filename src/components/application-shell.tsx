@@ -161,15 +161,15 @@ export function ApplicationShell({ children, className }: ApplicationShellProps)
       ],
     },
     {
-      title: "Kaizen Admins",
+      title: "KaizenAdmins",
       defaultOpen: true,
       items: [
         {
-          label: "My Kaizen Admins",
+          label: "My KaizenAdmins",
           icon: FileText,
-          href: "/requisitions",
-          tabKey: "requisitions",
-          isActive: pathname?.startsWith("/requisitions"),
+          href: "/kaizenAdmins",
+          tabKey: "kaizenAdmins",
+          isActive: pathname?.startsWith("/kaizenAdmins"),
         },
         {
           label: "Approvals",
@@ -287,7 +287,7 @@ export function ApplicationShell({ children, className }: ApplicationShellProps)
           <SidebarHeader className="bg-white">
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton className="bg-white h-14" tooltip="Kaizen Admins">
+                <SidebarMenuButton className="bg-white h-14" tooltip="KaizenAdmins">
                   <div className="flex items-center justify-center rounded-lg">
                     <Image
                       src="/logovar6.svg"
@@ -297,7 +297,7 @@ export function ApplicationShell({ children, className }: ApplicationShellProps)
                     />
                   </div>
                   <div className="flex flex-col gap-0.5 leading-none">
-                    <span className="font-semibold text-slate-900">Kaizen Admins</span>
+                    <span className="font-semibold text-slate-900">KaizenAdmins</span>
                     <span className="text-xs text-slate-500">Management System</span>
                   </div>
                 </SidebarMenuButton>
@@ -397,12 +397,12 @@ export function ApplicationShell({ children, className }: ApplicationShellProps)
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-indigo-600">
                 <img src="/logovar6.svg" alt="Logo" className="size-5 invert" />
               </div>
-              <span className="font-semibold text-slate-900">Kaizen Admin</span>
+              <span className="font-semibold text-slate-900">KaizenAdmin</span>
             </Link>
             <div className="flex-1" />
             {/* App Switcher */}
             <BaseAppSwitcher
-              currentAppId="requisition"
+              currentAppId="kaizenAdmin"
               apps={DEFAULT_APPS}
               portalUrl="https://easy-peasy-portal.vercel.app"
               variant="compact"
@@ -434,9 +434,9 @@ export function ApplicationShell({ children, className }: ApplicationShellProps)
                   <DropdownMenuItem className="flex flex-col items-start gap-1 p-3 cursor-pointer">
                     <div className="flex items-center gap-2">
                       <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                      <span className="font-medium text-slate-900 text-sm">Kaizen Admin approved</span>
+                      <span className="font-medium text-slate-900 text-sm">KaizenAdmin approved</span>
                     </div>
-                    <p className="text-xs text-slate-500 pl-4">Your requisition #REQ-001 has been approved</p>
+                    <p className="text-xs text-slate-500 pl-4">Your kaizenAdmin #REQ-001 has been approved</p>
                     <span className="text-xs text-slate-400 pl-4">2 hours ago</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -454,7 +454,7 @@ export function ApplicationShell({ children, className }: ApplicationShellProps)
                       <div className="h-2 w-2 rounded-full bg-blue-500"></div>
                       <span className="font-medium text-slate-900 text-sm">New comment</span>
                     </div>
-                    <p className="text-xs text-slate-500 pl-4">John commented on requisition #REQ-003</p>
+                    <p className="text-xs text-slate-500 pl-4">John commented on kaizenAdmin #REQ-003</p>
                     <span className="text-xs text-slate-400 pl-4">Yesterday</span>
                   </DropdownMenuItem>
                 </div>

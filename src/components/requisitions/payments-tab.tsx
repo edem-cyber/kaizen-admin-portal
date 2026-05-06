@@ -28,7 +28,7 @@ import { RecordPaymentDialog } from "@/components/payments/record-payment-dialog
 import { cn } from "@/lib/utils";
 
 interface PaymentsTabProps {
-  requisitionId: string;
+  kaizenAdminId: string;
   currency?: string;
 }
 
@@ -58,7 +58,7 @@ function formatDateTime(iso: string): string {
   });
 }
 
-export function PaymentsTab({ requisitionId, currency = "GHS" }: PaymentsTabProps) {
+export function PaymentsTab({ kaizenAdminId, currency = "GHS" }: PaymentsTabProps) {
   const [history, setHistory] = useState<PaymentHistory | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isRecordOpen, setIsRecordOpen] = useState(false);
@@ -66,14 +66,14 @@ export function PaymentsTab({ requisitionId, currency = "GHS" }: PaymentsTabProp
   const refresh = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = await getPaymentHistory(requisitionId);
+      const data = await getPaymentHistory(kaizenAdminId);
       setHistory(data);
     } catch (err) {
       toast.error(extractErrorMessage(err, "Failed to load payment history"));
     } finally {
       setIsLoading(false);
     }
-  }, [requisitionId]);
+  }, [kaizenAdminId]);
 
   useEffect(() => {
     void refresh();
@@ -143,7 +143,7 @@ export function PaymentsTab({ requisitionId, currency = "GHS" }: PaymentsTabProp
             <Receipt className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
             <p className="text-sm font-medium">No payments recorded yet</p>
             <p className="text-xs text-muted-foreground mt-1">
-              Payments recorded against this requisition will appear here.
+              Payments recorded against this kaizenAdmin will appear here.
             </p>
           </div>
         ) : (
@@ -162,7 +162,7 @@ export function PaymentsTab({ requisitionId, currency = "GHS" }: PaymentsTabProp
       <RecordPaymentDialog
         open={isRecordOpen}
         onOpenChange={setIsRecordOpen}
-        requisitionId={requisitionId}
+        kaizenAdminId={kaizenAdminId}
         currency={currency}
         amountRemaining={history?.amount_remaining}
         onRecorded={() => {

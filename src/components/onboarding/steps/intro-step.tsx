@@ -198,10 +198,10 @@ export function IntroStep({ organizationId, initialAnswers, onComplete }: IntroS
           <div className="rounded-lg border p-4 flex items-start justify-between gap-4">
             <div>
               <Label htmlFor="enforce_budgets" className="text-sm font-medium">
-                Enforce budget checks on requisitions?
+                Enforce budget checks on kaizenAdmins?
               </Label>
               <p className="text-xs text-muted-foreground mt-1">
-                Requires each requisition to reference a budget line. We&rsquo;ll walk you
+                Requires each kaizenAdmin to reference a budget line. We&rsquo;ll walk you
                 through creating a fiscal year and one budget during setup.
               </p>
             </div>
@@ -220,7 +220,7 @@ export function IntroStep({ organizationId, initialAnswers, onComplete }: IntroS
                 Use a committee to review large purchases?
               </Label>
               <p className="text-xs text-muted-foreground mt-1">
-                If off, every requisition goes straight to the assigned approver. You can turn
+                If off, every kaizenAdmin goes straight to the assigned approver. You can turn
                 this on later from Configuration.
               </p>
             </div>

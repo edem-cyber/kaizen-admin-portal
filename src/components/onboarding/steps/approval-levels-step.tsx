@@ -21,8 +21,8 @@ import { cn } from "@/lib/utils";
 import {
   useCreateApprovalLevelApiV1ConfigurationApprovalLevelsPost,
   useGetApprovalLevelsApiV1ConfigurationApprovalLevelsGet,
-} from "@/lib/generated/requisition/configuration-v1/configuration-v1";
-import { ApprovalLevelApprovalType } from "@/lib/generated/requisition/models";
+} from "@/lib/generated/kaizenAdmin/configuration-v1/configuration-v1";
+import { ApprovalLevelApprovalType } from "@/lib/generated/kaizenAdmin/models";
 import { useGetOrganizationRoles } from "@/lib/generated/user/organization-roles/organization-roles";
 import { useGetUsers } from "@/lib/generated/user/users/users";
 import { extractErrorMessage } from "@/lib/api-error";
@@ -455,9 +455,9 @@ export function ApprovalLevelsStep({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Choose who approves requisitions</CardTitle>
+        <CardTitle>Choose who approves kaizenAdmins</CardTitle>
         <CardDescription>
-          Pick one approver to handle every requisition, or tier approvers by amount so larger
+          Pick one approver to handle every kaizenAdmin, or tier approvers by amount so larger
           requests go to more senior reviewers.
         </CardDescription>
       </CardHeader>

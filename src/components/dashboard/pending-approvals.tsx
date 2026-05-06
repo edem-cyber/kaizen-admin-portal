@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useGetPendingApprovalsApiV1ApprovalsPendingGet } from "@/lib/generated/requisition/approvals-v1/approvals-v1";
+import { useGetPendingApprovalsApiV1ApprovalsPendingGet } from "@/lib/generated/kaizenAdmin/approvals-v1/approvals-v1";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Eye, CheckCircle2 } from "lucide-react";
@@ -39,14 +39,14 @@ export function PendingApprovals() {
                     <div className="flex flex-col items-center justify-center py-8 text-center bg-muted/30 rounded-lg border border-dashed">
                         <CheckCircle2 className="h-8 w-8 text-muted-foreground mb-2" />
                         <p className="text-sm font-medium">All caught up!</p>
-                        <p className="text-xs text-muted-foreground">No requisitions pending your approval.</p>
+                        <p className="text-xs text-muted-foreground">No kaizenAdmins pending your approval.</p>
                     </div>
                 ) : (
                     <div className="space-y-4">
                         {items.slice(0, 5).map((item) => (
                             <div key={item.id} className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
                                 <div className="flex flex-col">
-                                    <span className="text-sm font-semibold">{item.title || "Untitled Kaizen Admin"}</span>
+                                    <span className="text-sm font-semibold">{item.title || "Untitled KaizenAdmin"}</span>
                                     <span className="text-xs text-muted-foreground">Requested by {item.requester_name || "Unknown"}</span>
                                 </div>
                                 <div className="flex items-center gap-4">
@@ -55,7 +55,7 @@ export function PendingApprovals() {
                                         <div className="text-[10px] text-muted-foreground">{new Date(item.created_at).toLocaleDateString()}</div>
                                     </div>
                                     <Button variant="ghost" size="icon" asChild>
-                                        <Link href={`/requisitions/${item.requisition_id}`}>
+                                        <Link href={`/kaizenAdmins/${item.kaizenAdmin_id}`}>
                                             <Eye className="h-4 w-4" />
                                         </Link>
                                     </Button>

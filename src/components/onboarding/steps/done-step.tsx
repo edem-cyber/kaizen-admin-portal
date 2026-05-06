@@ -21,7 +21,7 @@ export function DoneStep({ onFinish, onBack, backLabel }: DoneStepProps) {
           <div>
             <CardTitle>You&rsquo;re all set</CardTitle>
             <CardDescription>
-              Your organization is configured. Go ahead and create your first requisition.
+              Your organization is configured. Go ahead and create your first kaizenAdmin.
             </CardDescription>
           </div>
         </div>

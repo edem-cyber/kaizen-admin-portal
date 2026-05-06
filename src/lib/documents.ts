@@ -1,4 +1,4 @@
-import { requisitionRequest } from "./api-client";
+import { kaizenAdminRequest } from "./api-client";
 
 export interface DocumentListItem {
   id?: string;
@@ -27,7 +27,7 @@ export async function downloadDocument(
   documentId: string,
   fallbackFilename: string,
 ): Promise<void> {
-  const blob = await requisitionRequest<Blob>({
+  const blob = await kaizenAdminRequest<Blob>({
     url: `/api/v1/documents/${documentId}/download`,
     method: "GET",
     responseType: "blob",

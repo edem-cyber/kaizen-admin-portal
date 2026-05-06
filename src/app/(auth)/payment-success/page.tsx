@@ -11,7 +11,7 @@ import { confetti } from "@/lib/confetti";
 import { useAuthStore } from "@/stores/auth-store";
 
 // Session storage key for payment grace period
-const PAYMENT_GRACE_KEY = "requisition_payment_grace";
+const PAYMENT_GRACE_KEY = "kaizenAdmin_payment_grace";
 const PAYMENT_GRACE_DURATION = 10 * 60 * 1000; // 10 minutes grace period
 
 function PaymentSuccessContent() {
@@ -144,7 +144,7 @@ function PaymentSuccessContent() {
             <Link href="/" className="inline-block mb-8">
               <Image
                 src="/logovar6.svg"
-                alt="Kaizen Admin"
+                alt="KaizenAdmin"
                 width={80}
                 height={80}
                 className="h-16 w-auto mx-auto"

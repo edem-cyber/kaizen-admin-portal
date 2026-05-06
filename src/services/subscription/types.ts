@@ -1,4 +1,4 @@
-// Subscription Types for Kaizen Admin Web
+// Subscription Types for KaizenAdmin Web
 
 export interface ServicePackage {
     id: string | number;
@@ -8,7 +8,7 @@ export interface ServicePackage {
     currency?: string;
     billingCycle: "monthly" | "yearly";
     maxUsers: number; // -1 for unlimited
-    maxKaizen Admins: number; // -1 for unlimited
+    maxKaizenAdmins: number; // -1 for unlimited
     features: string[];
     type: "STANDARD" | "CUSTOM";
     recurring: boolean;

@@ -29,10 +29,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import {
-    useApproveKaizen AdminApiV1ApprovalsKaizen AdminsKaizen AdminIdApprovePost,
-    useRejectKaizen AdminApiV1ApprovalsKaizen AdminsKaizen AdminIdRejectPost,
-    useReturnForModificationApiV1ApprovalsKaizen AdminsKaizen AdminIdReturnPost,
-} from "@/lib/generated/requisition/approvals-v1/approvals-v1";
+    useApproveKaizenAdminApiV1ApprovalsKaizenAdminsKaizenAdminIdApprovePost,
+    useRejectKaizenAdminApiV1ApprovalsKaizenAdminsKaizenAdminIdRejectPost,
+    useReturnForModificationApiV1ApprovalsKaizenAdminsKaizenAdminIdReturnPost,
+} from "@/lib/generated/kaizenAdmin/approvals-v1/approvals-v1";
 import { useQueryClient } from "@tanstack/react-query";
 import { extractErrorMessage } from "@/lib/api-error";
 import { Can, PERMISSION, useAuthorization } from "@/lib/authorization";
@@ -55,26 +55,26 @@ const ACTION_COPY: Record<
     }
 > = {
     approve: {
-        title: "Approve requisition?",
+        title: "Approve kaizenAdmin?",
         description: (title) => `Approve "${title}". Add an optional comment that will be visible on the approval chain.`,
         confirmLabel: "Approve",
         inputLabel: "Comments (optional)",
         inputPlaceholder: "e.g. Looks good — cleared with finance.",
         inputRequired: false,
         buttonClass: "bg-green-600 hover:bg-green-700 text-white",
-        successMessage: "Kaizen Admin approved",
-        errorFallback: "Failed to approve requisition",
+        successMessage: "KaizenAdmin approved",
+        errorFallback: "Failed to approve kaizenAdmin",
     },
     reject: {
-        title: "Reject requisition?",
+        title: "Reject kaizenAdmin?",
         description: (title) => `Reject "${title}". The requester will be notified with your reason.`,
         confirmLabel: "Reject",
         inputLabel: "Reason",
-        inputPlaceholder: "Why are you rejecting this requisition?",
+        inputPlaceholder: "Why are you rejecting this kaizenAdmin?",
         inputRequired: true,
         buttonClass: "bg-red-600 hover:bg-red-700 text-white",
-        successMessage: "Kaizen Admin rejected",
-        errorFallback: "Failed to reject requisition",
+        successMessage: "KaizenAdmin rejected",
+        errorFallback: "Failed to reject kaizenAdmin",
     },
     return: {
         title: "Return for modification?",
@@ -85,7 +85,7 @@ const ACTION_COPY: Record<
         inputRequired: true,
         buttonClass: "bg-amber-600 hover:bg-amber-700 text-white",
         successMessage: "Returned for modification",
-        errorFallback: "Failed to return requisition",
+        errorFallback: "Failed to return kaizenAdmin",
     },
 };
 
@@ -103,10 +103,10 @@ export function ApprovalCard({ approval, isHistory = false }: ApprovalCardProps)
     const canRecordPayment =
         isHistory &&
         hasPermission(PERMISSION.PAYMENTS_WRITE) &&
-        String(approval.requisition_status ?? "").toLowerCase() === "approved";
+        String(approval.kaizenAdmin_status ?? "").toLowerCase() === "approved";
 
-    const nested = approval.requisition || {};
-    const requisitionId = approval.requisition_id || approval.id;
+    const nested = approval.kaizenAdmin || {};
+    const kaizenAdminId = approval.kaizenAdmin_id || approval.id;
 
     const currentStepName =
         typeof approval.current_step === "object" && approval.current_step !== null
@@ -118,11 +118,11 @@ export function ApprovalCard({ approval, isHistory = false }: ApprovalCardProps)
     const view = {
         title:
             approval.title ??
-            approval.requisition_title ??
+            approval.kaizenAdmin_title ??
             nested.title ??
-            "Untitled Kaizen Admin",
-        requisition_number:
-            approval.requisition_number ?? nested.requisition_number ?? null,
+            "Untitled KaizenAdmin",
+        kaizenAdmin_number:
+            approval.kaizenAdmin_number ?? nested.kaizenAdmin_number ?? null,
         requester:
             approval.requester ??
             approval.requester_name ??
@@ -152,9 +152,9 @@ export function ApprovalCard({ approval, isHistory = false }: ApprovalCardProps)
         queryClient.invalidateQueries({ queryKey: ["/api/v1/approvals/history"] });
     };
 
-    const approveMutation = useApproveKaizen AdminApiV1ApprovalsKaizen AdminsKaizen AdminIdApprovePost();
-    const rejectMutation = useRejectKaizen AdminApiV1ApprovalsKaizen AdminsKaizen AdminIdRejectPost();
-    const returnMutation = useReturnForModificationApiV1ApprovalsKaizen AdminsKaizen AdminIdReturnPost();
+    const approveMutation = useApproveKaizenAdminApiV1ApprovalsKaizenAdminsKaizenAdminIdApprovePost();
+    const rejectMutation = useRejectKaizenAdminApiV1ApprovalsKaizenAdminsKaizenAdminIdRejectPost();
+    const returnMutation = useReturnForModificationApiV1ApprovalsKaizenAdminsKaizenAdminIdReturnPost();
 
     const activeMutation =
         action === "approve"
@@ -184,17 +184,17 @@ export function ApprovalCard({ approval, isHistory = false }: ApprovalCardProps)
         try {
             if (action === "approve") {
                 await approveMutation.mutateAsync({
-                    requisitionId,
+                    kaizenAdminId,
                     params: trimmed ? { comments: trimmed } : undefined,
                 });
             } else if (action === "reject") {
                 await rejectMutation.mutateAsync({
-                    requisitionId,
+                    kaizenAdminId,
                     params: { reason: trimmed },
                 });
             } else if (action === "return") {
                 await returnMutation.mutateAsync({
-                    requisitionId,
+                    kaizenAdminId,
                     params: { reason: trimmed },
                 });
             }
@@ -286,7 +286,7 @@ export function ApprovalCard({ approval, isHistory = false }: ApprovalCardProps)
                                 </h3>
                                 {getPriorityBadge(view.priority)}
                                 {isHistory && getStatusBadge()}
-                                {isHistory && approval.requisition_status && (
+                                {isHistory && approval.kaizenAdmin_status && (
                                     <span
                                         className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs ${
                                             approval.is_terminal
@@ -295,12 +295,12 @@ export function ApprovalCard({ approval, isHistory = false }: ApprovalCardProps)
                                         }`}
                                         title={
                                             approval.is_terminal
-                                                ? "Kaizen Admin has reached a final state"
-                                                : "Kaizen Admin is still in flight"
+                                                ? "KaizenAdmin has reached a final state"
+                                                : "KaizenAdmin is still in flight"
                                         }
                                     >
                                         {!approval.is_terminal && <Clock className="h-3 w-3" />}
-                                        Current: {String(approval.requisition_status).replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
+                                        Current: {String(approval.kaizenAdmin_status).replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
                                     </span>
                                 )}
                             </div>
@@ -316,7 +316,7 @@ export function ApprovalCard({ approval, isHistory = false }: ApprovalCardProps)
                                 {formatCurrency(view.total_amount, view.currency)}
                             </div>
                             <div className="mt-1 text-xs text-muted-foreground font-mono">
-                                {view.requisition_number || `#${requisitionId?.toString().slice(0, 8)}`}
+                                {view.kaizenAdmin_number || `#${kaizenAdminId?.toString().slice(0, 8)}`}
                             </div>
                         </div>
                     </div>
@@ -358,7 +358,7 @@ export function ApprovalCard({ approval, isHistory = false }: ApprovalCardProps)
                 <CardFooter className="bg-muted/50 flex justify-between items-center gap-3 flex-wrap">
                     <div className="flex items-center gap-2 flex-wrap">
                         <Link
-                            href={`/requisitions/${requisitionId}?from=approvals${isHistory ? "&tab=history" : ""}`}
+                            href={`/kaizenAdmins/${kaizenAdminId}?from=approvals${isHistory ? "&tab=history" : ""}`}
                         >
                             <Button variant="outline">
                                 View Details
@@ -406,7 +406,7 @@ export function ApprovalCard({ approval, isHistory = false }: ApprovalCardProps)
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem asChild>
-                                    <Link href={`/requisitions/${requisitionId}/discussion`}>
+                                    <Link href={`/kaizenAdmins/${kaizenAdminId}/discussion`}>
                                         <MessageSquare className="mr-2 h-4 w-4" />
                                         Open Discussion
                                     </Link>
@@ -430,7 +430,7 @@ export function ApprovalCard({ approval, isHistory = false }: ApprovalCardProps)
                                 <DialogTitle>{ACTION_COPY[action].title}</DialogTitle>
                                 <DialogDescription>
                                     {ACTION_COPY[action].description(
-                                        view.title || "this requisition",
+                                        view.title || "this kaizenAdmin",
                                     )}
                                 </DialogDescription>
                             </DialogHeader>
@@ -479,7 +479,7 @@ export function ApprovalCard({ approval, isHistory = false }: ApprovalCardProps)
                 <RecordPaymentDialog
                     open={isPaymentOpen}
                     onOpenChange={setIsPaymentOpen}
-                    requisitionId={requisitionId}
+                    kaizenAdminId={kaizenAdminId}
                     currency={view.currency || "GHS"}
                     onRecorded={() => setIsPaymentOpen(false)}
                 />

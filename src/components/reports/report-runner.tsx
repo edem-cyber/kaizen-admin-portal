@@ -15,7 +15,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Download, FileSpreadsheet, Loader2, Play } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { useListFiscalYearsApiV1BudgetFiscalYearsGet } from "@/lib/generated/requisition/budget-v1/budget-v1";
+import { useListFiscalYearsApiV1BudgetFiscalYearsGet } from "@/lib/generated/kaizenAdmin/budget-v1/budget-v1";
 import { extractItems } from "@/lib/list-response";
 import type { FilterDefinition, ReportDescriptor } from "@/lib/reports/catalog";
 import {
@@ -145,7 +145,7 @@ export function ReportRunner({ descriptor }: ReportRunnerProps) {
     }
   };
 
-  // No fiscal years configured → CTA (same pattern as requisition form)
+  // No fiscal years configured → CTA (same pattern as kaizenAdmin form)
   if (!isLoadingFY && fiscalYears.length === 0 && needsFY) {
     return (
       <div className="rounded-lg border border-dashed p-8 text-center">

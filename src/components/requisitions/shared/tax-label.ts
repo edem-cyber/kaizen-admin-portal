@@ -1,6 +1,6 @@
 /**
  * Return the "(incl. tax)" / "(excl. tax)" suffix to append to amount
- * labels per Kaizen Admin_Form_Selection.md §"Accounting fine-grained
+ * labels per KaizenAdmin_Form_Selection.md §"Accounting fine-grained
  * rules". Matches the generated TaxInclusion enum values ("included"
  * / "excluded") exactly, with a case-insensitive fallback for
  * resilience. Returns empty string for null/undefined/unrecognised

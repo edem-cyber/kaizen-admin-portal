@@ -15,16 +15,16 @@ interface UIState {
   closeModal: (modalId: string) => void;
   isModalOpen: (modalId: string) => boolean;
 
-  // Kaizen Admin filters (persisted across sessions)
-  requisitionFilters: {
+  // KaizenAdmin filters (persisted across sessions)
+  kaizenAdminFilters: {
     status?: string;
     search?: string;
     dateFrom?: string;
     dateTo?: string;
     category?: string;
   };
-  setKaizen AdminFilters: (filters: Partial<UIState['requisitionFilters']>) => void;
-  clearKaizen AdminFilters: () => void;
+  setKaizenAdminFilters: (filters: Partial<UIState['kaizenAdminFilters']>) => void;
+  clearKaizenAdminFilters: () => void;
 
   // Approval filters
   approvalFilters: {
@@ -65,13 +65,13 @@ export const useUIStore = create<UIState>()(
         }),
       isModalOpen: (modalId) => get().modals[modalId] || false,
 
-      // Kaizen Admin filters
-      requisitionFilters: {},
-      setKaizen AdminFilters: (filters) =>
+      // KaizenAdmin filters
+      kaizenAdminFilters: {},
+      setKaizenAdminFilters: (filters) =>
         set((state) => ({
-          requisitionFilters: { ...state.requisitionFilters, ...filters },
+          kaizenAdminFilters: { ...state.kaizenAdminFilters, ...filters },
         })),
-      clearKaizen AdminFilters: () => set({ requisitionFilters: {} }),
+      clearKaizenAdminFilters: () => set({ kaizenAdminFilters: {} }),
 
       // Approval filters
       approvalFilters: {},
@@ -93,7 +93,7 @@ export const useUIStore = create<UIState>()(
       name: 'ui-storage',
       partialize: (state) => ({
         sidebarOpen: state.sidebarOpen,
-        requisitionFilters: state.requisitionFilters,
+        kaizenAdminFilters: state.kaizenAdminFilters,
         approvalFilters: state.approvalFilters,
         vendorFilters: state.vendorFilters,
       }),

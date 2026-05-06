@@ -269,7 +269,7 @@ export default function AdminLayout({ children }: AdminShellProps) {
                     />
                   </div>
                   <div className="flex flex-col gap-0.5 leading-none">
-                    <span className="font-semibold text-slate-900">Kaizen Admin</span>
+                    <span className="font-semibold text-slate-900">KaizenAdmin</span>
                     <span className="text-xs text-slate-500">Admin Portal</span>
                   </div>
                 </Link>

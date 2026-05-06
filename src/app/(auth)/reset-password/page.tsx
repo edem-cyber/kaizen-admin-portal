@@ -78,7 +78,7 @@ function ResetPasswordContent() {
             <Link href="/" className="inline-flex items-center justify-center mb-6">
               <Image
                 src="/logovar6.svg"
-                alt="Kaizen Admin"
+                alt="KaizenAdmin"
                 width={48}
                 height={48}
                 className="h-12 w-auto"

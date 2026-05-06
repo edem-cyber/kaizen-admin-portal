@@ -1,12 +1,12 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useGetKaizen AdminCountsApiV1Kaizen AdminsCountsGet } from "@/lib/generated/requisition/requisitions-v1/requisitions-v1";
+import { useGetKaizenAdminCountsApiV1KaizenAdminsCountsGet } from "@/lib/generated/kaizenAdmin/kaizenAdmins-v1/kaizenAdmins-v1";
 import { FileText, Clock, CheckCircle, XCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function DashboardStats() {
-    const { data: counts, isLoading } = useGetKaizen AdminCountsApiV1Kaizen AdminsCountsGet();
+    const { data: counts, isLoading } = useGetKaizenAdminCountsApiV1KaizenAdminsCountsGet();
 
     if (isLoading) {
         return (
@@ -20,7 +20,7 @@ export function DashboardStats() {
 
     const stats = [
         {
-            title: "Total Kaizen Admins",
+            title: "Total KaizenAdmins",
             value: counts?.total || 0,
             icon: FileText,
             color: "text-blue-600",

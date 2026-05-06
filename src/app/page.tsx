@@ -55,19 +55,19 @@ function FAQAccordion() {
 
   const faqs = [
     {
-      question: "Is Kaizen Admin free?",
-      answer: "Kaizen Admin offers a free tier for small teams to get started. For larger organizations with advanced features like multi-level approvals, custom workflows, and priority support, we offer flexible pricing plans. Contact us to learn more about our enterprise solutions.",
+      question: "Is KaizenAdmin free?",
+      answer: "KaizenAdmin offers a free tier for small teams to get started. For larger organizations with advanced features like multi-level approvals, custom workflows, and priority support, we offer flexible pricing plans. Contact us to learn more about our enterprise solutions.",
     },
     {
-      question: "Can I use Kaizen Admin as a solo business owner?",
-      answer: "Absolutely! Kaizen Admin is designed to scale with your business. Solo business owners can use it to track expenses, manage vendor relationships, and maintain records. As your business grows, you can easily add team members and implement approval workflows.",
+      question: "Can I use KaizenAdmin as a solo business owner?",
+      answer: "Absolutely! KaizenAdmin is designed to scale with your business. Solo business owners can use it to track expenses, manage vendor relationships, and maintain records. As your business grows, you can easily add team members and implement approval workflows.",
     },
     {
-      question: "Is Kaizen Admin for large companies?",
-      answer: "Yes, Kaizen Admin is built to handle the needs of large enterprises. We support multi-level approval workflows, role-based access control, budget management across departments, and integration with existing ERP systems. Our enterprise plans include dedicated support and custom configurations.",
+      question: "Is KaizenAdmin for large companies?",
+      answer: "Yes, KaizenAdmin is built to handle the needs of large enterprises. We support multi-level approval workflows, role-based access control, budget management across departments, and integration with existing ERP systems. Our enterprise plans include dedicated support and custom configurations.",
     },
     {
-      question: "How much does Kaizen Admin cost?",
+      question: "How much does KaizenAdmin cost?",
       answer: "Pricing depends on your team size and feature requirements. We offer a free tier for small teams, with paid plans starting at competitive rates. Enterprise pricing is customized based on your specific needs. Schedule a demo to get a personalized quote for your organization.",
     },
     {
@@ -167,10 +167,10 @@ export default function HomePage() {
         
         <div className="relative z-10 max-w-5xl mx-auto text-center mt-20">
           <h1 className="text-4xl md:text-[4.5rem] lg:text-[5.5rem] font-bold tracking-tight text-black leading-[0.95] text-balance mb-8">
-            Kaizen Admin <br className="hidden md:block" /> management <br className="hidden md:block" /> that just works.
+            KaizenAdmin <br className="hidden md:block" /> management <br className="hidden md:block" /> that just works.
           </h1>
           <p className="mt-8 text-lg md:text-xl text-[#4A4A4A] max-w-2xl mx-auto font-medium leading-relaxed">
-            Kaizen Admin makes it easier for you and your employees to run your commerce business in a single place.
+            KaizenAdmin makes it easier for you and your employees to run your commerce business in a single place.
           </p>
 
           <div className="mt-12 flex flex-col sm:flex-row gap-5 justify-center items-center">
@@ -201,7 +201,7 @@ export default function HomePage() {
             <div className="overflow-hidden aspect-16/10 bg-transparent">
               <Image
                 src="/showcase.png"
-                alt="Kaizen Admin Dashboard"
+                alt="KaizenAdmin Dashboard"
                 width={1600}
                 height={1200}
                 className="w-full h-full object-contain"
@@ -218,7 +218,7 @@ export default function HomePage() {
       <section className="relative z-10 w-full max-w-6xl mx-auto px-6 min-h-screen flex flex-col justify-center">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-black mb-3">
-            Your complete requisition operating system.
+            Your complete kaizenAdmin operating system.
           </h2>
         </div>
 
@@ -229,9 +229,9 @@ export default function HomePage() {
                 <FileText className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-bold text-black mb-2">Kaizen Admin Management</h3>
+                <h3 className="text-lg font-bold text-black mb-2">KaizenAdmin Management</h3>
                 <p className="text-sm text-[#4A4A4A] leading-relaxed">
-                  Create, track, and manage requisitions through their entire lifecycle with real-time status updates. Support for drafts, submissions, revisions, and comprehensive audit trails.
+                  Create, track, and manage kaizenAdmins through their entire lifecycle with real-time status updates. Support for drafts, submissions, revisions, and comprehensive audit trails.
                 </p>
               </div>
             </div>

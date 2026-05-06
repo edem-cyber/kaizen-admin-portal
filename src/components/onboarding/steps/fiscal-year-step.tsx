@@ -14,8 +14,8 @@ import { cn } from "@/lib/utils";
 import {
   useCreateFiscalYearApiV1BudgetFiscalYearsPost,
   useGetFiscalYearConfigApiV1BudgetFiscalYearConfigOrganizationIdGet,
-} from "@/lib/generated/requisition/budget-v1/budget-v1";
-import { PeriodType } from "@/lib/generated/requisition/models";
+} from "@/lib/generated/kaizenAdmin/budget-v1/budget-v1";
+import { PeriodType } from "@/lib/generated/kaizenAdmin/models";
 import { extractErrorMessage } from "@/lib/api-error";
 
 interface FiscalYearStepProps {

@@ -1,15 +1,15 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Kaizen AdminCreate } from '@/lib/generated/requisition/models';
+import type { KaizenAdminCreate } from '@/lib/generated/kaizenAdmin/models';
 
 interface FormState {
-  // Draft requisitions (auto-save)
-  draftKaizen Admins: {
-    [key: string]: Partial<Kaizen AdminCreate> & { lastSaved?: string };
+  // Draft kaizenAdmins (auto-save)
+  draftKaizenAdmins: {
+    [key: string]: Partial<KaizenAdminCreate> & { lastSaved?: string };
   };
-  saveDraftKaizen Admin: (id: string, data: Partial<Kaizen AdminCreate>) => void;
-  getDraftKaizen Admin: (id: string) => Partial<Kaizen AdminCreate> | null;
-  clearDraftKaizen Admin: (id: string) => void;
+  saveDraftKaizenAdmin: (id: string, data: Partial<KaizenAdminCreate>) => void;
+  getDraftKaizenAdmin: (id: string) => Partial<KaizenAdminCreate> | null;
+  clearDraftKaizenAdmin: (id: string) => void;
   clearAllDrafts: () => void;
 
   // Form auto-save timestamps
@@ -22,28 +22,28 @@ interface FormState {
 export const useFormStore = create<FormState>()(
   persist(
     (set, get) => ({
-      draftKaizen Admins: {},
-      saveDraftKaizen Admin: (id, data) =>
+      draftKaizenAdmins: {},
+      saveDraftKaizenAdmin: (id, data) =>
         set((state) => ({
-          draftKaizen Admins: {
-            ...state.draftKaizen Admins,
+          draftKaizenAdmins: {
+            ...state.draftKaizenAdmins,
             [id]: {
               ...data,
               lastSaved: new Date().toISOString(),
             },
           },
         })),
-      getDraftKaizen Admin: (id) => {
-        const draft = get().draftKaizen Admins[id];
+      getDraftKaizenAdmin: (id) => {
+        const draft = get().draftKaizenAdmins[id];
         return draft ? { ...draft } : null;
       },
-      clearDraftKaizen Admin: (id) =>
+      clearDraftKaizenAdmin: (id) =>
         set((state) => {
-          const newDrafts = { ...state.draftKaizen Admins };
+          const newDrafts = { ...state.draftKaizenAdmins };
           delete newDrafts[id];
-          return { draftKaizen Admins: newDrafts };
+          return { draftKaizenAdmins: newDrafts };
         }),
-      clearAllDrafts: () => set({ draftKaizen Admins: {} }),
+      clearAllDrafts: () => set({ draftKaizenAdmins: {} }),
 
       lastSaved: {},
       updateLastSaved: (formId) =>
@@ -57,7 +57,7 @@ export const useFormStore = create<FormState>()(
     {
       name: 'form-storage',
       partialize: (state) => ({
-        draftKaizen Admins: state.draftKaizen Admins,
+        draftKaizenAdmins: state.draftKaizenAdmins,
         lastSaved: state.lastSaved,
       }),
     }

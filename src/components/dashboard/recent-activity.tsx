@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useGetApprovalHistoryApiV1ApprovalsHistoryGet } from "@/lib/generated/requisition/approvals-v1/approvals-v1";
+import { useGetApprovalHistoryApiV1ApprovalsHistoryGet } from "@/lib/generated/kaizenAdmin/approvals-v1/approvals-v1";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { History } from "lucide-react";
@@ -52,7 +52,7 @@ export function RecentActivity() {
                                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-primary border-4 border-white shadow"></div>
                                 <div className="flex flex-col">
                                     <span className="text-sm font-medium">{item.action_taken || "Action Taken"}</span>
-                                    <span className="text-xs text-muted-foreground">{item.requisition_title}</span>
+                                    <span className="text-xs text-muted-foreground">{item.kaizenAdmin_title}</span>
                                 </div>
                                 <div className="text-right flex flex-col items-end gap-1">
                                     <Badge variant={getStatusVariant(item.status)} className="capitalize text-[10px]">

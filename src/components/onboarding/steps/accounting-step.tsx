@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 import {
   useGetAccountingConfigurationApiV1ConfigurationOrganizationIdAccountingGet,
   useUpdateAccountingConfigurationApiV1ConfigurationOrganizationIdAccountingPut,
-} from "@/lib/generated/requisition/configuration-v1/configuration-v1";
+} from "@/lib/generated/kaizenAdmin/configuration-v1/configuration-v1";
 import { extractErrorMessage } from "@/lib/api-error";
 import type { IntroAnswers } from "@/lib/onboarding";
 
@@ -134,7 +134,7 @@ export function AccountingStep({
       <CardHeader>
         <CardTitle>Confirm your default currency</CardTitle>
         <CardDescription>
-          This is the currency requisitions and budgets are denominated in. You can add more
+          This is the currency kaizenAdmins and budgets are denominated in. You can add more
           currencies later from Configuration → Accounting.
         </CardDescription>
       </CardHeader>

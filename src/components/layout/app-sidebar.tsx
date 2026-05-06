@@ -51,8 +51,8 @@ const menuItems = [
     icon: LayoutDashboard,
   },
   {
-    title: "Kaizen Admins",
-    url: "/requisitions",
+    title: "KaizenAdmins",
+    url: "/kaizenAdmins",
     icon: FileText,
   },
   {
@@ -89,8 +89,8 @@ export function AppSidebar() {
   const fromApprovals = searchParams.get("from") === "approvals";
 
   const isMenuActive = (itemUrl: string) => {
-    // If viewing a requisition from approvals, keep approvals active
-    if (fromApprovals && pathname?.startsWith("/requisitions/")) {
+    // If viewing a kaizenAdmin from approvals, keep approvals active
+    if (fromApprovals && pathname?.startsWith("/kaizenAdmins/")) {
       return itemUrl === "/approvals";
     }
     // Default behavior
@@ -107,12 +107,12 @@ export function AppSidebar() {
         >
           <Image
             src="/logovar6.svg"
-            alt="Kaizen Admin"
+            alt="KaizenAdmin"
             width={32}
             height={32}
             className="h-8 w-8 flex-shrink-0"
           />
-          <span className="text-sm font-semibold tracking-tight text-slate-900 group-data-[collapsible=icon]:hidden">Kaizen Admin</span>
+          <span className="text-sm font-semibold tracking-tight text-slate-900 group-data-[collapsible=icon]:hidden">KaizenAdmin</span>
         </Link>
       </SidebarHeader>
       <SidebarSeparator />
@@ -175,7 +175,7 @@ export function AppSidebar() {
               <div className="grid grid-cols-3 gap-1">
                 {DEFAULT_APPS.map((app: any) => {
                   const Icon = app.icon;
-                  const isCurrentApp = app.id === "requisition";
+                  const isCurrentApp = app.id === "kaizenAdmin";
                   return (
                     <a
                       key={app.id}

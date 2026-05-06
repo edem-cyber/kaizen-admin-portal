@@ -10,9 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
-import type { BudgetResponse } from "@/lib/generated/requisition/models";
-import { useListFiscalYearsApiV1BudgetFiscalYearsGet, useListBudgetsApiV1BudgetBudgetsGet } from "@/lib/generated/requisition/budget-v1/budget-v1";
-import { useGetAccountingConfigurationApiV1ConfigurationOrganizationIdAccountingGet } from "@/lib/generated/requisition/configuration-v1/configuration-v1";
+import type { BudgetResponse } from "@/lib/generated/kaizenAdmin/models";
+import { useListFiscalYearsApiV1BudgetFiscalYearsGet, useListBudgetsApiV1BudgetBudgetsGet } from "@/lib/generated/kaizenAdmin/budget-v1/budget-v1";
+import { useGetAccountingConfigurationApiV1ConfigurationOrganizationIdAccountingGet } from "@/lib/generated/kaizenAdmin/configuration-v1/configuration-v1";
 import { useGetOrganizationGroups } from "@/lib/generated/org/organization-groups/organization-groups";
 import { extractItems } from "@/lib/list-response";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -395,7 +395,7 @@ export function BudgetForm({
             {...register("auto_approve_threshold")}
           />
           <p className="text-xs text-muted-foreground">
-            Kaizen Admins under this amount skip approval for this budget.
+            KaizenAdmins under this amount skip approval for this budget.
           </p>
           {errors.auto_approve_threshold && (
             <p className="text-xs text-destructive">
@@ -476,7 +476,7 @@ export function BudgetForm({
               Allow overrun
             </Label>
             <p className="text-xs text-muted-foreground">
-              Permit requisitions to exceed this budget&rsquo;s total.
+              Permit kaizenAdmins to exceed this budget&rsquo;s total.
             </p>
           </div>
           <Switch
@@ -522,7 +522,7 @@ export function BudgetForm({
                   Require approval on overrun
                 </Label>
                 <p className="text-xs text-muted-foreground">
-                  Force an additional approval when a requisition goes over budget.
+                  Force an additional approval when a kaizenAdmin goes over budget.
                 </p>
               </div>
               <Switch

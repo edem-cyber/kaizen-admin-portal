@@ -244,7 +244,7 @@ export default function SignupPage() {
           <div className="mx-auto w-full max-w-md space-y-8">
             <div className="text-left">
               <Link href="/" className="inline-flex items-center justify-center mb-8">
-                <Image src="/logovar6.svg" alt="Kaizen Admin" width={100} height={100} className="h-16 w-auto" priority />
+                <Image src="/logovar6.svg" alt="KaizenAdmin" width={100} height={100} className="h-16 w-auto" priority />
               </Link>
               <h1 className="text-4xl font-bold tracking-tight text-black">
                 Create your account

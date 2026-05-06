@@ -14,23 +14,23 @@ import { toast } from "sonner";
 import { Can, PERMISSION } from "@/lib/authorization";
 import {
   createVendorQuote,
-  listQuotesForKaizen Admin,
+  listQuotesForKaizenAdmin,
   type VendorQuote,
   type VendorQuoteCreate,
 } from "@/lib/vendor-quotes";
 import { extractErrorMessage } from "@/lib/api-error";
-import { useListVendorsApiV1VendorsGet } from "@/lib/generated/requisition/vendors-v1/vendors-v1";
+import { useListVendorsApiV1VendorsGet } from "@/lib/generated/kaizenAdmin/vendors-v1/vendors-v1";
 import { extractItems } from "@/lib/list-response";
-import type { Vendor } from "@/lib/generated/requisition/models";
+import type { Vendor } from "@/lib/generated/kaizenAdmin/models";
 import { QuoteCard } from "./quote-card";
 import { QuoteForm } from "./quote-form";
 
 interface QuotesTabProps {
-  requisitionId: string;
+  kaizenAdminId: string;
   defaultCurrency?: string;
 }
 
-export function QuotesTab({ requisitionId, defaultCurrency }: QuotesTabProps) {
+export function QuotesTab({ kaizenAdminId, defaultCurrency }: QuotesTabProps) {
   const [quotes, setQuotes] = useState<VendorQuote[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -50,18 +50,18 @@ export function QuotesTab({ requisitionId, defaultCurrency }: QuotesTabProps) {
   const refresh = useCallback(async () => {
     setIsLoading(true);
     try {
-      const list = await listQuotesForKaizen Admin(requisitionId);
+      const list = await listQuotesForKaizenAdmin(kaizenAdminId);
       setQuotes(list);
     } catch (err) {
       toast.error(extractErrorMessage(err, "Failed to load quotes"));
     } finally {
       setIsLoading(false);
     }
-  }, [requisitionId]);
+  }, [kaizenAdminId]);
 
   useEffect(() => {
-    if (requisitionId) void refresh();
-  }, [requisitionId, refresh]);
+    if (kaizenAdminId) void refresh();
+  }, [kaizenAdminId, refresh]);
 
   const handleCreate = async (payload: VendorQuoteCreate) => {
     setIsSubmitting(true);
@@ -83,7 +83,7 @@ export function QuotesTab({ requisitionId, defaultCurrency }: QuotesTabProps) {
         <div>
           <h2 className="text-lg font-semibold">Vendor Quotes</h2>
           <p className="text-sm text-muted-foreground">
-            Compare proposals and select a vendor for this requisition.
+            Compare proposals and select a vendor for this kaizenAdmin.
           </p>
         </div>
         <Can permission={PERMISSION.VENDORS_WRITE}>
@@ -113,7 +113,7 @@ export function QuotesTab({ requisitionId, defaultCurrency }: QuotesTabProps) {
             <QuoteCard
               key={q.id}
               quote={q}
-              requisitionId={requisitionId}
+              kaizenAdminId={kaizenAdminId}
               vendorNameById={vendorNameById}
               defaultCurrency={defaultCurrency}
               onChanged={refresh}
@@ -133,11 +133,11 @@ export function QuotesTab({ requisitionId, defaultCurrency }: QuotesTabProps) {
             <DialogTitle>Add Vendor Quote</DialogTitle>
             <DialogDescription>
               Record a vendor&rsquo;s pricing, terms, and delivery details for this
-              requisition.
+              kaizenAdmin.
             </DialogDescription>
           </DialogHeader>
           <QuoteForm
-            requisitionId={requisitionId}
+            kaizenAdminId={kaizenAdminId}
             defaultCurrency={defaultCurrency}
             isSubmitting={isSubmitting}
             onSubmit={handleCreate}

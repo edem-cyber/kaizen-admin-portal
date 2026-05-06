@@ -29,8 +29,8 @@ import {
   useCreateFiscalYearConfigApiV1BudgetFiscalYearConfigPost,
   useGetFiscalYearConfigApiV1BudgetFiscalYearConfigOrganizationIdGet,
   useUpdateFiscalYearConfigApiV1BudgetFiscalYearConfigConfigIdPut,
-} from "@/lib/generated/requisition/budget-v1/budget-v1";
-import { PeriodType } from "@/lib/generated/requisition/models";
+} from "@/lib/generated/kaizenAdmin/budget-v1/budget-v1";
+import { PeriodType } from "@/lib/generated/kaizenAdmin/models";
 import { extractErrorMessage } from "@/lib/api-error";
 import type { IntroAnswers } from "@/lib/onboarding";
 

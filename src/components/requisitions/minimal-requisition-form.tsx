@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AlertCircle, Paperclip, Download, X, Undo2 } from "lucide-react";
-import { useListVendorCategoriesApiV1VendorsCategoriesGet } from "@/lib/generated/requisition/vendors-v1/vendors-v1";
+import { useListVendorCategoriesApiV1VendorsCategoriesGet } from "@/lib/generated/kaizenAdmin/vendors-v1/vendors-v1";
 import {
   downloadDocument,
   readDocumentFields,
@@ -25,7 +25,7 @@ import {
 } from "@/lib/documents";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import type { PolicyConfiguration } from "@/lib/generated/requisition/models";
+import type { PolicyConfiguration } from "@/lib/generated/kaizenAdmin/models";
 import {
   applyAmountThresholds,
   computeVendorPolicyRules,
@@ -42,7 +42,7 @@ import { AccountingReferenceFields } from "./shared/accounting-references-fields
 const DEFAULT_CURRENCY_FALLBACK = "USD";
 
 /**
- * Minimal-mode requisition schema per Kaizen Admin_Form_Selection.md §"Minimal-form request body".
+ * Minimal-mode kaizenAdmin schema per KaizenAdmin_Form_Selection.md §"Minimal-form request body".
  * Used when `accounting_config.require_budget_lines === false`.
  *
  * Required: title, description.
@@ -51,10 +51,10 @@ const DEFAULT_CURRENCY_FALLBACK = "USD";
  * Must NOT send budget_lines — handled by the caller's submit handler by omission.
  *
  * `allowPastDeliveryDate` relaxes the future-only refine for edit flows —
- * an existing requisition's stored delivery_date may legitimately be in the
+ * an existing kaizenAdmin's stored delivery_date may legitimately be in the
  * past, and we don't want to block the user from saving unrelated edits.
  */
-interface MinimalKaizen AdminSchemaConfig {
+interface MinimalKaizenAdminSchemaConfig {
   allowPastDeliveryDate?: boolean;
   requireGlAccount?: boolean;
   requireProjectCode?: boolean;
@@ -71,13 +71,13 @@ interface MinimalKaizen AdminSchemaConfig {
   initialCurrency?: string;
 }
 
-function buildMinimalKaizen AdminSchema({
+function buildMinimalKaizenAdminSchema({
   allowPastDeliveryDate = false,
   requireGlAccount = false,
   requireProjectCode = false,
   supportedCurrencies,
   initialCurrency,
-}: MinimalKaizen AdminSchemaConfig) {
+}: MinimalKaizenAdminSchemaConfig) {
   return z.object({
     title: z
       .string()
@@ -131,25 +131,25 @@ function buildMinimalKaizen AdminSchema({
   });
 }
 
-const minimalKaizen AdminSchema = buildMinimalKaizen AdminSchema({
+const minimalKaizenAdminSchema = buildMinimalKaizenAdminSchema({
   allowPastDeliveryDate: false,
   requireGlAccount: false,
   requireProjectCode: false,
 });
 
-export type MinimalKaizen AdminFormValues = z.infer<typeof minimalKaizen AdminSchema>;
+export type MinimalKaizenAdminFormValues = z.infer<typeof minimalKaizenAdminSchema>;
 
-export interface MinimalKaizen AdminFormSubmitExtras {
+export interface MinimalKaizenAdminFormSubmitExtras {
   newFiles: File[];
   deleteAttachmentIds: string[];
 }
 
-interface MinimalKaizen AdminFormProps {
-  initialData?: Partial<MinimalKaizen AdminFormValues>;
+interface MinimalKaizenAdminFormProps {
+  initialData?: Partial<MinimalKaizenAdminFormValues>;
   existingAttachments?: DocumentListItem[];
   onSubmit: (
-    data: MinimalKaizen AdminFormValues,
-    extras: MinimalKaizen AdminFormSubmitExtras,
+    data: MinimalKaizenAdminFormValues,
+    extras: MinimalKaizenAdminFormSubmitExtras,
   ) => void;
   onCancel: () => void;
   isLoading?: boolean;
@@ -165,7 +165,7 @@ interface MinimalKaizen AdminFormProps {
   taxInclusion?: string | null;
   /**
    * Relax the "delivery_date must be in the future" refine. Set to true
-   * for edit flows where an existing requisition's stored delivery_date
+   * for edit flows where an existing kaizenAdmin's stored delivery_date
    * may already be in the past — otherwise the user can't save any
    * edits until they change the date.
    */
@@ -192,7 +192,7 @@ function formatBytes(bytes?: number): string {
   return `${n.toFixed(n < 10 && i > 0 ? 1 : 0)} ${units[i]}`;
 }
 
-export function MinimalKaizen AdminForm({
+export function MinimalKaizenAdminForm({
   initialData,
   existingAttachments = [],
   onSubmit,
@@ -208,7 +208,7 @@ export function MinimalKaizen AdminForm({
   requireGlAccount = false,
   requireProjectCode = false,
   submitLabel,
-}: MinimalKaizen AdminFormProps) {
+}: MinimalKaizenAdminFormProps) {
   const baseRules: VendorPolicyRules = useMemo(
     () => computeVendorPolicyRules(policyConfig),
     [policyConfig],
@@ -217,7 +217,7 @@ export function MinimalKaizen AdminForm({
   const supportedCurrenciesKey = (supportedCurrencies ?? []).join(",");
   const schema = useMemo(
     () =>
-      buildMinimalKaizen AdminSchema({
+      buildMinimalKaizenAdminSchema({
         allowPastDeliveryDate,
         requireGlAccount,
         requireProjectCode,
@@ -272,7 +272,7 @@ export function MinimalKaizen AdminForm({
     setValue,
     watch,
     formState: { errors },
-  } = useForm<MinimalKaizen AdminFormValues>({
+  } = useForm<MinimalKaizenAdminFormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
       title: initialData?.title ?? "",
@@ -334,7 +334,7 @@ export function MinimalKaizen AdminForm({
     setPendingFiles((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  const onValid = (values: MinimalKaizen AdminFormValues) => {
+  const onValid = (values: MinimalKaizenAdminFormValues) => {
     // Count attachments that will remain after save. Quote-attachment
     // enforcement keys off this, so deletions are subtracted too.
     const remainingExisting = existingAttachments.filter(
@@ -464,7 +464,7 @@ export function MinimalKaizen AdminForm({
             onValueChange={(v) =>
               setValue(
                 "priority",
-                v as MinimalKaizen AdminFormValues["priority"],
+                v as MinimalKaizenAdminFormValues["priority"],
                 { shouldValidate: true },
               )
             }
@@ -540,7 +540,7 @@ export function MinimalKaizen AdminForm({
         rules={policyRules}
         value={watch("vendor_info") as VendorInfoLike | undefined}
         onChange={(next) =>
-          setValue("vendor_info", next as MinimalKaizen AdminFormValues["vendor_info"], {
+          setValue("vendor_info", next as MinimalKaizenAdminFormValues["vendor_info"], {
             shouldValidate: true,
           })
         }
@@ -711,7 +711,7 @@ export function MinimalKaizen AdminForm({
           </Link>
         </Button>
         <Button type="submit" disabled={isLoading || isUploading}>
-          {submitLabel ?? "Create Kaizen Admin"}
+          {submitLabel ?? "Create KaizenAdmin"}
         </Button>
       </div>
     </form>

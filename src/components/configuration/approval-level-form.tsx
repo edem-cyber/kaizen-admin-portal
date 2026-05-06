@@ -17,14 +17,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
-import { ApprovalLevelApprovalType } from "@/lib/generated/requisition/models";
+import { ApprovalLevelApprovalType } from "@/lib/generated/kaizenAdmin/models";
 
 const SECONDARY_NONE = "none" as const;
 type SecondaryApprovalType = ApprovalLevelApprovalType | typeof SECONDARY_NONE;
 import type {
   ApprovalLevel,
   ApprovalLevelCreate,
-} from "@/lib/generated/requisition/models";
+} from "@/lib/generated/kaizenAdmin/models";
 import { useGetOrganizationRoles } from "@/lib/generated/user/organization-roles/organization-roles";
 import { useGetUsers } from "@/lib/generated/user/users/users";
 
@@ -490,7 +490,7 @@ export function ApprovalLevelForm({
               Same department as requester
             </Label>
             <p className="text-xs text-muted-foreground">
-              Approver must belong to the same department as the requisition&rsquo;s requester.
+              Approver must belong to the same department as the kaizenAdmin&rsquo;s requester.
             </p>
           </div>
           <Switch

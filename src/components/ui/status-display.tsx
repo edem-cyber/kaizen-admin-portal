@@ -135,7 +135,7 @@ export function getUserStatusVariant(status: string): UserStatusValue {
 // REQUISITION STATUS BADGES
 // ============================================================================
 
-export type Kaizen AdminStatusValue =
+export type KaizenAdminStatusValue =
   | "draft"
   | "submitted"
   | "pending"
@@ -148,7 +148,7 @@ export type Kaizen AdminStatusValue =
   | "completed"
   | "on_hold";
 
-const requisitionStatusVariants = cva(
+const kaizenAdminStatusVariants = cva(
   "capitalize",
   {
     variants: {
@@ -172,7 +172,7 @@ const requisitionStatusVariants = cva(
   }
 );
 
-const REQUISITION_STATUS_CONFIG: Record<Kaizen AdminStatusValue, {
+const REQUISITION_STATUS_CONFIG: Record<KaizenAdminStatusValue, {
   indicator: string;
   label: string;
   description: string;
@@ -180,12 +180,12 @@ const REQUISITION_STATUS_CONFIG: Record<Kaizen AdminStatusValue, {
   draft: {
     indicator: "bg-slate-400",
     label: "Draft",
-    description: "Kaizen Admin is being prepared",
+    description: "KaizenAdmin is being prepared",
   },
   submitted: {
     indicator: "bg-blue-500",
     label: "Submitted",
-    description: "Kaizen Admin has been submitted for review",
+    description: "KaizenAdmin has been submitted for review",
   },
   pending: {
     indicator: "bg-amber-500",
@@ -195,48 +195,48 @@ const REQUISITION_STATUS_CONFIG: Record<Kaizen AdminStatusValue, {
   in_review: {
     indicator: "bg-cyan-500",
     label: "In Review",
-    description: "Kaizen Admin is under review",
+    description: "KaizenAdmin is under review",
   },
   approved: {
     indicator: "bg-green-500",
     label: "Approved",
-    description: "Kaizen Admin has been approved",
+    description: "KaizenAdmin has been approved",
   },
   rejected: {
     indicator: "bg-red-500",
     label: "Rejected",
-    description: "Kaizen Admin has been rejected",
+    description: "KaizenAdmin has been rejected",
   },
   cancelled: {
     indicator: "bg-gray-500",
     label: "Cancelled",
-    description: "Kaizen Admin has been cancelled",
+    description: "KaizenAdmin has been cancelled",
   },
   returned: {
     indicator: "bg-purple-500",
     label: "Returned",
-    description: "Kaizen Admin has been returned for revision",
+    description: "KaizenAdmin has been returned for revision",
   },
   processing: {
     indicator: "bg-indigo-500",
     label: "Processing",
-    description: "Kaizen Admin is being processed",
+    description: "KaizenAdmin is being processed",
   },
   completed: {
     indicator: "bg-emerald-500",
     label: "Completed",
-    description: "Kaizen Admin has been completed",
+    description: "KaizenAdmin has been completed",
   },
   on_hold: {
     indicator: "bg-orange-500",
     label: "On Hold",
-    description: "Kaizen Admin is on hold",
+    description: "KaizenAdmin is on hold",
   },
 };
 
-export interface Kaizen AdminStatusBadgeProps {
+export interface KaizenAdminStatusBadgeProps {
   /** The status to display */
-  status: Kaizen AdminStatusValue;
+  status: KaizenAdminStatusValue;
   /** Whether to show an icon */
   showIcon?: boolean;
   /** Custom label (defaults to formatted status) */
@@ -252,28 +252,28 @@ export interface Kaizen AdminStatusBadgeProps {
 }
 
 /**
- * Kaizen AdminStatusBadge - A standardized badge for displaying requisition statuses
+ * KaizenAdminStatusBadge - A standardized badge for displaying kaizenAdmin statuses
  *
  * @example
  * ```tsx
- * <Kaizen AdminStatusBadge status="approved" />
- * <Kaizen AdminStatusBadge status="pending" showIcon />
- * <Kaizen AdminStatusBadge status="in_review" label="Under Review" />
+ * <KaizenAdminStatusBadge status="approved" />
+ * <KaizenAdminStatusBadge status="pending" showIcon />
+ * <KaizenAdminStatusBadge status="in_review" label="Under Review" />
  * ```
  */
-export function Kaizen AdminStatusBadge({
+export function KaizenAdminStatusBadge({
   status,
   showIcon = false,
   label,
   className,
   ...props
-}: Kaizen AdminStatusBadgeProps) {
+}: KaizenAdminStatusBadgeProps) {
   const config = REQUISITION_STATUS_CONFIG[status] || REQUISITION_STATUS_CONFIG.draft;
 
   return (
     <Badge
       variant="outline"
-      className={cn(requisitionStatusVariants({ variant: status }), className)}
+      className={cn(kaizenAdminStatusVariants({ variant: status }), className)}
       title={config.description}
       {...props}
     >
@@ -291,11 +291,11 @@ export function Kaizen AdminStatusBadge({
 }
 
 /**
- * getKaizen AdminStatusVariant - Helper function to get the badge variant for a requisition status
+ * getKaizenAdminStatusVariant - Helper function to get the badge variant for a kaizenAdmin status
  */
-export function getKaizen AdminStatusVariant(status: string): Kaizen AdminStatusValue {
-  const normalizedStatus = status?.toLowerCase().replace(/\s+/g, "_") as Kaizen AdminStatusValue;
-  const validStatuses: Kaizen AdminStatusValue[] = [
+export function getKaizenAdminStatusVariant(status: string): KaizenAdminStatusValue {
+  const normalizedStatus = status?.toLowerCase().replace(/\s+/g, "_") as KaizenAdminStatusValue;
+  const validStatuses: KaizenAdminStatusValue[] = [
     "draft", "submitted", "pending", "in_review", "approved", "rejected",
     "cancelled", "returned", "processing", "completed", "on_hold"
   ];
@@ -307,19 +307,19 @@ export function getKaizen AdminStatusVariant(status: string): Kaizen AdminStatus
 }
 
 /**
- * getKaizen AdminStatusColor - Returns the indicator color class for a requisition status
+ * getKaizenAdminStatusColor - Returns the indicator color class for a kaizenAdmin status
  * Useful for status bars, charts, and other visual elements
  */
-export function getKaizen AdminStatusColor(status: string): string {
-  const variant = getKaizen AdminStatusVariant(status);
+export function getKaizenAdminStatusColor(status: string): string {
+  const variant = getKaizenAdminStatusVariant(status);
   return REQUISITION_STATUS_CONFIG[variant]?.indicator || "bg-slate-400";
 }
 
 /**
- * getKaizen AdminStatusLabel - Returns a human-readable label for a requisition status
+ * getKaizenAdminStatusLabel - Returns a human-readable label for a kaizenAdmin status
  */
-export function getKaizen AdminStatusLabel(status: string): string {
-  const variant = getKaizen AdminStatusVariant(status);
+export function getKaizenAdminStatusLabel(status: string): string {
+  const variant = getKaizenAdminStatusVariant(status);
   return REQUISITION_STATUS_CONFIG[variant]?.label || status;
 }
 

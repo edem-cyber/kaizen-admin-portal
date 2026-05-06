@@ -20,7 +20,7 @@ interface PreferencesState {
     notifications: {
         email: boolean;
         inApp: boolean;
-        requisitionUpdates: boolean;
+        kaizenAdminUpdates: boolean;
         approvalRequests: boolean;
     };
     setNotificationPreference: (
@@ -54,7 +54,7 @@ export const usePreferencesStore = create<PreferencesState>()(
             notifications: {
                 email: true,
                 inApp: true,
-                requisitionUpdates: true,
+                kaizenAdminUpdates: true,
                 approvalRequests: true,
             },
             setNotificationPreference: (key, value) =>

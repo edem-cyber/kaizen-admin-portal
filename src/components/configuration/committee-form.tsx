@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2, Users2 } from "lucide-react";
-import type { Committee } from "@/lib/generated/requisition/models";
+import type { Committee } from "@/lib/generated/kaizenAdmin/models";
 import { useGetUsers } from "@/lib/generated/user/users/users";
 
 const UNSET_SELECT_VALUE = "__none__";

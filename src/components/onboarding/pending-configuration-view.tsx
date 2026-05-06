@@ -65,7 +65,7 @@ export function PendingConfigurationView({ status }: PendingConfigurationViewPro
               This organization&rsquo;s account is pending configuration
             </h1>
             <p className="text-sm text-muted-foreground">
-              Kaizen Admins can&rsquo;t be submitted yet. An administrator needs to finish setting
+              KaizenAdmins can&rsquo;t be submitted yet. An administrator needs to finish setting
               up the following:
             </p>
           </div>

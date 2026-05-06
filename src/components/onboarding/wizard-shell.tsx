@@ -38,7 +38,7 @@ import { UnknownIssueStep } from "./steps/unknown-issue-step";
 import {
   useGetFiscalYearConfigApiV1BudgetFiscalYearConfigOrganizationIdGet,
   useListFiscalYearsApiV1BudgetFiscalYearsGet,
-} from "@/lib/generated/requisition/budget-v1/budget-v1";
+} from "@/lib/generated/kaizenAdmin/budget-v1/budget-v1";
 import { extractItems } from "@/lib/list-response";
 
 const STEP_LABELS: Record<WizardStepId, string> = {
@@ -291,7 +291,7 @@ export function WizardShell() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Let&rsquo;s set up your workspace</h1>
           <p className="text-sm text-muted-foreground">
-            A few quick questions to get your team ready to create and approve requisitions.
+            A few quick questions to get your team ready to create and approve kaizenAdmins.
           </p>
         </div>
       </div>

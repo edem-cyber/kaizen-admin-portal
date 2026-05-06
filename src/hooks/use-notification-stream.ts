@@ -7,7 +7,7 @@ import { API_CONFIG } from "@/lib/api-client";
 import {
     getListNotificationsApiV1NotificationsGetQueryKey,
     getGetUnreadCountApiV1NotificationsUnreadCountGetQueryKey,
-} from "@/lib/generated/requisition/notifications-v1/notifications-v1";
+} from "@/lib/generated/kaizenAdmin/notifications-v1/notifications-v1";
 
 /**
  * Subscribe to the notifications SSE stream and invalidate notification
@@ -30,7 +30,7 @@ export function useNotificationStream(enabled = true) {
         const token = tokenStorage.getToken();
         if (!token) return;
 
-        const url = `${API_CONFIG.requisitionBaseUrl}/api/v1/notifications/stream?token=${encodeURIComponent(token)}`;
+        const url = `${API_CONFIG.kaizenAdminBaseUrl}/api/v1/notifications/stream?token=${encodeURIComponent(token)}`;
 
         let source: EventSource | null = null;
         try {

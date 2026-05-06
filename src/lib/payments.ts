@@ -1,4 +1,4 @@
-import { apiClient, API_CONFIG, requisitionRequest } from "./api-client";
+import { apiClient, API_CONFIG, kaizenAdminRequest } from "./api-client";
 
 export interface PaymentLine {
   budget_code: string;
@@ -16,7 +16,7 @@ export interface PaymentHistoryEntry {
 }
 
 export interface PaymentHistory {
-  requisition_id: string;
+  kaizenAdmin_id: string;
   total_amount: string;
   amount_paid_to_date: string;
   amount_remaining: string;
@@ -40,7 +40,7 @@ export interface RecordPaymentLineResult {
 }
 
 export interface RecordPaymentResponse {
-  requisition_id: string;
+  kaizenAdmin_id: string;
   payment_reference: string;
   payment_date: string;
   per_line: RecordPaymentLineResult[];
@@ -52,7 +52,7 @@ export interface RecordPaymentResponse {
 
 export interface BulkUploadRowError {
   row: number;
-  requisition_id?: string | null;
+  kaizenAdmin_id?: string | null;
   payment_reference?: string | null;
   error: string;
 }
@@ -73,21 +73,21 @@ export interface ExportTemplateParams {
 }
 
 export async function recordPayment(
-  requisitionId: string,
+  kaizenAdminId: string,
   payload: RecordPaymentRequest,
 ): Promise<RecordPaymentResponse> {
-  return requisitionRequest<RecordPaymentResponse>({
-    url: `/api/v1/payments/requisitions/${requisitionId}`,
+  return kaizenAdminRequest<RecordPaymentResponse>({
+    url: `/api/v1/payments/kaizenAdmins/${kaizenAdminId}`,
     method: "POST",
     data: payload,
   });
 }
 
 export async function getPaymentHistory(
-  requisitionId: string,
+  kaizenAdminId: string,
 ): Promise<PaymentHistory> {
-  return requisitionRequest<PaymentHistory>({
-    url: `/api/v1/payments/requisitions/${requisitionId}`,
+  return kaizenAdminRequest<PaymentHistory>({
+    url: `/api/v1/payments/kaizenAdmins/${kaizenAdminId}`,
     method: "GET",
   });
 }
@@ -102,7 +102,7 @@ export async function downloadPaymentTemplate(
   params: ExportTemplateParams,
 ): Promise<void> {
   const response = await apiClient.request<Blob>({
-    baseURL: API_CONFIG.requisitionBaseUrl,
+    baseURL: API_CONFIG.kaizenAdminBaseUrl,
     url: "/api/v1/payments/export",
     method: "GET",
     responseType: "blob",
@@ -116,7 +116,7 @@ export async function downloadPaymentTemplate(
   const filename =
     filenameFromContentDisposition(
       response.headers["content-disposition"] as string | undefined,
-    ) ?? `requisitions-payments-${params.start_date}-${params.end_date}.xlsx`;
+    ) ?? `kaizenAdmins-payments-${params.start_date}-${params.end_date}.xlsx`;
 
   const url = URL.createObjectURL(response.data);
   const anchor = document.createElement("a");
@@ -133,7 +133,7 @@ export async function uploadPaymentBatch(
 ): Promise<BulkUploadResponse> {
   const form = new FormData();
   form.append("file", file);
-  return requisitionRequest<BulkUploadResponse>({
+  return kaizenAdminRequest<BulkUploadResponse>({
     url: "/api/v1/payments/upload",
     method: "POST",
     data: form,

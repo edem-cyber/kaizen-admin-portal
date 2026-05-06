@@ -13,7 +13,7 @@ import { Settings, Bell, Shield, Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AdminSettingsPage() {
-  const [formData, setFormData] = React.useState({ siteName: "Kaizen Admin", siteUrl: "https://requisition.example.com", supportEmail: "support@example.com", emailNotifications: true, smsNotifications: false, marketingEmails: true, twoFactorRequired: false, sessionTimeout: "30", passwordExpiry: "90" });
+  const [formData, setFormData] = React.useState({ siteName: "KaizenAdmin", siteUrl: "https://kaizenAdmin.example.com", supportEmail: "support@example.com", emailNotifications: true, smsNotifications: false, marketingEmails: true, twoFactorRequired: false, sessionTimeout: "30", passwordExpiry: "90" });
   const { data: userData, isLoading: userLoading } = useGetSelf();
   const updateSelfMutation = useUpdateSelf();
   const updateOrgMutation = useUpdateOwnOrganization();

@@ -21,8 +21,8 @@ import { cn } from "@/lib/utils";
 import {
   useCreateCommitteeApiV1CommitteesPost,
   useListCommitteesApiV1CommitteesGet,
-} from "@/lib/generated/requisition/committees-v1/committees-v1";
-import { useUpdateCommitteeSettingsApiV1ConfigurationOrganizationIdCommitteeSettingsPatch } from "@/lib/generated/requisition/configuration-v1/configuration-v1";
+} from "@/lib/generated/kaizenAdmin/committees-v1/committees-v1";
+import { useUpdateCommitteeSettingsApiV1ConfigurationOrganizationIdCommitteeSettingsPatch } from "@/lib/generated/kaizenAdmin/configuration-v1/configuration-v1";
 import { useGetUsers } from "@/lib/generated/user/users/users";
 import { extractErrorMessage } from "@/lib/api-error";
 import { extractItems } from "@/lib/list-response";
@@ -259,7 +259,7 @@ export function CommitteeCreationStep({
         <CardTitle>Create your review committee</CardTitle>
         <CardDescription>
           Pick a chairperson and add at least one member. Committee review will be enabled for
-          requisitions after you save.
+          kaizenAdmins after you save.
         </CardDescription>
       </CardHeader>
       <CardContent>

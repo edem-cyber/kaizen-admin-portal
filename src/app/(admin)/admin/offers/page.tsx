@@ -241,9 +241,8 @@ export default function AdminOffersPage() {
         description: data.description || "",
         unitPrice: Number(data.unitPrice) as any,
         currencyId: Number(data.currencyId),
-        providerId: null,
-        organizationId: null,
         serviceSubcategoryId: 1,
+        productCategoryId: 1, // Added missing required field
         durationUnit: data.durationUnit as any,
         minimumDuration: Number(data.minimumDuration),
         maximumCheckIns: Number(data.maximumCheckIns),

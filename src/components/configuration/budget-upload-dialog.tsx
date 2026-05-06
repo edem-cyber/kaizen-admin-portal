@@ -26,8 +26,8 @@ import {
 import { Download, FileSpreadsheet, Loader2, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { API_CONFIG, apiRequest } from "@/lib/api-client";
-import { useListFiscalYearsApiV1BudgetFiscalYearsGet } from "@/lib/generated/requisition/budget-v1/budget-v1";
-import { useUploadBudgetFileApiV1ConfigurationOrganizationIdBudgetUploadPost } from "@/lib/generated/requisition/configuration-v1/configuration-v1";
+import { useListFiscalYearsApiV1BudgetFiscalYearsGet } from "@/lib/generated/kaizenAdmin/budget-v1/budget-v1";
+import { useUploadBudgetFileApiV1ConfigurationOrganizationIdBudgetUploadPost } from "@/lib/generated/kaizenAdmin/configuration-v1/configuration-v1";
 import { extractErrorMessage } from "@/lib/api-error";
 import { extractItems } from "@/lib/list-response";
 
@@ -63,7 +63,7 @@ async function downloadBlob(url: string, filename: string) {
   const blob = await apiRequest<Blob>({
     method: "GET",
     url,
-    baseURL: API_CONFIG.requisitionBaseUrl,
+    baseURL: API_CONFIG.kaizenAdminBaseUrl,
     responseType: "blob",
   });
   const objectUrl = URL.createObjectURL(blob);

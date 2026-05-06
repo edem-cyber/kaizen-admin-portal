@@ -1,7 +1,7 @@
 /**
  * Normalize an opaque list-response payload into a plain array.
  *
- * Kaizen Admin service list endpoints are typed as `{ [k: string]: unknown }`
+ * KaizenAdmin service list endpoints are typed as `{ [k: string]: unknown }`
  * in the generated models but at runtime return one of:
  *   - a bare array
  *   - `{ items: [...] }`

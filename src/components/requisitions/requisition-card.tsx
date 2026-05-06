@@ -3,22 +3,22 @@
 import * as React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Kaizen Admin } from "@/lib/generated/requisition/models";
+import { KaizenAdmin } from "@/lib/generated/kaizenAdmin/models";
 import { Calendar, Clock, ChevronRight, AlertCircle, Send, Store } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useCurrency } from "@/lib/currency";
 
-interface Kaizen AdminCardProps {
-    requisition: Kaizen Admin;
+interface KaizenAdminCardProps {
+    kaizenAdmin: KaizenAdmin;
     /** Currency code the amount is originally in (defaults to GHS) */
     originalCurrency?: string;
 }
 
-export function Kaizen AdminCard({ requisition, originalCurrency = "GHS" }: Kaizen AdminCardProps) {
+export function KaizenAdminCard({ kaizenAdmin, originalCurrency = "GHS" }: KaizenAdminCardProps) {
     const { format, code, symbol, convertToCurrent } = useCurrency();
     const [convertedAmount, setConvertedAmount] = React.useState<number | null>(null);
-    const amount = requisition.total_amount;
+    const amount = kaizenAdmin.total_amount;
 
     // Convert amount when currency changes
     React.useEffect(() => {
@@ -82,10 +82,10 @@ export function Kaizen AdminCard({ requisition, originalCurrency = "GHS" }: Kaiz
         });
     };
 
-    const isUrgent = requisition.priority?.toLowerCase() === 'urgent' || requisition.priority?.toLowerCase() === 'high';
+    const isUrgent = kaizenAdmin.priority?.toLowerCase() === 'urgent' || kaizenAdmin.priority?.toLowerCase() === 'high';
 
     return (
-        <Link href={`/requisitions/${requisition.id}`} className="block">
+        <Link href={`/kaizenAdmins/${kaizenAdmin.id}`} className="block">
             <Card className="hover:shadow-md transition-all">
                 <CardContent className="p-6">
                     <div className="flex items-start justify-between gap-4">
@@ -93,14 +93,14 @@ export function Kaizen AdminCard({ requisition, originalCurrency = "GHS" }: Kaiz
                             {/* Title and badges */}
                             <div className="flex items-center gap-2 flex-wrap">
                                 <h3 className="text-lg font-bold">
-                                    {requisition.title || "Untitled Kaizen Admin"}
+                                    {kaizenAdmin.title || "Untitled KaizenAdmin"}
                                 </h3>
-                                <Badge variant={getStatusVariant(requisition.status)} className="capitalize">
-                                    {requisition.status || "Unknown"}
+                                <Badge variant={getStatusVariant(kaizenAdmin.status)} className="capitalize">
+                                    {kaizenAdmin.status || "Unknown"}
                                 </Badge>
                                 {isUrgent && (
                                     <Badge variant="destructive" className="uppercase text-[10px]">
-                                        {requisition.priority}
+                                        {kaizenAdmin.priority}
                                     </Badge>
                                 )}
                             </div>
@@ -109,18 +109,18 @@ export function Kaizen AdminCard({ requisition, originalCurrency = "GHS" }: Kaiz
                             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                                 <div className="flex items-center gap-1.5">
                                     <Clock className="h-4 w-4" />
-                                    <span>{formatDate(requisition.created_at)}</span>
+                                    <span>{formatDate(kaizenAdmin.created_at)}</span>
                                 </div>
-                                {requisition.requisition_number && (
+                                {kaizenAdmin.kaizenAdmin_number && (
                                     <span className="font-mono text-xs">
-                                        #{requisition.requisition_number}
+                                        #{kaizenAdmin.kaizenAdmin_number}
                                     </span>
                                 )}
-                                {requisition.category && (
+                                {kaizenAdmin.category && (
                                     <div className="flex items-center gap-1.5">
                                         <Store className="h-4 w-4" />
                                         <span>
-                                            {typeof requisition.category === 'string' ? requisition.category : (requisition.category as { name?: string }).name}
+                                            {typeof kaizenAdmin.category === 'string' ? kaizenAdmin.category : (kaizenAdmin.category as { name?: string }).name}
                                         </span>
                                     </div>
                                 )}
@@ -131,7 +131,7 @@ export function Kaizen AdminCard({ requisition, originalCurrency = "GHS" }: Kaiz
                         <div className="text-right shrink-0">
                             <div className="text-xs text-muted-foreground mb-1">Amount</div>
                             <div className="text-2xl font-bold">
-                                {convertedAmount !== null ? format(convertedAmount) : format(requisition.total_amount)}
+                                {convertedAmount !== null ? format(convertedAmount) : format(kaizenAdmin.total_amount)}
                             </div>
                         </div>
                     </div>

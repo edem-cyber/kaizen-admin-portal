@@ -1,4 +1,4 @@
-import { requisitionRequest } from "./api-client";
+import { kaizenAdminRequest } from "./api-client";
 
 /**
  * Quote-document types mirrored from the OpenAPI spec. The enum is not
@@ -26,7 +26,7 @@ export const QUOTE_DOCUMENT_TYPE_LABELS: Record<QuoteDocumentType, string> = {
 export interface VendorQuote {
   id: string;
   vendor_id: string;
-  requisition_id: string;
+  kaizenAdmin_id: string;
   organization_id?: number;
   quote_number?: string | null;
   quote_date?: string | null;
@@ -48,7 +48,7 @@ export interface VendorQuote {
 
 export interface VendorQuoteCreate {
   vendor_id: string;
-  requisition_id: string;
+  kaizenAdmin_id: string;
   quote_number?: string;
   quote_date?: string;
   valid_until: string;
@@ -66,7 +66,7 @@ export interface VendorQuoteCreate {
 }
 
 export type VendorQuoteUpdate = Partial<
-  Omit<VendorQuoteCreate, "vendor_id" | "requisition_id">
+  Omit<VendorQuoteCreate, "vendor_id" | "kaizenAdmin_id">
 >;
 
 export interface QuoteDocumentListItem {
@@ -104,11 +104,11 @@ export function readQuoteDocument(
 
 // ── Quotes ──────────────────────────────────────────────────────────────
 
-export async function listQuotesForKaizen Admin(
-  requisitionId: string,
+export async function listQuotesForKaizenAdmin(
+  kaizenAdminId: string,
 ): Promise<VendorQuote[]> {
-  const raw = await requisitionRequest<unknown>({
-    url: `/api/v1/vendors/quotes/requisition/${requisitionId}`,
+  const raw = await kaizenAdminRequest<unknown>({
+    url: `/api/v1/vendors/quotes/kaizenAdmin/${kaizenAdminId}`,
     method: "GET",
   });
   return Array.isArray(raw) ? (raw as VendorQuote[]) : [];
@@ -117,7 +117,7 @@ export async function listQuotesForKaizen Admin(
 export async function createVendorQuote(
   input: VendorQuoteCreate,
 ): Promise<VendorQuote> {
-  return requisitionRequest<VendorQuote>({
+  return kaizenAdminRequest<VendorQuote>({
     url: "/api/v1/vendors/quotes",
     method: "POST",
     data: input,
@@ -128,7 +128,7 @@ export async function updateVendorQuote(
   quoteId: string,
   input: VendorQuoteUpdate,
 ): Promise<VendorQuote> {
-  return requisitionRequest<VendorQuote>({
+  return kaizenAdminRequest<VendorQuote>({
     url: `/api/v1/vendors/quotes/${quoteId}`,
     method: "PUT",
     data: input,
@@ -136,7 +136,7 @@ export async function updateVendorQuote(
 }
 
 export async function deleteVendorQuote(quoteId: string): Promise<void> {
-  await requisitionRequest<unknown>({
+  await kaizenAdminRequest<unknown>({
     url: `/api/v1/vendors/quotes/${quoteId}`,
     method: "DELETE",
   });
@@ -146,7 +146,7 @@ export async function selectVendorQuote(
   quoteId: string,
   selectionReason?: string,
 ): Promise<VendorQuote> {
-  return requisitionRequest<VendorQuote>({
+  return kaizenAdminRequest<VendorQuote>({
     url: `/api/v1/vendors/quotes/${quoteId}/select`,
     method: "POST",
     data: selectionReason ? { selection_reason: selectionReason } : {},
@@ -156,7 +156,7 @@ export async function selectVendorQuote(
 export async function deselectVendorQuote(
   quoteId: string,
 ): Promise<VendorQuote> {
-  return requisitionRequest<VendorQuote>({
+  return kaizenAdminRequest<VendorQuote>({
     url: `/api/v1/vendors/quotes/${quoteId}/deselect`,
     method: "POST",
     data: {},
@@ -168,7 +168,7 @@ export async function deselectVendorQuote(
 export async function listQuoteDocuments(
   quoteId: string,
 ): Promise<QuoteDocumentListItem[]> {
-  const raw = await requisitionRequest<unknown>({
+  const raw = await kaizenAdminRequest<unknown>({
     url: `/api/v1/vendors/quotes/${quoteId}/documents`,
     method: "GET",
   });
@@ -196,7 +196,7 @@ export async function uploadQuoteDocument(
   if (input.is_required !== undefined) {
     form.append("is_required", String(input.is_required));
   }
-  const raw = await requisitionRequest<Record<string, unknown>>({
+  const raw = await kaizenAdminRequest<Record<string, unknown>>({
     url: `/api/v1/vendors/quotes/${quoteId}/documents`,
     method: "POST",
     data: form,

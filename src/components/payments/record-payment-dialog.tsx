@@ -29,7 +29,7 @@ import {
 interface RecordPaymentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  requisitionId: string;
+  kaizenAdminId: string;
   currency: string;
   /** If the parent already has the remaining amount, pass it in to skip the fetch. */
   amountRemaining?: string;
@@ -71,7 +71,7 @@ function formatMoney(value: string | number, currency: string): string {
 export function RecordPaymentDialog({
   open,
   onOpenChange,
-  requisitionId,
+  kaizenAdminId,
   currency,
   amountRemaining,
   onRecorded,
@@ -103,7 +103,7 @@ export function RecordPaymentDialog({
     }
     let cancelled = false;
     setIsLoadingRemaining(true);
-    getPaymentHistory(requisitionId)
+    getPaymentHistory(kaizenAdminId)
       .then((h) => {
         if (!cancelled) setFetchedRemaining(h.amount_remaining);
       })
@@ -116,7 +116,7 @@ export function RecordPaymentDialog({
     return () => {
       cancelled = true;
     };
-  }, [open, requisitionId, amountRemaining, reset]);
+  }, [open, kaizenAdminId, amountRemaining, reset]);
 
   const remainingText = useMemo(() => {
     const value = amountRemaining ?? fetchedRemaining;
@@ -135,10 +135,10 @@ export function RecordPaymentDialog({
 
     setIsSubmitting(true);
     try {
-      const res = await recordPayment(requisitionId, payload);
+      const res = await recordPayment(kaizenAdminId, payload);
       toast.success(
         res.is_fully_paid
-          ? "Payment recorded — requisition is fully paid"
+          ? "Payment recorded — kaizenAdmin is fully paid"
           : "Payment recorded",
       );
       onRecorded(res);
@@ -160,13 +160,13 @@ export function RecordPaymentDialog({
         <DialogHeader>
           <DialogTitle>Record a payment</DialogTitle>
           <DialogDescription>
-            Log a payment against this requisition.{" "}
+            Log a payment against this kaizenAdmin.{" "}
             {isLoadingRemaining
               ? "Loading amount remaining…"
               : remainingText
                 ? `Amount remaining: ${remainingText}.`
                 : ""}{" "}
-            Multi-line requisitions are apportioned automatically by budget line.
+            Multi-line kaizenAdmins are apportioned automatically by budget line.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onValid)} className="space-y-3">
@@ -214,7 +214,7 @@ export function RecordPaymentDialog({
               </p>
             ) : (
               <p className="text-xs text-muted-foreground">
-                Must be unique across payments for this requisition.
+                Must be unique across payments for this kaizenAdmin.
               </p>
             )}
           </div>

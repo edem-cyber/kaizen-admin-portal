@@ -12,13 +12,13 @@ import {
 } from "@/components/ui/select";
 import { AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useListVendorsApiV1VendorsGet } from "@/lib/generated/requisition/vendors-v1/vendors-v1";
+import { useListVendorsApiV1VendorsGet } from "@/lib/generated/kaizenAdmin/vendors-v1/vendors-v1";
 import { extractItems } from "@/lib/list-response";
-import type { Vendor } from "@/lib/generated/requisition/models";
+import type { Vendor } from "@/lib/generated/kaizenAdmin/models";
 import type { VendorPolicyRules } from "./use-vendor-policy";
 
 /**
- * Shape of the vendor_info fields the requisition submits.
+ * Shape of the vendor_info fields the kaizenAdmin submits.
  * Kept deliberately loose so the Minimal and Complete forms can both
  * render identical vendor inputs without either needing to extend its
  * schema with every optional key.

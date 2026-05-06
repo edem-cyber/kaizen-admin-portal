@@ -19,8 +19,8 @@ interface AccountingReferenceFieldsProps {
 /**
  * Optional accounting-reference inputs (GL account, project code) that
  * render only when the org's accounting_config flags them as required.
- * Both values flow into the requisition payload via `metadata` per
- * Kaizen Admin_Form_Selection.md — `Kaizen AdminCreate` has no first-class
+ * Both values flow into the kaizenAdmin payload via `metadata` per
+ * KaizenAdmin_Form_Selection.md — `KaizenAdminCreate` has no first-class
  * fields for these today. When the backend adds them, this component can
  * be migrated to top-level fields without changing its prop surface.
  */

@@ -3,10 +3,10 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import {
-  useListKaizen AdminDiscussionsApiV1DiscussionsKaizen AdminsKaizen AdminIdGet,
+  useListKaizenAdminDiscussionsApiV1DiscussionsKaizenAdminsKaizenAdminIdGet,
   useGetThreadedCommentsApiV1DiscussionsDiscussionIdThreadedGet,
-  useAddCommentApiV1DiscussionsKaizen AdminsKaizen AdminIdCommentsPost,
-} from "@/lib/generated/requisition/discussions-v1/discussions-v1";
+  useAddCommentApiV1DiscussionsKaizenAdminsKaizenAdminIdCommentsPost,
+} from "@/lib/generated/kaizenAdmin/discussions-v1/discussions-v1";
 import { Chat } from "@/components/chat/chat";
 import { ChatMessages } from "@/components/chat/chat-messages";
 import { ChatToolbar, ChatToolbarTextarea, ChatToolbarAddon, ChatToolbarButton } from "@/components/chat/chat-toolbar";
@@ -16,15 +16,15 @@ import { useAuth } from "@/hooks/use-auth";
 import { ProfilePicture } from "@/components/ui/profile-picture";
 import { Send, Loader2, Lock, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
-import type { CommentThread, CommentType } from "@/lib/generated/requisition/models";
+import type { CommentThread, CommentType } from "@/lib/generated/kaizenAdmin/models";
 import { extractItems } from "@/lib/list-response";
 import { cn } from "@/lib/utils";
 
-interface Kaizen AdminChatProps {
-  requisitionId: string;
+interface KaizenAdminChatProps {
+  kaizenAdminId: string;
 }
 
-export function Kaizen AdminChat({ requisitionId }: Kaizen AdminChatProps) {
+export function KaizenAdminChat({ kaizenAdminId }: KaizenAdminChatProps) {
   const { hasPermission } = useAuthorization();
   const { user } = useAuth();
   const canWrite = hasPermission(PERMISSION.DISCUSSIONS_WRITE);
@@ -33,7 +33,7 @@ export function Kaizen AdminChat({ requisitionId }: Kaizen AdminChatProps) {
   const [message, setMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { data: discussionsData } = useListKaizen AdminDiscussionsApiV1DiscussionsKaizen AdminsKaizen AdminIdGet(requisitionId);
+  const { data: discussionsData } = useListKaizenAdminDiscussionsApiV1DiscussionsKaizenAdminsKaizenAdminIdGet(kaizenAdminId);
   const discussions = extractItems<{ id: string }>(discussionsData, "discussions");
 
   const { data: threadedComments, refetch: refetchComments } = useGetThreadedCommentsApiV1DiscussionsDiscussionIdThreadedGet(
@@ -41,7 +41,7 @@ export function Kaizen AdminChat({ requisitionId }: Kaizen AdminChatProps) {
     { query: { enabled: !!selectedDiscussion } }
   );
 
-  const { mutate: addComment, isPending: isSending } = useAddCommentApiV1DiscussionsKaizen AdminsKaizen AdminIdCommentsPost({
+  const { mutate: addComment, isPending: isSending } = useAddCommentApiV1DiscussionsKaizenAdminsKaizenAdminIdCommentsPost({
     mutation: {
       onSuccess: () => {
         setMessage("");
@@ -68,7 +68,7 @@ export function Kaizen AdminChat({ requisitionId }: Kaizen AdminChatProps) {
     if (!message.trim()) return;
 
     addComment({
-      requisitionId,
+      kaizenAdminId,
       data: {
         discussion_id: selectedDiscussion || undefined,
         content: message,
@@ -148,7 +148,7 @@ export function Kaizen AdminChat({ requisitionId }: Kaizen AdminChatProps) {
     <div className="space-y-2">
       <div className="flex justify-end">
         <Link
-          href={`/requisitions/${requisitionId}/discussion`}
+          href={`/kaizenAdmins/${kaizenAdminId}/discussion`}
           className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
           Open full view
@@ -167,7 +167,7 @@ export function Kaizen AdminChat({ requisitionId }: Kaizen AdminChatProps) {
               <div className="space-y-2">
                 <p className="text-muted-foreground">No comments yet</p>
                 <p className="text-sm text-muted-foreground">
-                  {canWrite ? "Start the conversation below" : "No one has commented on this requisition yet."}
+                  {canWrite ? "Start the conversation below" : "No one has commented on this kaizenAdmin yet."}
                 </p>
               </div>
             </div>

@@ -41,8 +41,8 @@ const faqs = [
         answer: "Yes! All plans come with a 14-day free trial. No credit card required to start.",
     },
     {
-        question: "What happens when I exceed my requisition limit?",
-        answer: "We'll notify you when you're approaching your limit. You can upgrade your plan or purchase additional requisitions as needed.",
+        question: "What happens when I exceed my kaizenAdmin limit?",
+        answer: "We'll notify you when you're approaching your limit. You can upgrade your plan or purchase additional kaizenAdmins as needed.",
     },
 ];
 
@@ -194,9 +194,9 @@ export function PricingCards({
             }
 
             // Extract checkout URL from response (similar to spaces-b2b-portal)
-            // Response type is ApiSuccessResponseSubscriptionPurchaseResponseDto
-            // response.data is SubscriptionPurchaseResponseDto which has checkoutUrl
-            const checkoutUrl = response?.data?.checkoutUrl;
+            // Response data can be a string (the URL) or an object containing the URL
+            const responseData = response?.data;
+            const checkoutUrl = typeof responseData === 'string' ? responseData : (responseData as any)?.checkoutUrl;
 
             console.log("Checkout URL found:", checkoutUrl);
 
@@ -388,7 +388,7 @@ export function PricingCards({
                             <tbody className="divide-y divide-slate-50">
                                 {[
                                     { label: "Team Members", values: ["5 Seats", "25 Seats", "Unlimited"] },
-                                    { label: "Monthly Kaizen Admins", values: ["100", "1,000", "Unlimited"] },
+                                    { label: "Monthly KaizenAdmins", values: ["100", "1,000", "Unlimited"] },
                                     { label: "Workflow Designer", values: [true, true, true] },
                                     { label: "Advanced API Access", values: [false, true, true] },
                                     { label: "SSO & SAML 2.0", values: [false, false, true] },

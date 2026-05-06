@@ -41,6 +41,7 @@ export {
     type UpdateOwnOrganizationMutationResult,
     type UpdateOwnOrganizationMutationError,
 
+    /*
     // Client organizations
     useAddPropertyMananagementClientOrg,
     getAddPropertyMananagementClientOrgMutationOptions,
@@ -54,6 +55,7 @@ export {
     getRemoveClientOrganizationMutationOptions,
     type RemoveClientOrganizationMutationResult,
     type RemoveClientOrganizationMutationError,
+    */
 
     // Check organization exists
     useCheck,

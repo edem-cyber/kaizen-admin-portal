@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { useUpdateCommitteeSettingsApiV1ConfigurationOrganizationIdCommitteeSettingsPatch } from "@/lib/generated/requisition/configuration-v1/configuration-v1";
+import { useUpdateCommitteeSettingsApiV1ConfigurationOrganizationIdCommitteeSettingsPatch } from "@/lib/generated/kaizenAdmin/configuration-v1/configuration-v1";
 import { extractErrorMessage } from "@/lib/api-error";
 import type { IntroAnswers } from "@/lib/onboarding";
 
@@ -58,7 +58,7 @@ export function CommitteeSettingsStep({
         <CardDescription>
           {wantsCommittees
             ? "You opted in to committee review. We'll walk you through setting up a committee in a later update — for now, we'll disable committee gates so the rest of setup can proceed, and you can configure a committee from Configuration → Committees afterwards."
-            : "New organizations start with committee review turned on by default. Since you said no committees, we'll disable both committee gates so requisitions can be approved by a single approver."}
+            : "New organizations start with committee review turned on by default. Since you said no committees, we'll disable both committee gates so kaizenAdmins can be approved by a single approver."}
         </CardDescription>
       </CardHeader>
       <CardContent>

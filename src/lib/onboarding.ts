@@ -1,4 +1,4 @@
-import { requisitionRequest } from "./api-client";
+import { kaizenAdminRequest } from "./api-client";
 import { hasPermission, PERMISSION } from "./authorization";
 import type { UserDto } from "./generated/user/models/userDto";
 
@@ -63,7 +63,7 @@ export interface SetupStatusResponse {
 export async function getSetupStatus(
   organizationId: number,
 ): Promise<SetupStatusResponse> {
-  return requisitionRequest<SetupStatusResponse>({
+  return kaizenAdminRequest<SetupStatusResponse>({
     url: `/api/v1/configuration/${organizationId}/setup-status`,
     method: "GET",
   });
