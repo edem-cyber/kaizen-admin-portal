@@ -69,12 +69,6 @@ export function PublicNavbar({ isVisible = true }: PublicNavbarProps) {
           <Link href="/login" className="text-sm font-bold text-gray-500 hover:text-black dark:hover:text-white transition-colors">
             Sign in
           </Link>
-          <Link href="/signup">
-            <button className="relative group overflow-hidden bg-black dark:bg-white text-white dark:text-black font-bold text-xs uppercase tracking-widest rounded-full px-7 py-3 transition-all shadow-lg shadow-black/10 active:scale-95 cursor-pointer">
-              <span className="relative z-10">Get Started</span>
-              <div className="absolute inset-0 bg-linear-to-r from-indigo-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            </button>
-          </Link>
         </div>
       </PublicContainer>
     </nav>

@@ -8,40 +8,33 @@ test.describe("Login — smoke", () => {
     await page.goto("/login");
   });
 
-  test("LOGIN-smoke-01 — page renders with username input and Next button", async ({
+  test("LOGIN-smoke-01 — page renders with username and password inputs and Sign in button", async ({
     page,
   }) => {
     const username = page.locator("#username");
-    const next = page.getByRole("button", { name: /^next|checking/i });
+    const password = page.locator("#password");
+    const signIn = page.getByRole("button", { name: /sign in/i });
 
     await expect(username).toBeVisible();
     await expect(username).toHaveAttribute("placeholder", /username|email/i);
-    await expect(next).toBeVisible();
+    await expect(password).toBeVisible();
+    await expect(password).toHaveAttribute("placeholder", /password/i);
+    await expect(signIn).toBeVisible();
   });
 
-  test("LOGIN-smoke-02 — empty username triggers validation error on Next", async ({
+  test("LOGIN-smoke-02 — empty username triggers validation error", async ({
     page,
   }) => {
-    const username = page.locator("#username");
-    const next = page.getByRole("button", { name: /^next/i });
+    const signIn = page.getByRole("button", { name: /sign in/i });
 
-    await username.fill("");
-    await next.click();
+    await signIn.click();
 
-    // loginSchema: username.min(1, "Username or email is required")
     await expect(
       page.getByText(/username.*required/i),
     ).toBeVisible();
   });
 
-  test("LOGIN-smoke-03 — Sign up link navigates to /signup", async ({
-    page,
-  }) => {
-    await page.getByRole("link", { name: /sign up/i }).click();
-    await expect(page).toHaveURL(/\/signup$/);
-  });
-
-  test("LOGIN-smoke-04 — no horizontal scroll at mobile viewport", async ({
+  test("LOGIN-smoke-03 — no horizontal scroll at mobile viewport", async ({
     page,
   }, testInfo) => {
     test.skip(

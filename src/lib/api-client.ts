@@ -50,7 +50,6 @@ apiClient.interceptors.response.use(
             const onLogout = () => {
                 const isAuthPage = typeof window !== "undefined" &&
                     (window.location.pathname.startsWith('/login') ||
-                        window.location.pathname.startsWith('/signup') ||
                         window.location.pathname.startsWith('/otp-confirmation') ||
                         window.location.pathname.startsWith('/forgot-password') ||
                         window.location.pathname.startsWith('/reset-password'));
