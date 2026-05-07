@@ -210,8 +210,8 @@ export default function AdminLayout({ children }: AdminShellProps) {
         {
           label: "Package Templates",
           icon: FileText,
-          href: "/admin/packages",
-          isActive: pathname?.startsWith("/admin/packages"),
+          href: "/admin/package-templates",
+          isActive: pathname?.startsWith("/admin/package-templates"),
         },
         {
           label: "Offers",

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +17,9 @@ import {
   getSearchOffersQueryKey,
 } from "@/lib/generated/billing/offers/offers";
 import { useGetServicePackages } from "@/lib/generated/billing/packages/packages";
+import { useGetProductCategories } from "@/lib/generated/billing/product-categories/product-categories";
+import { useGetServiceCategories } from "@/lib/generated/billing/service-categories/service-categories";
+import { useGetServiceSubcategories } from "@/lib/generated/billing/service-subcategories/service-subcategories";
 import type { OfferDto, CreateOfferDto, UpdateOfferDto } from "@/lib/generated/billing/models";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -30,7 +33,6 @@ import {
   Plus, 
   Pencil, 
   Trash2, 
-  Zap,
   Users,
   Gift,
   Package,
@@ -52,9 +54,9 @@ const offerSchema = z.object({
   description: z.string().min(1, "Description is required"),
   unitPrice: z.string().min(1, "Price is required"),
   currencyId: z.string(),
-  maximumCheckIns: z.string().default("-1"),
-  serviceSubcategoryId: z.string(),
-  productCategoryId: z.string(),
+  maximumCheckIns: z.string(),
+  serviceSubcategoryId: z.string().min(1, "Service subcategory is required"),
+  productCategoryId: z.string().min(1, "Product category is required"),
   packageIds: z.array(z.string()),
 });
 
@@ -68,13 +70,13 @@ export default function AdminOffersPage() {
   const [currentPage, setCurrentPage] = React.useState(1);
   const limit = 20;
 
-  // Track original IDs for edit mode
   const [originalPackageIds, setOriginalPackageIds] = React.useState<string[]>([]);
 
-  // Price calculator state
   const [showPriceCalculator, setShowPriceCalculator] = React.useState(false);
   const [desiredTotalPrice, setDesiredTotalPrice] = React.useState("");
   const [numberOfUsers, setNumberOfUsers] = React.useState("1");
+
+  const [selectedCategoryId, setSelectedCategoryId] = React.useState<number | undefined>(undefined);
 
   React.useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(searchTerm), 500);
@@ -96,8 +98,9 @@ export default function AdminOffersPage() {
     control,
     reset,
     setValue,
+    watch,
     formState: { errors },
-  } = useForm({
+  } = useForm<OfferFormValues>({
     resolver: zodResolver(offerSchema),
     defaultValues: {
       name: "",
@@ -111,6 +114,15 @@ export default function AdminOffersPage() {
       packageIds: [],
     },
   });
+
+  const watchedCategoryId = watch("productCategoryId");
+
+  React.useEffect(() => {
+    const catId = parseInt(watchedCategoryId);
+    if (!isNaN(catId)) {
+      setSelectedCategoryId(catId);
+    }
+  }, [watchedCategoryId]);
 
   const calculateUnitPrice = () => {
     const total = parseFloat(desiredTotalPrice);
@@ -138,12 +150,25 @@ export default function AdminOffersPage() {
         packageIds: pkgIds,
       });
       setOriginalPackageIds(pkgIds);
+      setSelectedCategoryId(offer.productCategoryId);
     }
   }, [detailedOfferResp?.data, editingOffer?.id, reset]);
 
-  // Fetch packages for linking
   const { data: packagesData } = useGetServicePackages({ page: 1, limit: 100 });
   const availablePackages = packagesData?.data || [];
+
+  const { data: categoriesData } = useGetProductCategories({ limit: 100 });
+  const productCategories = (categoriesData?.data as any[]) || [];
+
+  const { data: serviceCatsData } = useGetServiceCategories({ limit: 100 });
+  const serviceCategories = (serviceCatsData?.data as any[]) || [];
+
+  const { data: serviceSubsData } = useGetServiceSubcategories(
+    selectedCategoryId || 0,
+    { limit: 100 },
+    { query: { enabled: !!selectedCategoryId } }
+  );
+  const serviceSubcategories = (serviceSubsData?.data as any[]) || [];
 
   const isSearching = debouncedSearch.trim().length > 0;
   
@@ -169,6 +194,7 @@ export default function AdminOffersPage() {
         queryClient.invalidateQueries({ queryKey: getSearchOffersQueryKey() });
         setIsCreateOpen(false);
         reset();
+        setSelectedCategoryId(undefined);
       },
       onError: (error: any) => {
         toast.error(error?.message || "Failed to create offer");
@@ -184,6 +210,7 @@ export default function AdminOffersPage() {
         queryClient.invalidateQueries({ queryKey: getSearchOffersQueryKey() });
         setEditingOffer(null);
         reset();
+        setSelectedCategoryId(undefined);
       },
       onError: (error: any) => {
         toast.error(error?.message || "Failed to update offer");
@@ -240,7 +267,6 @@ export default function AdminOffersPage() {
 
   const openEdit = (offer: OfferDto) => {
     setEditingOffer(offer);
-    // Detail fetching useEffect handles reset
   };
 
   const confirmDelete = () => {
@@ -250,6 +276,48 @@ export default function AdminOffersPage() {
   };
 
   const onSubmitWrapper = (data: any) => onSubmit(data as OfferFormValues);
+
+  const ProductCategorySelect = ({ control, errors }: { control: any; errors: any; }) => (
+    <div className="space-y-2">
+      <Label className="font-bold text-slate-700">Product Category</Label>
+      <Controller
+        name="productCategoryId"
+        control={control}
+        render={({ field }) => (
+          <Select value={field.value} onValueChange={(v) => { field.onChange(v); if (!editingOffer) setValue("serviceSubcategoryId", ""); }}>
+            <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Select category" /></SelectTrigger>
+            <SelectContent className="rounded-xl shadow-xl">
+              {productCategories.map((cat: any) => (
+                <SelectItem key={cat.id} value={String(cat.id)}>{cat.name} ({cat.code})</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      />
+      {errors.productCategoryId && <p className="text-sm text-red-500 font-medium">{errors.productCategoryId.message}</p>}
+    </div>
+  );
+
+  const ServiceSubcategorySelect = ({ control, errors }: { control: any; errors: any; }) => (
+    <div className="space-y-2">
+      <Label className="font-bold text-slate-700">Service Subcategory</Label>
+      <Controller
+        name="serviceSubcategoryId"
+        control={control}
+        render={({ field }) => (
+          <Select value={field.value} onValueChange={field.onChange} disabled={!watchedCategoryId}>
+            <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder={watchedCategoryId ? "Select subcategory" : "Select category first"} /></SelectTrigger>
+            <SelectContent className="rounded-xl shadow-xl">
+              {serviceSubcategories.map((sub: any) => (
+                <SelectItem key={sub.id} value={String(sub.id)}>{sub.name} ({sub.code})</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      />
+      {errors.serviceSubcategoryId && <p className="text-sm text-red-500 font-medium">{errors.serviceSubcategoryId.message}</p>}
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -262,7 +330,7 @@ export default function AdminOffersPage() {
           <ViewToggle view={viewMode} onViewChange={setViewMode} />
           <Dialog open={isCreateOpen} onOpenChange={(open) => {
             setIsCreateOpen(open);
-            if (open) reset();
+            if (open) { reset(); setSelectedCategoryId(undefined); }
           }}>
             <DialogTrigger asChild>
               <Button className="bg-violet-600 hover:bg-violet-700 shadow-lg shadow-violet-500/20 h-11 px-6 rounded-xl font-bold">
@@ -279,7 +347,7 @@ export default function AdminOffersPage() {
                       Create New Offer
                     </DialogTitle>
                     <DialogDescription className="text-slate-500 text-lg font-medium">
-                      Add a new sellable product with precise duration and tiering.
+                      Add a new sellable product with category and pricing.
                     </DialogDescription>
                   </DialogHeader>
                 </div>
@@ -343,16 +411,8 @@ export default function AdminOffersPage() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="font-bold text-slate-700">Product Category</Label>
-                      <Input {...register("productCategoryId")} type="number" className="h-11 rounded-xl" placeholder="Category ID" />
-                      {errors.productCategoryId && <p className="text-sm text-red-500 font-medium">Product category is required</p>}
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="font-bold text-slate-700">Service Subcategory</Label>
-                      <Input {...register("serviceSubcategoryId")} type="number" className="h-11 rounded-xl" placeholder="Subcategory ID" />
-                      {errors.serviceSubcategoryId && <p className="text-sm text-red-500 font-medium">Service subcategory is required</p>}
-                    </div>
+                    <ProductCategorySelect control={control} errors={errors} />
+                    <ServiceSubcategorySelect control={control} errors={errors} />
                   </div>
 
                   <div className="space-y-3 pt-2">
@@ -432,12 +492,13 @@ export default function AdminOffersPage() {
                     <TableHead className="font-bold">Code</TableHead>
                     <TableHead className="font-bold">Price</TableHead>
                     <TableHead className="font-bold">Category</TableHead>
+                    <TableHead className="font-bold hidden lg:table-cell">Subcategory</TableHead>
                     <TableHead className="text-right font-bold">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {offers.length === 0 ? (
-                    <TableRow><TableCell colSpan={5} className="text-center py-20 text-slate-500"><Tags className="h-12 w-12 mx-auto mb-3 text-slate-200" />No offers found</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={6} className="text-center py-20 text-slate-500"><Tags className="h-12 w-12 mx-auto mb-3 text-slate-200" />No offers found</TableCell></TableRow>
                   ) : offers.map((offer) => (
                     <TableRow key={offer.id} className="hover:bg-slate-50/50 transition-colors group">
                       <TableCell>
@@ -458,6 +519,9 @@ export default function AdminOffersPage() {
                       </TableCell>
                       <TableCell className="text-sm text-slate-600">
                         {offer.productCategory?.name || offer.productCategoryId || "—"}
+                      </TableCell>
+                      <TableCell className="text-sm text-slate-600 hidden lg:table-cell">
+                        {offer.serviceSubcategory?.name || "—"}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -613,14 +677,8 @@ export default function AdminOffersPage() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="font-bold text-slate-700">Product Category</Label>
-                    <Input {...register("productCategoryId")} type="number" className="h-11 rounded-xl" placeholder="Category ID" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="font-bold text-slate-700">Service Subcategory</Label>
-                    <Input {...register("serviceSubcategoryId")} type="number" className="h-11 rounded-xl" placeholder="Subcategory ID" />
-                  </div>
+                  <ProductCategorySelect control={control} errors={errors} />
+                  <ServiceSubcategorySelect control={control} errors={errors} />
                 </div>
 
                 <div className="space-y-3 pt-2">
