@@ -35,7 +35,7 @@ export default function LoginPage() {
   }, [isAuthenticated, authLoading, router]);
 
   const testAccounts = [
-    { username: "admin", password: "taEj4aAetTv5T3Sv", isAdmin: true },
+    { username: "devadmin", password: "kyvUQq3X8YukzjFj", isAdmin: true },
     { username: "testuser1", password: "F00b@rrr" },
     { username: "ebotest1", password: "F00b@rrr" },
   ];
@@ -66,7 +66,7 @@ export default function LoginPage() {
       }
     },
     onError: (error: unknown) => {
-      const err = error as { response?: { data?: { message?: string } } };
+      const err = error as { response?: { data?: { message?: string; }; }; };
       setErrorMessage(err?.response?.data?.message || "Error checking account. Please try again.");
     },
   });
@@ -82,7 +82,7 @@ export default function LoginPage() {
         }
       },
       onError: (error: unknown) => {
-        const err = error as { response?: { data?: { message?: string } } };
+        const err = error as { response?: { data?: { message?: string; }; }; };
         setErrorMessage(err?.response?.data?.message || "Invalid credentials. Please try again.");
       },
     },
@@ -191,7 +191,7 @@ export default function LoginPage() {
             )}
           </div>
         </div>
-        
+
         {/* Left side - Image (visually) */}
         <div className="relative hidden w-0 flex-1 lg:block lg:w-1/2 overflow-hidden bg-black">
           <Image
@@ -203,13 +203,13 @@ export default function LoginPage() {
           />
           {/* Dark overlay for contrast */}
           <div className="absolute inset-0 bg-black/50 transition-opacity" />
-          
+
           {/* Glassmorphic floating card */}
           <div className="absolute bottom-12 left-12 right-12 z-20 xl:left-24 xl:right-24">
             <div className="p-8 rounded-3xl backdrop-blur-xl bg-white/10 border border-white/20 shadow-2xl overflow-hidden">
               {/* Refined subtle shine */}
               <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-white/40 to-transparent" />
-              
+
               <div className="relative space-y-5">
                 <div className="flex gap-1 mb-2 text-white/90">
                   {[...Array(5)].map((_, i) => (
@@ -218,11 +218,11 @@ export default function LoginPage() {
                     </svg>
                   ))}
                 </div>
-                
+
                 <h2 className="text-[26px] font-medium text-white tracking-tight leading-snug drop-shadow-sm">
                   {"\"The most elegant procurement platform we've ever used. It transformed our entire workflow overnight.\""}
                 </h2>
-                
+
                 <div className="pt-2 flex items-center gap-4">
                   <div className="h-11 w-11 rounded-full bg-linear-to-br from-white/30 to-white/10 flex items-center justify-center text-white font-medium border border-white/20 shadow-inner">
                     KA
