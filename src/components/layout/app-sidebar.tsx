@@ -13,9 +13,7 @@ import {
   Crown,
   LogOut,
   User,
-  LayoutGrid,
 } from "lucide-react";
-import { DEFAULT_APPS } from "@easy-peasy/ui";
 
 import Image from "next/image";
 import {
@@ -168,37 +166,6 @@ export function AppSidebar() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-
-            {/* App Switcher Section */}
-            <div className="p-2">
-              <p className="text-xs font-medium text-slate-500 mb-2 px-2">Apps</p>
-              <div className="grid grid-cols-3 gap-1">
-                {DEFAULT_APPS.map((app: any) => {
-                  const Icon = app.icon;
-                  const isCurrentApp = app.id === "kaizenAdmin";
-                  return (
-                    <a
-                      key={app.id}
-                      href={app.url}
-                      className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors ${isCurrentApp
-                          ? "bg-indigo-50 text-indigo-600"
-                          : "hover:bg-slate-50 text-slate-600"
-                        }`}
-                    >
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isCurrentApp
-                          ? "bg-indigo-100 text-indigo-600"
-                          : "bg-slate-100 text-slate-500"
-                        }`}>
-                        <Icon className="w-4 h-4" />
-                      </div>
-                      <span className="text-xs truncate w-full text-center">
-                        {app.name.replace("s", "")}
-                      </span>
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
 
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>

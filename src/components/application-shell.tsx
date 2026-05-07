@@ -63,7 +63,6 @@ import {
 } from "lucide-react";
 import { CurrencySelector } from "@/components/currency";
 import Image from "next/image";
-import { AppSwitcher as BaseAppSwitcher, DEFAULT_APPS } from "@easy-peasy/ui";
 import { SetupWarningsBanner } from "@/components/onboarding/setup-warnings-banner";
 
 type NavItem = {
@@ -400,13 +399,6 @@ export function ApplicationShell({ children, className }: ApplicationShellProps)
               <span className="font-semibold text-slate-900">KaizenAdmin</span>
             </Link>
             <div className="flex-1" />
-            {/* App Switcher */}
-            <BaseAppSwitcher
-              currentAppId="kaizenAdmin"
-              apps={DEFAULT_APPS}
-              portalUrl="https://easy-peasy-portal.vercel.app"
-              variant="compact"
-            />
             {/* Currency Selector - Amazon-style with flag */}
             <CurrencySelector variant="ghost" size="sm" allowedCurrency="GHS" />
             {/* Notification Bell */}
