@@ -17,7 +17,6 @@ export interface UpdateServicePackageDto {
   /** @nullable */
   discountId?: number | null;
   maximumTeamSize?: number;
-  maximumServiceProvidersAllowed?: number;
   currencyId?: number;
   /** @nullable */
   validity?: number | null;

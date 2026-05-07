@@ -17,10 +17,5 @@ export interface CreateOfferDto {
   currencyId?: number;
   currencyCode?: string;
   unitPrice: Decimal;
-  serviceTier?: 'LOW' | 'MEDIUM' | 'HIGH';
-  numberOfServiceProviders?: number;
-  minimumDuration?: number;
-  maximumDuration?: number | null;
-  durationUnit?: 'HOUR' | 'DAY' | 'WEEK' | 'MONTH' | 'YEAR';
   packageIds?: string[];
 }

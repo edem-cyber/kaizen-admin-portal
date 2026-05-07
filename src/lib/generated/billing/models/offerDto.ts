@@ -31,11 +31,6 @@ export interface OfferDto {
   /** @nullable */
   organizationId: number | null;
   id: number;
-  serviceTier?: 'LOW' | 'MEDIUM' | 'HIGH';
-  numberOfServiceProviders?: number;
-  minimumDuration?: number;
-  maximumDuration?: number | null;
-  durationUnit?: 'HOUR' | 'DAY' | 'WEEK' | 'MONTH' | 'YEAR';
   organization?: Organization;
   provider?: Organization;
   serviceSubcategory?: ServiceSubcategory;

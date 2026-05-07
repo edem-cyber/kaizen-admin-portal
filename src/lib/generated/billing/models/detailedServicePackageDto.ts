@@ -33,7 +33,7 @@ export interface DetailedServicePackageDto {
   validity: number | null;
   currencyId: number;
   maximumTeamSize: number;
-  maximumServiceProvidersAllowed?: number;
+  /** @nullable */
   discountId: number | null;
   version: string;
   type: ServicePackageType;

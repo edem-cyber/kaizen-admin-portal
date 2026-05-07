@@ -46,7 +46,6 @@ import {
   Building2,
   CreditCard,
   Tag,
-  Package,
   Shield,
   Layers,
   Settings,
@@ -56,6 +55,7 @@ import {
   User,
   Percent,
   Wallet,
+  FileText,
 } from "lucide-react";
 
 type NavItem = {
@@ -208,8 +208,8 @@ export default function AdminLayout({ children }: AdminShellProps) {
       defaultOpen: false,
       items: [
         {
-          label: "Packages",
-          icon: Package,
+          label: "Package Templates",
+          icon: FileText,
           href: "/admin/packages",
           isActive: pathname?.startsWith("/admin/packages"),
         },

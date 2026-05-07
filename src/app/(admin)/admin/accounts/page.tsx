@@ -89,7 +89,6 @@ export default function AdminAccountsPage() {
     page: currentPage,
     limit, 
     status: statusFilter || undefined,
-    q: searchTerm || undefined
   });
   const { data: typesData } = useGetOrganizationTypes();
   const { data: countriesData } = useGetCountries();

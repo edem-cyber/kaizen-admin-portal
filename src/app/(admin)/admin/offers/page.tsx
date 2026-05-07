@@ -49,15 +49,12 @@ import * as z from "zod";
 const offerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   code: z.string().min(2, "Code must be at least 2 characters"),
-  description: z.string().optional(),
+  description: z.string().min(1, "Description is required"),
   unitPrice: z.string().min(1, "Price is required"),
   currencyId: z.string(),
-  serviceTier: z.enum(["LOW", "MEDIUM", "HIGH"]),
-  numberOfServiceProviders: z.string().default("1"),
   maximumCheckIns: z.string().default("-1"),
-  minimumDuration: z.string().default("1"),
-  maximumDuration: z.string().optional(),
-  durationUnit: z.enum(["HOUR", "DAY", "WEEK", "MONTH", "YEAR"]),
+  serviceSubcategoryId: z.string(),
+  productCategoryId: z.string(),
   packageIds: z.array(z.string()),
 });
 
@@ -108,12 +105,9 @@ export default function AdminOffersPage() {
       description: "",
       unitPrice: "",
       currencyId: "1",
-      serviceTier: "LOW",
-      numberOfServiceProviders: "1",
       maximumCheckIns: "-1",
-      minimumDuration: "1",
-      maximumDuration: "",
-      durationUnit: "MONTH",
+      serviceSubcategoryId: "",
+      productCategoryId: "",
       packageIds: [],
     },
   });
@@ -131,19 +125,16 @@ export default function AdminOffersPage() {
   React.useEffect(() => {
     if (editingOffer?.id && detailedOfferResp?.data) {
       const offer = detailedOfferResp.data;
-      const pkgIds = (offer as any).packages?.map((pkg: any) => String(pkg.id)) || [];
+      const pkgIds = offer.packages?.map((pkg) => String(pkg.id)) || [];
       reset({
         name: offer.name || "",
         code: offer.code || "",
         description: offer.description || "",
         unitPrice: String(offer.unitPrice || ""),
         currencyId: String(offer.currencyId || "1"),
-        serviceTier: (offer.serviceTier || "LOW") as any,
-        numberOfServiceProviders: String(offer.numberOfServiceProviders || "1"),
         maximumCheckIns: String(offer.maximumCheckIns || "-1"),
-        minimumDuration: String(offer.minimumDuration || "1"),
-        maximumDuration: offer.maximumDuration ? String(offer.maximumDuration) : "",
-        durationUnit: (offer.durationUnit || "MONTH") as any,
+        serviceSubcategoryId: String(offer.serviceSubcategoryId || ""),
+        productCategoryId: String(offer.productCategoryId || ""),
         packageIds: pkgIds,
       });
       setOriginalPackageIds(pkgIds);
@@ -221,15 +212,12 @@ export default function AdminOffersPage() {
 
       const updateData: UpdateOfferDto = {
         name: data.name,
-        description: data.description || "",
-        serviceTier: data.serviceTier as any,
-        numberOfServiceProviders: Number(data.numberOfServiceProviders),
+        description: data.description,
         maximumCheckIns: Number(data.maximumCheckIns),
-        minimumDuration: Number(data.minimumDuration),
-        maximumDuration: data.maximumDuration ? Number(data.maximumDuration) : null,
-        durationUnit: data.durationUnit as any,
         unitPrice: Number(data.unitPrice) as any,
         currencyId: Number(data.currencyId),
+        serviceSubcategoryId: Number(data.serviceSubcategoryId),
+        productCategoryId: Number(data.productCategoryId),
         linkedPackageIds: linkedPackageIds.length > 0 ? linkedPackageIds : undefined,
         unlinkedPackageIds: unlinkedPackageIds.length > 0 ? unlinkedPackageIds : undefined,
       };
@@ -238,16 +226,12 @@ export default function AdminOffersPage() {
       const createData: CreateOfferDto = {
         name: data.name,
         code: data.code,
-        description: data.description || "",
+        description: data.description,
         unitPrice: Number(data.unitPrice) as any,
         currencyId: Number(data.currencyId),
-        serviceSubcategoryId: 1,
-        productCategoryId: 1, // Added missing required field
-        durationUnit: data.durationUnit as any,
-        minimumDuration: Number(data.minimumDuration),
+        serviceSubcategoryId: Number(data.serviceSubcategoryId),
+        productCategoryId: Number(data.productCategoryId),
         maximumCheckIns: Number(data.maximumCheckIns),
-        numberOfServiceProviders: Number(data.numberOfServiceProviders),
-        serviceTier: data.serviceTier as any,
         packageIds: data.packageIds.length > 0 ? data.packageIds : undefined,
       };
       createMutation.mutate({ data: createData });
@@ -353,62 +337,21 @@ export default function AdminOffersPage() {
                       )}
                     </div>
                     <div className="space-y-2">
-                      <Label className="font-bold text-slate-700">Service Tier</Label>
-                      <Controller
-                        name="serviceTier"
-                        control={control}
-                        render={({ field }) => (
-                          <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger className="h-11 rounded-xl"><SelectValue /></SelectTrigger>
-                            <SelectContent className="rounded-xl shadow-xl">
-                              <SelectItem value="LOW">Low (Basic)</SelectItem>
-                              <SelectItem value="MEDIUM">Medium (Pro)</SelectItem>
-                              <SelectItem value="HIGH">High (Enterprise)</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="font-bold text-slate-700">Providers Allowed</Label>
-                      <Input type="number" {...register("numberOfServiceProviders")} className="h-11 rounded-xl" />
-                    </div>
-                    <div className="space-y-2">
                       <Label className="font-bold text-slate-700">Max Check-ins</Label>
                       <Input type="number" {...register("maximumCheckIns")} className="h-11 rounded-xl" />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="font-bold text-slate-700">Min Duration</Label>
-                      <Input type="number" {...register("minimumDuration")} className="h-11 rounded-xl" />
+                      <Label className="font-bold text-slate-700">Product Category</Label>
+                      <Input {...register("productCategoryId")} type="number" className="h-11 rounded-xl" placeholder="Category ID" />
+                      {errors.productCategoryId && <p className="text-sm text-red-500 font-medium">Product category is required</p>}
                     </div>
                     <div className="space-y-2">
-                      <Label className="font-bold text-slate-700">Max Duration</Label>
-                      <Input type="number" {...register("maximumDuration")} className="h-11 rounded-xl" placeholder="None" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="font-bold text-slate-700">Unit</Label>
-                      <Controller
-                        name="durationUnit"
-                        control={control}
-                        render={({ field }) => (
-                          <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger className="h-11 rounded-xl"><SelectValue /></SelectTrigger>
-                            <SelectContent className="rounded-xl shadow-xl">
-                              <SelectItem value="HOUR">Hours</SelectItem>
-                              <SelectItem value="DAY">Days</SelectItem>
-                              <SelectItem value="WEEK">Weeks</SelectItem>
-                              <SelectItem value="MONTH">Months</SelectItem>
-                              <SelectItem value="YEAR">Years</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        )}
-                      />
+                      <Label className="font-bold text-slate-700">Service Subcategory</Label>
+                      <Input {...register("serviceSubcategoryId")} type="number" className="h-11 rounded-xl" placeholder="Subcategory ID" />
+                      {errors.serviceSubcategoryId && <p className="text-sm text-red-500 font-medium">Service subcategory is required</p>}
                     </div>
                   </div>
 
@@ -488,14 +431,13 @@ export default function AdminOffersPage() {
                     <TableHead className="font-bold">Offer Name</TableHead>
                     <TableHead className="font-bold">Code</TableHead>
                     <TableHead className="font-bold">Price</TableHead>
-                    <TableHead className="font-bold">Tier</TableHead>
-                    <TableHead className="font-bold">Duration</TableHead>
+                    <TableHead className="font-bold">Category</TableHead>
                     <TableHead className="text-right font-bold">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {offers.length === 0 ? (
-                    <TableRow><TableCell colSpan={6} className="text-center py-20 text-slate-500"><Tags className="h-12 w-12 mx-auto mb-3 text-slate-200" />No offers found</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={5} className="text-center py-20 text-slate-500"><Tags className="h-12 w-12 mx-auto mb-3 text-slate-200" />No offers found</TableCell></TableRow>
                   ) : offers.map((offer) => (
                     <TableRow key={offer.id} className="hover:bg-slate-50/50 transition-colors group">
                       <TableCell>
@@ -514,11 +456,8 @@ export default function AdminOffersPage() {
                         {symbol === "$" && offer.name.includes("(GHS)") ? "GHS" : symbol}
                         {parseFloat(String(offer.unitPrice || "0")).toLocaleString()}
                       </TableCell>
-                      <TableCell>
-                         <Badge variant="outline" className="font-bold border-slate-200">{offer.serviceTier}</Badge>
-                      </TableCell>
-                      <TableCell className="text-sm font-medium text-slate-600">
-                         {offer.minimumDuration} - {offer.maximumDuration || "∞"} {offer.durationUnit?.toLowerCase()}(s)
+                      <TableCell className="text-sm text-slate-600">
+                        {offer.productCategory?.name || offer.productCategoryId || "—"}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -558,14 +497,14 @@ export default function AdminOffersPage() {
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Tier</p>
-                        <p className="text-sm font-bold text-slate-700">{offer.serviceTier}</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Category</p>
+                        <p className="text-sm font-bold text-slate-700">{offer.productCategory?.name || "—"}</p>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between text-xs font-bold text-slate-500 px-1">
-                      <div className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5 text-orange-500" /> {offer.numberOfServiceProviders} Providers</div>
-                      <div className="flex items-center gap-1.5"><Package className="h-3.5 w-3.5 text-orange-500" /> {(offer as any).packages?.length || 0} Packages</div>
+                      <div className="flex items-center gap-1.5"><Tag className="h-3.5 w-3.5 text-orange-500" /> {offer.type}</div>
+                      <div className="flex items-center gap-1.5"><Package className="h-3.5 w-3.5 text-orange-500" /> {offer.packages?.length || 0} Packages</div>
                     </div>
 
                     <div className="flex gap-2 pt-2">
@@ -668,62 +607,19 @@ export default function AdminOffersPage() {
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label className="font-bold text-slate-700">Service Tier</Label>
-                    <Controller
-                      name="serviceTier"
-                      control={control}
-                      render={({ field }) => (
-                        <Select value={field.value} onValueChange={field.onChange}>
-                          <SelectTrigger className="h-11 rounded-xl"><SelectValue /></SelectTrigger>
-                          <SelectContent className="rounded-xl shadow-xl">
-                            <SelectItem value="LOW">Low</SelectItem>
-                            <SelectItem value="MEDIUM">Medium</SelectItem>
-                            <SelectItem value="HIGH">High</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="font-bold text-slate-700">Providers Allowed</Label>
-                    <Input type="number" {...register("numberOfServiceProviders")} className="h-11 rounded-xl" />
-                  </div>
-                  <div className="space-y-2">
                     <Label className="font-bold text-slate-700">Max Check-ins</Label>
                     <Input type="number" {...register("maximumCheckIns")} className="h-11 rounded-xl" />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="font-bold text-slate-700">Min Duration</Label>
-                    <Input type="number" {...register("minimumDuration")} className="h-11 rounded-xl" />
+                    <Label className="font-bold text-slate-700">Product Category</Label>
+                    <Input {...register("productCategoryId")} type="number" className="h-11 rounded-xl" placeholder="Category ID" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="font-bold text-slate-700">Max Duration</Label>
-                    <Input type="number" {...register("maximumDuration")} className="h-11 rounded-xl" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="font-bold text-slate-700">Unit</Label>
-                    <Controller
-                      name="durationUnit"
-                      control={control}
-                      render={({ field }) => (
-                        <Select value={field.value} onValueChange={field.onChange}>
-                          <SelectTrigger className="h-11 rounded-xl"><SelectValue /></SelectTrigger>
-                          <SelectContent className="rounded-xl shadow-xl">
-                            <SelectItem value="HOUR">Hours</SelectItem>
-                            <SelectItem value="DAY">Days</SelectItem>
-                            <SelectItem value="WEEK">Weeks</SelectItem>
-                            <SelectItem value="MONTH">Months</SelectItem>
-                            <SelectItem value="YEAR">Years</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
+                    <Label className="font-bold text-slate-700">Service Subcategory</Label>
+                    <Input {...register("serviceSubcategoryId")} type="number" className="h-11 rounded-xl" placeholder="Subcategory ID" />
                   </div>
                 </div>
 

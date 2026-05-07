@@ -23,7 +23,6 @@ projectId?: number;
 groupId?: number;
 status?: OrganizationStatus;
 spaceType?: SpaceType;
-q?: string;
 page?: number;
 limit?: number;
 orderBy?: OrganizationOrderBy;

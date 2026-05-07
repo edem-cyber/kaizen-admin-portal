@@ -16,11 +16,6 @@ export interface UpdateOfferDto {
   maximumCheckIns?: number;
   currencyId?: number;
   unitPrice?: Decimal;
-  serviceTier?: 'LOW' | 'MEDIUM' | 'HIGH';
-  numberOfServiceProviders?: number;
-  minimumDuration?: number;
-  maximumDuration?: number | null;
-  durationUnit?: 'HOUR' | 'DAY' | 'WEEK' | 'MONTH' | 'YEAR';
   linkedPackageIds?: string[];
   unlinkedPackageIds?: string[];
 }
