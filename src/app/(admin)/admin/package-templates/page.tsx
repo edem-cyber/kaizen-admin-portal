@@ -1,34 +1,48 @@
 "use client";
 
 import * as React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
-  useGetProductCategories,
-  useAddProductCategory,
-  useUpdateProductCategory,
-  useDeleteProductCategory,
-  getGetProductCategoriesQueryKey,
-} from "@/lib/generated/billing/product-categories/product-categories";
-import type { ProductCategory, CreateProductCategoryDto, UpdateProductCategoryDto } from "@/lib/generated/billing/models";
+  useGetDynamicPackageConfigs,
+  useAddDynamicPackageConfig,
+  useUpdateDynamicPackageConfig,
+  useDeleteDynamicPackageConfig,
+  getGetDynamicPackageConfigsQueryKey,
+} from "@/lib/generated/billing/dynamic-package-configs/dynamic-package-configs";
+import { useGetOffers } from "@/lib/generated/billing/offers/offers";
+import { useGetCurrencies } from "@/lib/generated/billing/currencies/currencies";
+import { useGetDiscounts } from "@/lib/generated/billing/discounts/discounts";
+import type { CreateDynamicPackageConfigDto, UpdateDynamicPackageConfigDto } from "@/lib/generated/billing/models";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { FileText, Search, Loader2, Plus, Pencil, Trash2, AlertCircle } from "lucide-react";
 import { PaginationController } from "@/components/ui/pagination-controller";
 import { queryClient } from "@/lib/react-query-provider";
 import { toast } from "sonner";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
-const templateSchema = z.object({
+const packageTemplateSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   code: z.string().min(2, "Code must be at least 2 characters"),
+  description: z.string().min(1, "Description is required"),
+  currencyId: z.string().min(1, "Currency is required"),
+  offersRequired: z.string().min(1, "Required offers is required"),
+  validity: z.string().optional(),
+  validityTimeUnit: z.enum(["DAYS", "MONTHS", "YEARS"]).optional(),
+  discountId: z.string().optional(),
+  requiredOfferIds: z.array(z.number()),
 });
 
-type TemplateFormValues = z.infer<typeof templateSchema>;
+type PackageTemplateFormValues = z.infer<typeof packageTemplateSchema>;
 
 export default function PackageTemplatesPage() {
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -36,8 +50,8 @@ export default function PackageTemplatesPage() {
   const [currentPage, setCurrentPage] = React.useState(1);
   const limit = 20;
   const [isCreateOpen, setIsCreateOpen] = React.useState(false);
-  const [editingTemplate, setEditingTemplate] = React.useState<ProductCategory | null>(null);
-  const [deletingTemplate, setDeletingTemplate] = React.useState<ProductCategory | null>(null);
+  const [editingTemplate, setEditingTemplate] = React.useState<any | null>(null);
+  const [deletingTemplate, setDeletingTemplate] = React.useState<any | null>(null);
 
   React.useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(searchTerm), 500);
@@ -47,26 +61,45 @@ export default function PackageTemplatesPage() {
   const {
     register,
     handleSubmit,
+    control,
     reset,
     formState: { errors },
-  } = useForm<TemplateFormValues>({
-    resolver: zodResolver(templateSchema),
-    defaultValues: { name: "", code: "" },
+  } = useForm<PackageTemplateFormValues>({
+    resolver: zodResolver(packageTemplateSchema),
+    defaultValues: {
+      name: "",
+      code: "",
+      description: "",
+      currencyId: "1",
+      offersRequired: "1",
+      validity: "",
+      validityTimeUnit: undefined,
+      discountId: "none",
+      requiredOfferIds: [],
+    },
   });
 
-  const { data: categoriesResp, isLoading, error, refetch } = useGetProductCategories({
-    q: debouncedSearch || undefined,
+  const { data: configsResp, isLoading, error, refetch } = useGetDynamicPackageConfigs({
     page: currentPage,
     limit,
   });
 
-  const categories = Array.isArray(categoriesResp?.data) ? categoriesResp.data : [];
+  const configs = Array.isArray(configsResp?.data) ? configsResp.data : [];
 
-  const createMutation = useAddProductCategory({
+  const { data: offersData } = useGetOffers({ limit: 100 });
+  const availableOffers = offersData?.data || [];
+
+  const { data: currenciesData } = useGetCurrencies({});
+  const availableCurrencies = currenciesData?.data || [];
+
+  const { data: discountsData } = useGetDiscounts({ limit: 100 });
+  const availableDiscounts = discountsData?.data || [];
+
+  const createMutation = useAddDynamicPackageConfig({
     mutation: {
       onSuccess: () => {
         toast.success("Package template created");
-        queryClient.invalidateQueries({ queryKey: getGetProductCategoriesQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetDynamicPackageConfigsQueryKey() });
         setIsCreateOpen(false);
         reset();
       },
@@ -74,11 +107,11 @@ export default function PackageTemplatesPage() {
     },
   });
 
-  const updateMutation = useUpdateProductCategory({
+  const updateMutation = useUpdateDynamicPackageConfig({
     mutation: {
       onSuccess: () => {
         toast.success("Package template updated");
-        queryClient.invalidateQueries({ queryKey: getGetProductCategoriesQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetDynamicPackageConfigsQueryKey() });
         setEditingTemplate(null);
         reset();
       },
@@ -86,46 +119,67 @@ export default function PackageTemplatesPage() {
     },
   });
 
-  const deleteMutation = useDeleteProductCategory({
+  const deleteMutation = useDeleteDynamicPackageConfig({
     mutation: {
       onSuccess: () => {
         toast.success("Package template deleted");
-        queryClient.invalidateQueries({ queryKey: getGetProductCategoriesQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetDynamicPackageConfigsQueryKey() });
         setDeletingTemplate(null);
       },
       onError: (err: any) => toast.error(err?.response?.data?.message || "Failed to delete template"),
     },
   });
 
-  const onSubmit = (data: TemplateFormValues) => {
+  const onSubmit = (data: PackageTemplateFormValues) => {
+    const validity = data.validity ? parseInt(data.validity) : null;
     if (editingTemplate) {
-      const updateData: UpdateProductCategoryDto = {
+      const updateData: UpdateDynamicPackageConfigDto = {
         name: data.name,
-        code: data.code,
+        description: data.description,
+        offersRequired: parseInt(data.offersRequired),
+        validity: validity,
+        validityTimeUnit: data.validityTimeUnit as any,
+        discountId: data.discountId && data.discountId !== "none" ? parseInt(data.discountId) : null,
       };
       updateMutation.mutate({ id: editingTemplate.id, data: updateData });
     } else {
-      const createData: CreateProductCategoryDto = {
+      const createData: CreateDynamicPackageConfigDto = {
         name: data.name,
         code: data.code,
+        description: data.description,
+        currencyId: parseInt(data.currencyId),
+        offersRequired: parseInt(data.offersRequired),
+        validity: validity,
+        validityTimeUnit: data.validityTimeUnit as any,
+        discountId: data.discountId && data.discountId !== "none" ? parseInt(data.discountId) : undefined,
       };
       createMutation.mutate({ data: createData });
     }
   };
 
-  const openEdit = (cat: ProductCategory) => {
-    setEditingTemplate(cat);
-    reset({ name: cat.name, code: cat.code });
+  const openEdit = (cfg: any) => {
+    setEditingTemplate(cfg);
+    reset({
+      name: cfg.name || "",
+      code: cfg.code || "",
+      description: cfg.description || "",
+      currencyId: String(cfg.currencyId || "1"),
+      offersRequired: String(cfg.offersRequired || "1"),
+      validity: cfg.validity ? String(cfg.validity) : "",
+      validityTimeUnit: cfg.validityTimeUnit as any,
+      discountId: cfg.discountId ? String(cfg.discountId) : "none",
+      requiredOfferIds: cfg.requiredOffers?.map((o: any) => o.id) || [],
+    });
   };
 
-  const pagination = categoriesResp?.pagination;
+  const pagination = configsResp?.pagination;
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">Package Templates</h1>
-          <p className="text-slate-500 text-lg">Templates that organizations use to create their own packages</p>
+          <p className="text-slate-500 text-lg">Dynamic package configurations for organizations to build from</p>
         </div>
         <Dialog open={isCreateOpen} onOpenChange={(open) => { setIsCreateOpen(open); if (open) reset(); }}>
           <DialogTrigger asChild>
@@ -134,25 +188,98 @@ export default function PackageTemplatesPage() {
               Create Template
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogContent className="sm:max-w-lg rounded-2xl">
             <form onSubmit={handleSubmit(onSubmit)}>
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <FileText className="h-5 w-5 text-violet-600" />
                   New Package Template
                 </DialogTitle>
-                <DialogDescription>Create a template for organizations to build packages from.</DialogDescription>
+                <DialogDescription>Create a dynamic package configuration template.</DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label className="font-medium">Name</Label>
-                  <Input {...register("name")} placeholder="e.g. Starter Package" className="h-11 rounded-xl" />
-                  {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="font-medium">Name</Label>
+                    <Input {...register("name")} placeholder="e.g. Enterprise Suite" className="h-11 rounded-xl" />
+                    {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="font-medium">Code</Label>
+                    <Input {...register("code")} placeholder="e.g. ENT-SUITE" className="h-11 rounded-xl uppercase font-mono" />
+                    {errors.code && <p className="text-sm text-red-500">{errors.code.message}</p>}
+                  </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="font-medium">Code</Label>
-                  <Input {...register("code")} placeholder="e.g. STARTER" className="h-11 rounded-xl uppercase font-mono" />
-                  {errors.code && <p className="text-sm text-red-500">{errors.code.message}</p>}
+                  <Label className="font-medium">Description</Label>
+                  <Input {...register("description")} className="h-11 rounded-xl" />
+                  {errors.description && <p className="text-sm text-red-500">{errors.description.message}</p>}
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="font-medium">Currency</Label>
+                    <Controller
+                      name="currencyId"
+                      control={control}
+                      render={({ field }) => (
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Select currency" /></SelectTrigger>
+                          <SelectContent>
+                            {availableCurrencies.map((c: any) => (
+                              <SelectItem key={c.id} value={String(c.id)}>{c.code} ({c.symbol})</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.currencyId && <p className="text-sm text-red-500">{errors.currencyId.message}</p>}
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="font-medium">Required Offers</Label>
+                    <Input {...register("offersRequired")} type="number" min="1" className="h-11 rounded-xl" />
+                    {errors.offersRequired && <p className="text-sm text-red-500">{errors.offersRequired.message}</p>}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="font-medium">Validity</Label>
+                    <Input {...register("validity")} type="number" min="1" className="h-11 rounded-xl" placeholder="e.g. 30" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="font-medium">Time Unit</Label>
+                    <Controller
+                      name="validityTimeUnit"
+                      control={control}
+                      render={({ field }) => (
+                        <Select value={field.value || ""} onValueChange={field.onChange}>
+                          <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Select unit" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="DAYS">Days</SelectItem>
+                            <SelectItem value="MONTHS">Months</SelectItem>
+                            <SelectItem value="YEARS">Years</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-medium">Discount (optional)</Label>
+                  <Controller
+                    name="discountId"
+                    control={control}
+                    render={({ field }) => (
+                      <Select value={field.value || "none"} onValueChange={field.onChange}>
+                        <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="No discount" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">No Discount</SelectItem>
+                          {availableDiscounts.map((d: any) => (
+                            <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                 </div>
               </div>
               <DialogFooter>
@@ -196,36 +323,38 @@ export default function PackageTemplatesPage() {
                 <TableRow>
                   <TableHead className="font-bold">Name</TableHead>
                   <TableHead className="font-bold">Code</TableHead>
-                  <TableHead className="font-bold hidden md:table-cell">Created</TableHead>
+                  <TableHead className="font-bold">Offers Req.</TableHead>
+                  <TableHead className="font-bold hidden md:table-cell">Validity</TableHead>
                   <TableHead className="text-right font-bold">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {categories.length === 0 ? (
+                {configs.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-20 text-slate-500">
+                    <TableCell colSpan={5} className="text-center py-20 text-slate-500">
                       <FileText className="h-10 w-10 mx-auto mb-3 text-slate-200" />
                       No package templates found
                     </TableCell>
                   </TableRow>
                 ) : (
-                  categories.map((cat) => (
-                    <TableRow key={cat.id} className="hover:bg-slate-50/50 transition-colors group">
-                      <TableCell className="font-semibold text-slate-900">{cat.name}</TableCell>
+                  configs.map((cfg: any) => (
+                    <TableRow key={cfg.id} className="hover:bg-slate-50/50 transition-colors group">
+                      <TableCell className="font-semibold text-slate-900">{cfg.name}</TableCell>
                       <TableCell>
                         <code className="text-xs font-mono text-slate-600 bg-slate-100 px-2 py-1 rounded tracking-wider uppercase">
-                          {cat.code}
+                          {cfg.code}
                         </code>
                       </TableCell>
+                      <TableCell className="text-sm text-slate-600">{cfg.offersRequired || "—"}</TableCell>
                       <TableCell className="text-sm text-slate-500 hidden md:table-cell">
-                        {new Date(cat.createdAt).toLocaleDateString()}
+                        {cfg.validity ? `${cfg.validity} ${cfg.validityTimeUnit?.toLowerCase() || ""}` : "—"}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-violet-50 hover:text-violet-600" onClick={() => openEdit(cat)}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-violet-50 hover:text-violet-600" onClick={() => openEdit(cfg)}>
                             <Pencil className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:bg-red-50" onClick={() => setDeletingTemplate(cat)}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:bg-red-50" onClick={() => setDeletingTemplate(cfg)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
@@ -252,7 +381,7 @@ export default function PackageTemplatesPage() {
 
       {/* Edit Dialog */}
       <Dialog open={!!editingTemplate} onOpenChange={(open) => { if (!open) setEditingTemplate(null); }}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
+        <DialogContent className="sm:max-w-lg rounded-2xl">
           <form onSubmit={handleSubmit(onSubmit)}>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
@@ -261,15 +390,70 @@ export default function PackageTemplatesPage() {
               </DialogTitle>
               <DialogDescription>Editing <span className="font-semibold text-slate-900">{editingTemplate?.name}</span></DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label className="font-medium">Name</Label>
-                <Input {...register("name")} className="h-11 rounded-xl" />
-                {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
+              <div className="space-y-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="font-medium">Name</Label>
+                    <Input {...register("name")} className="h-11 rounded-xl" />
+                    {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="font-medium">Code</Label>
+                    <Input {...register("code")} disabled className="h-11 rounded-xl bg-slate-100 font-mono" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-medium">Description</Label>
+                  <Input {...register("description")} className="h-11 rounded-xl" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-medium">Currency</Label>
+                  <Input value={editingTemplate?.currency?.code || "—"} disabled className="h-11 rounded-xl bg-slate-100 font-mono" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-medium">Required Offers</Label>
+                  <Input {...register("offersRequired")} type="number" min="1" className="h-11 rounded-xl" />
+                </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="font-medium">Validity</Label>
+                  <Input {...register("validity")} type="number" min="1" className="h-11 rounded-xl" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-medium">Time Unit</Label>
+                  <Controller
+                    name="validityTimeUnit"
+                    control={control}
+                    render={({ field }) => (
+                      <Select value={field.value || ""} onValueChange={field.onChange}>
+                        <SelectTrigger className="h-11 rounded-xl"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="DAYS">Days</SelectItem>
+                          <SelectItem value="MONTHS">Months</SelectItem>
+                          <SelectItem value="YEARS">Years</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </div>
               </div>
               <div className="space-y-2">
-                <Label className="font-medium">Code</Label>
-                <Input {...register("code")} disabled className="h-11 rounded-xl bg-slate-100 font-mono" />
+                <Label className="font-medium">Discount (optional)</Label>
+                <Controller
+                  name="discountId"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value || "none"} onValueChange={field.onChange}>
+                      <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="No discount" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">No Discount</SelectItem>
+                        {availableDiscounts.map((d: any) => (
+                          <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </div>
             </div>
             <DialogFooter>
