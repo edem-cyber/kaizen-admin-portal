@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   },
   manifest: '/manifest.json',
   appleWebApp: {
-    title: 'MyWebSite',
+    title: 'Kaizen',
   },
 };
 
