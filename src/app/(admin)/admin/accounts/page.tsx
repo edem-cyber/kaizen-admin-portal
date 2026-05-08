@@ -38,14 +38,15 @@ import {
   Building,
   LayoutGrid,
   List as ListIcon,
-  List as ListIcon,
   CalendarDays,
   UserCheck,
   UserX,
   UserPlus2,
   ChevronDown,
   User as UserIcon,
+  Users,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { ViewToggle } from "@/components/ui/view-toggle";
 import { PaginationController } from "@/components/ui/pagination-controller";
 import { queryClient } from "@/lib/react-query-provider";

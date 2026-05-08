@@ -39,7 +39,7 @@ const packageTemplateSchema = z.object({
   validity: z.string().optional(),
   validityTimeUnit: z.enum(["DAYS", "MONTHS", "YEARS"]).optional(),
   discountId: z.string().optional(),
-  requiredOfferIds: z.array(z.number()),
+  requiredOfferIds: z.array(z.number()).optional(),
 });
 
 type PackageTemplateFormValues = z.infer<typeof packageTemplateSchema>;
