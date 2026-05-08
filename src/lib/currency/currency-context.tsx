@@ -157,6 +157,7 @@ export function CurrencyProvider({
   const availableCurrencies = useMemo<CurrencyData[]>(() => {
     if (currenciesResponse?.data && currenciesResponse.data.length > 0) {
       return currenciesResponse.data.map((c) => ({
+        id: (c as any).id,
         code: c.code,
         name: c.name,
         symbol: c.symbol,

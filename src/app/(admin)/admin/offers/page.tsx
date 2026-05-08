@@ -50,7 +50,7 @@ import * as z from "zod";
 
 const offerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  code: z.string().min(2, "Code must be at least 2 characters"),
+  code: z.string().min(2, "Code must be at least 2 characters").regex(/^[a-zA-Z0-9]+$/, "Code must only contain alphanumeric characters"),
   description: z.string().min(1, "Description is required"),
   unitPrice: z.string().min(1, "Price is required"),
   currencyId: z.string(),
@@ -107,13 +107,15 @@ export default function AdminOffersPage() {
       code: "",
       description: "",
       unitPrice: "",
-      currencyId: "1",
+      currencyId: "",
       maximumCheckIns: "-1",
       serviceSubcategoryId: "",
       productCategoryId: "",
       packageIds: [],
     },
   });
+
+  const { availableCurrencies } = useCurrency();
 
   const watchedCategoryId = watch("productCategoryId");
 
@@ -233,16 +235,21 @@ export default function AdminOffersPage() {
   });
 
   const onSubmit = (data: OfferFormValues) => {
+    const selectedCurrency = availableCurrencies.find(c => c.code === data.currencyId || String(c.id) === data.currencyId);
+    const currencyCode = selectedCurrency?.code || "GHS";
+    const currencyId = selectedCurrency?.id || Number(data.currencyId) || 1;
+
     if (editingOffer) {
       const linkedPackageIds = data.packageIds.filter(id => !originalPackageIds.includes(id));
       const unlinkedPackageIds = originalPackageIds.filter(id => !data.packageIds.includes(id));
 
       const updateData: UpdateOfferDto = {
         name: data.name,
+        code: data.code,
         description: data.description,
         maximumCheckIns: Number(data.maximumCheckIns),
-        unitPrice: Number(data.unitPrice) as any,
-        currencyId: Number(data.currencyId),
+        unitPrice: data.unitPrice,
+        currencyId: currencyId,
         serviceSubcategoryId: Number(data.serviceSubcategoryId),
         productCategoryId: Number(data.productCategoryId),
         linkedPackageIds: linkedPackageIds.length > 0 ? linkedPackageIds : undefined,
@@ -254,8 +261,9 @@ export default function AdminOffersPage() {
         name: data.name,
         code: data.code,
         description: data.description,
-        unitPrice: Number(data.unitPrice) as any,
-        currencyId: Number(data.currencyId),
+        unitPrice: data.unitPrice,
+        currencyId: currencyId,
+        currencyCode: currencyCode,
         serviceSubcategoryId: Number(data.serviceSubcategoryId),
         productCategoryId: Number(data.productCategoryId),
         maximumCheckIns: Number(data.maximumCheckIns),
@@ -320,34 +328,41 @@ export default function AdminOffersPage() {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Offers</h1>
-          <p className="text-slate-500 text-lg">Manage base products and add-ons</p>
+    <div className="space-y-8 pb-12">
+      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-violet-600 font-bold text-sm uppercase tracking-wider">
+            <Tag className="h-4 w-4" />
+            Product Management
+          </div>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight">Offers</h1>
+          <p className="text-slate-500 text-lg">Create and manage your service offerings and pricing models.</p>
         </div>
         <div className="flex items-center gap-3">
           <ViewToggle view={viewMode} onViewChange={setViewMode} />
           <Dialog open={isCreateOpen} onOpenChange={(open) => {
             setIsCreateOpen(open);
-            if (open) { reset(); setSelectedCategoryId(undefined); }
+            if (open) reset();
           }}>
             <DialogTrigger asChild>
-              <Button className="bg-violet-600 hover:bg-violet-700 shadow-lg shadow-violet-500/20 h-11 px-6 rounded-xl font-bold">
-                <Plus className="mr-2 h-5 w-5" />
+              <Button className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-xl shadow-violet-500/25 h-12 px-8 rounded-2xl font-black text-base transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
+                <Plus className="mr-2 h-5 w-5 stroke-[3px]" />
                 Create Offer
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-xl rounded-3xl p-0 border-none shadow-2xl overflow-hidden">
-              <form onSubmit={handleSubmit(onSubmitWrapper)}>
-                <div className="p-8 border-b">
-                  <DialogHeader>
-                    <DialogTitle className="text-2xl font-black flex items-center gap-3 text-slate-900">
-                      <Tags className="h-6 w-6 text-violet-600" />
+            <DialogContent className="sm:max-w-3xl rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <div className="bg-slate-900 p-10 text-white relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-8 opacity-10">
+                    <Tag className="h-32 w-32 rotate-12" />
+                  </div>
+                  <DialogHeader className="relative z-10">
+                    <DialogTitle className="text-3xl font-black flex items-center gap-3">
+                      <Gift className="h-8 w-8 text-violet-400" />
                       Create New Offer
                     </DialogTitle>
-                    <DialogDescription className="text-slate-500 text-lg font-medium">
-                      Add a new sellable product with category and pricing.
+                    <DialogDescription className="text-slate-400 text-lg">
+                      Define a new product or service offering for your clients.
                     </DialogDescription>
                   </DialogHeader>
                 </div>
@@ -411,7 +426,28 @@ export default function AdminOffersPage() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="font-bold text-slate-700">Currency</Label>
+                      <Controller
+                        name="currencyId"
+                        control={control}
+                        render={({ field }) => (
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Select currency" /></SelectTrigger>
+                            <SelectContent className="rounded-xl shadow-xl">
+                              {availableCurrencies.map((c) => (
+                                <SelectItem key={c.code} value={String(c.id || c.code)}>{c.code} ({c.symbol})</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                      {errors.currencyId && <p className="text-sm text-red-500 font-medium">{errors.currencyId.message}</p>}
+                    </div>
                     <ProductCategorySelect control={control} errors={errors} />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
                     <ServiceSubcategorySelect control={control} errors={errors} />
                   </div>
 
@@ -626,8 +662,17 @@ export default function AdminOffersPage() {
                     <Input {...register("name")} className="h-11 rounded-xl" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="font-bold text-slate-700">Internal Code</Label>
-                    <Input {...register("code")} disabled className="h-11 rounded-xl bg-slate-100 font-mono" />
+                    <Label className="text-sm font-bold text-slate-700">Internal Code</Label>
+                    <Input 
+                      {...register("code")} 
+                      placeholder="OFF-001" 
+                      className="h-11 rounded-xl bg-slate-50 font-mono uppercase" 
+                      onChange={(e) => {
+                        e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+                        register("code").onChange(e);
+                      }}
+                    />
+                    {errors.code && <p className="text-xs text-red-500 font-medium">{errors.code.message}</p>}
                   </div>
                 </div>
 
@@ -677,7 +722,28 @@ export default function AdminOffersPage() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="font-bold text-slate-700">Currency</Label>
+                    <Controller
+                      name="currencyId"
+                      control={control}
+                      render={({ field }) => (
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Select currency" /></SelectTrigger>
+                          <SelectContent className="rounded-xl shadow-xl">
+                            {availableCurrencies.map((c) => (
+                              <SelectItem key={c.code} value={String(c.id || c.code)}>{c.code} ({c.symbol})</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.currencyId && <p className="text-sm text-red-500 font-medium">{errors.currencyId.message}</p>}
+                  </div>
                   <ProductCategorySelect control={control} errors={errors} />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
                   <ServiceSubcategorySelect control={control} errors={errors} />
                 </div>
 

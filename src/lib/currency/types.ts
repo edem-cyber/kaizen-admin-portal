@@ -29,6 +29,7 @@ export interface CurrencyPreference {
  * This is the source of truth for available currencies
  */
 export interface CurrencyData {
+    id?: number;
     code: string;
     name: string;
     symbol: string;

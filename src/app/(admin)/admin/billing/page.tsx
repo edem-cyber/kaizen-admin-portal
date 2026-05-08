@@ -70,7 +70,7 @@ export default function AdminBillingPage() {
     description: "",
     currencyId: 1, // Default GHS
     productType: "DIRECT_BOOKING",
-    serviceDate: new Date().toISOString(),
+    serviceDate: new Date().toISOString().split('T')[0],
     invoiceItems: [
       { amount: "0", unitPrice: "0", quantity: 1, description: "" }
     ],
@@ -171,7 +171,7 @@ export default function AdminBillingPage() {
       description: "",
       currencyId: 1,
       productType: "DIRECT_BOOKING",
-      serviceDate: new Date().toISOString(),
+      serviceDate: new Date().toISOString().split('T')[0],
       invoiceItems: [
         { amount: "0", unitPrice: "0", quantity: 1, description: "" }
       ],
@@ -520,8 +520,8 @@ export default function AdminBillingPage() {
                   <Label className="text-sm font-bold text-slate-700">Service Date</Label>
                   <Input 
                     type="date"
-                    value={invoiceFormData.serviceDate.split('T')[0]} 
-                    onChange={(e) => setInvoiceFormData({ ...invoiceFormData, serviceDate: new Date(e.target.value).toISOString() })}
+                    value={invoiceFormData.serviceDate} 
+                    onChange={(e) => setInvoiceFormData({ ...invoiceFormData, serviceDate: e.target.value })}
                     className="h-12 rounded-xl border-slate-200 focus:ring-violet-500 shadow-sm"
                   />
                 </div>

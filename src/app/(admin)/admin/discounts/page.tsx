@@ -10,6 +10,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format, addDays } from "date-fns";
+import { cn } from "@/lib/utils";
 import {
   useGetDiscounts,
   useSearchDiscounts,
@@ -19,9 +23,10 @@ import {
   getGetDiscountsQueryKey,
   getSearchDiscountsQueryKey,
 } from "@/lib/generated/billing/discounts/discounts";
+import { useGetOrganizations } from "@/lib/generated/org/organizations/organizations";
 import type { Discount, UpdateDiscountDto } from "@/lib/generated/billing/models";
 import { queryClient } from "@/lib/react-query-provider";
-import { Tag, Search, Loader2, Plus, Pencil, Trash2, Calendar, Sparkles } from "lucide-react";
+import { Tag, Search, Loader2, Plus, Pencil, Trash2, Calendar as CalendarIcon, Sparkles } from "lucide-react";
 import { ViewToggle } from "@/components/ui/view-toggle";
 import { PaginationController } from "@/components/ui/pagination-controller";
 import { toast } from "sonner";
@@ -32,14 +37,14 @@ import * as z from "zod";
 
 const discountSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  code: z.string().min(2, "Code must be at least 2 characters"),
+  code: z.string().min(2, "Code must be at least 2 characters").regex(/^[a-zA-Z0-9]+$/, "Code must only contain alphanumeric characters"),
   description: z.string().optional(),
   discountType: z.enum(["percentage", "fixed"]),
   value: z.string().min(1, "Value is required"),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
+  startDate: z.date().optional().nullable(),
+  endDate: z.date().optional().nullable(),
   active: z.boolean().default(true),
-  organizationId: z.string().optional(),
+  organizationId: z.string().min(1, "Organization is required"),
 });
 
 type DiscountFormValues = z.infer<typeof discountSchema>;
@@ -74,32 +79,33 @@ export default function AdminDiscountsPage() {
       name: "",
       code: "",
       description: "",
-      discountType: "percentage",
+      discountType: "percentage" as const,
       value: "",
-      startDate: "",
-      endDate: "",
+      startDate: new Date(),
+      endDate: addDays(new Date(), 1),
       active: true,
-      organizationId: "",
+      organizationId: "1", // Default to Platform Org
     },
   });
 
   const selectedType = watch("discountType");
 
   const isSearching = debouncedSearch.trim().length > 0;
-  
-  const stdQuery = useGetDiscounts(
-    { page: currentPage, limit },
-    { query: { enabled: !isSearching } }
-  );
-  
-  const searchQuery = useSearchDiscounts(
-    { q: debouncedSearch, page: currentPage, limit },
-    { query: { enabled: isSearching } }
-  );
 
-  const activeQuery = isSearching ? searchQuery : stdQuery;
+  const activeQuery = useGetDiscounts(
+    { 
+      page: currentPage, 
+      limit, 
+      code: isSearching ? debouncedSearch : undefined,
+      // organizationId: 0 // Optional: Uncomment if we want to default to org-less discounts
+    }
+  );
+  
   const discounts = Array.isArray(activeQuery.data?.data) ? (activeQuery.data.data as Discount[]) : [];
   const pagination = activeQuery.data?.pagination;
+
+  const { data: orgsData } = useGetOrganizations({ limit: 100 });
+  const orgs = Array.isArray(orgsData?.data) ? orgsData.data : [];
 
   const createMutation = useAddDiscount({
     mutation: {
@@ -146,29 +152,49 @@ export default function AdminDiscountsPage() {
   });
 
   const onSubmit = (data: DiscountFormValues) => {
+    const formatDate = (date: Date | null | undefined) => {
+      if (!date) return null;
+      try {
+        return format(date, "yyyy-MM-dd");
+      } catch (e) {
+        return null;
+      }
+    };
+
+    const formattedPercentage = data.discountType === "percentage" 
+      ? String(Number(data.value) / 100) 
+      : null;
+    
+    const formattedFixedValue = data.discountType === "fixed" 
+      ? data.value 
+      : null;
+
     if (editingDiscount) {
       const updateData: UpdateDiscountDto = {
         name: data.name,
+        code: data.code,
         description: data.description || "",
         active: data.active,
+        percentage: formattedPercentage,
+        fixedValue: formattedFixedValue,
+        startDate: formatDate(data.startDate),
+        endDate: formatDate(data.endDate),
       };
       updateMutation.mutate({ id: editingDiscount.id, data: updateData });
     } else {
-      const createData: Discount = {
-        id: 0,
+      const createData: any = {
         name: data.name,
         code: data.code,
         description: data.description || "",
-        percentage: data.discountType === "percentage" ? Number(data.value) as any : null,
-        fixedValue: data.discountType === "fixed" ? Number(data.value) as any : null,
-        startDate: data.startDate ? new Date(data.startDate).toISOString() : null,
-        endDate: data.endDate ? new Date(data.endDate).toISOString() : null,
         active: data.active,
-        organizationId: data.organizationId ? Number(data.organizationId) : null,
-        createdAt: new Date().toISOString(),
-        modifiedAt: null,
+        percentage: formattedPercentage,
+        fixedValue: formattedFixedValue,
+        startDate: formatDate(data.startDate),
+        endDate: formatDate(data.endDate),
+        organizationId: Number(data.organizationId),
       };
-      createMutation.mutate({ data: createData });
+      
+      createMutation.mutate({ data: createData as any });
     }
   };
 
@@ -179,11 +205,11 @@ export default function AdminDiscountsPage() {
       code: discount.code,
       description: discount.description || "",
       discountType: discount.percentage ? "percentage" : "fixed",
-      value: String(discount.percentage ?? discount.fixedValue ?? ""),
-      startDate: discount.startDate ? discount.startDate.split("T")[0] : "",
-      endDate: discount.endDate ? discount.endDate.split("T")[0] : "",
+      value: discount.percentage ? String(Math.round(Number(discount.percentage) * 100)) : String(discount.fixedValue ?? ""),
+      startDate: discount.startDate ? new Date(discount.startDate) : null,
+      endDate: discount.endDate ? new Date(discount.endDate) : null,
       active: discount.active ?? true,
-      organizationId: discount.organizationId ? String(discount.organizationId) : "",
+      organizationId: discount.organizationId ? String(discount.organizationId) : "1",
     });
   };
 
@@ -222,11 +248,15 @@ export default function AdminDiscountsPage() {
   const onSubmitWrapper = (data: any) => onSubmit(data as DiscountFormValues);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Discounts</h1>
-          <p className="text-slate-500 text-lg">Manage promotional codes and price reductions</p>
+    <div className="space-y-8 pb-12">
+      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-violet-600 font-bold text-sm uppercase tracking-wider">
+            <Tag className="h-4 w-4" />
+            Promotion Management
+          </div>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight">Discounts</h1>
+          <p className="text-slate-500 text-lg">Create and manage your promotional codes and price reductions.</p>
         </div>
         <div className="flex items-center gap-3">
           <ViewToggle view={viewMode} onViewChange={setViewMode} />
@@ -235,20 +265,23 @@ export default function AdminDiscountsPage() {
             if (open) reset();
           }}>
             <DialogTrigger asChild>
-              <Button className="bg-violet-600 hover:bg-violet-700 shadow-lg shadow-violet-500/20 h-11 px-6 rounded-xl font-bold">
-                <Plus className="mr-2 h-5 w-5" />
+              <Button className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-xl shadow-violet-500/25 h-12 px-8 rounded-2xl font-black text-base transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
+                <Plus className="mr-2 h-5 w-5 stroke-[3px]" />
                 Create Discount
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-lg rounded-3xl p-0 border-none shadow-2xl overflow-hidden">
+            <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
               <form onSubmit={handleSubmit(onSubmitWrapper)}>
-                <div className="bg-slate-900 p-8 text-white">
-                  <DialogHeader>
-                    <DialogTitle className="text-2xl font-black flex items-center gap-3">
-                      <Sparkles className="h-6 w-6 text-violet-400" />
+                <div className="bg-slate-900 p-10 text-white relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-8 opacity-10">
+                    <Tag className="h-32 w-32 rotate-12" />
+                  </div>
+                  <DialogHeader className="relative z-10">
+                    <DialogTitle className="text-3xl font-black flex items-center gap-3">
+                      <Sparkles className="h-8 w-8 text-violet-400" />
                       Create New Discount
                     </DialogTitle>
-                    <DialogDescription className="text-slate-400">
+                    <DialogDescription className="text-slate-400 text-lg">
                       Configure a new promotional rule or code.
                     </DialogDescription>
                   </DialogHeader>
@@ -262,7 +295,15 @@ export default function AdminDiscountsPage() {
                     </div>
                     <div className="space-y-2">
                       <Label className="font-bold text-slate-700">Code</Label>
-                      <Input {...register("code")} className="h-11 rounded-xl uppercase font-mono" placeholder="SUMMER20" />
+                      <Input 
+                        {...register("code")} 
+                        className="h-11 rounded-xl uppercase font-mono" 
+                        placeholder="SUMMER20"
+                        onChange={(e) => {
+                          e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+                          register("code").onChange(e);
+                        }}
+                      />
                       {errors.code && <p className="text-sm text-red-500 font-medium">{errors.code.message}</p>}
                     </div>
                   </div>
@@ -301,14 +342,89 @@ export default function AdminDiscountsPage() {
                       {errors.value && <p className="text-sm text-red-500 font-medium">{errors.value.message}</p>}
                     </div>
                   </div>
+                  <div className="space-y-2">
+                    <Label className="font-bold text-slate-700">Target Organization</Label>
+                    <Controller
+                      name="organizationId"
+                      control={control}
+                      render={({ field }) => (
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger className="h-11 rounded-xl shadow-sm border-slate-200"><SelectValue placeholder="Select organization" /></SelectTrigger>
+                          <SelectContent className="rounded-xl shadow-xl">
+                            {orgs.map((org) => (
+                              <SelectItem key={org.id} value={String(org.id)} className="rounded-lg">{org.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.organizationId && <p className="text-sm text-red-500 font-medium">{errors.organizationId.message}</p>}
+                  </div>
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label className="font-bold text-slate-700">Start Date</Label>
-                      <Input type="date" {...register("startDate")} className="h-11 rounded-xl" />
+                      <Controller
+                        name="startDate"
+                        control={control}
+                        render={({ field }) => (
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full h-11 rounded-xl justify-start text-left font-normal border-slate-200",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0 rounded-2xl shadow-2xl border-none" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={field.value || undefined}
+                                onSelect={field.onChange}
+                                initialFocus
+                                className="rounded-2xl"
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        )}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label className="font-bold text-slate-700">End Date</Label>
-                      <Input type="date" {...register("endDate")} className="h-11 rounded-xl" />
+                      <Controller
+                        name="endDate"
+                        control={control}
+                        render={({ field }) => (
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full h-11 rounded-xl justify-start text-left font-normal border-slate-200",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0 rounded-2xl shadow-2xl border-none" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={field.value || undefined}
+                                onSelect={field.onChange}
+                                initialFocus
+                                className="rounded-2xl"
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        )}
+                      />
                     </div>
                   </div>
                   <div className="flex items-center space-x-3 pt-2">
@@ -391,7 +507,7 @@ export default function AdminDiscountsPage() {
                       </TableCell>
                       <TableCell className="text-sm text-slate-600 font-medium">
                         {discount.endDate ? (
-                          <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5 text-slate-400" />{formatDate(discount.endDate)}</div>
+                          <div className="flex items-center gap-1.5"><CalendarIcon className="h-3.5 w-3.5 text-slate-400" />{formatDate(discount.endDate)}</div>
                         ) : "Never"}
                       </TableCell>
                       <TableCell>
@@ -411,39 +527,50 @@ export default function AdminDiscountsPage() {
               </Table>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
               {discounts.map((discount) => (
-                <Card key={discount.id} className="relative border-slate-200 hover:border-violet-300 hover:shadow-xl transition-all duration-300 rounded-3xl overflow-hidden group">
-                  <CardHeader className="pb-4">
+                <Card key={discount.id} className="relative border-none bg-white hover:shadow-2xl transition-all duration-500 rounded-[2rem] overflow-hidden group border border-slate-100/50">
+                  <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <CardHeader className="pb-4 relative z-10">
                     <div className="flex items-start justify-between">
-                      <div className="h-12 w-12 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center group-hover:bg-violet-600 group-hover:text-white transition-colors duration-300">
-                        <Tag className="h-6 w-6" />
+                      <div className="h-14 w-14 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center group-hover:bg-violet-600 group-hover:text-white transition-all duration-500 shadow-sm">
+                        <Tag className="h-7 w-7 stroke-[2.5px]" />
                       </div>
-                      <Badge className={isActive(discount) ? "bg-green-100 text-green-700 border-green-200" : "bg-slate-100 text-slate-500 border-slate-200"}>
+                      <Badge className={cn(
+                        "bg-white/80 backdrop-blur-md px-3 py-1 rounded-full font-bold shadow-sm",
+                        isActive(discount) ? "text-green-600 border-green-100" : "text-slate-400 border-slate-100"
+                      )}>
                         {isActive(discount) ? "Active" : "Inactive"}
                       </Badge>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-6 relative z-10">
                     <div>
-                      <h3 className="text-xl font-black text-slate-900 group-hover:text-violet-600 transition-colors line-clamp-1">{discount.name}</h3>
-                      <code className="text-[10px] font-mono text-slate-500 tracking-wider uppercase mt-1 block">{discount.code}</code>
+                      <h3 className="text-2xl font-black text-slate-900 group-hover:text-violet-600 transition-colors line-clamp-1 leading-tight">{discount.name}</h3>
+                      <code className="text-[10px] font-mono text-slate-400 tracking-[0.2em] uppercase mt-2 block font-bold">{discount.code}</code>
                     </div>
-                    <div className="flex items-baseline gap-1 pt-1">
-                      <span className="text-3xl font-black text-slate-900">
+                    
+                    <div className="flex items-baseline gap-1 pt-2">
+                      <span className="text-4xl font-black text-slate-900 tracking-tight">
                         {discount.percentage ? `${discount.percentage}%` : formatFixedValue(discount.fixedValue || 0, discount.name)}
                       </span>
-                      <span className="text-slate-400 font-bold ml-1 text-sm">{discount.percentage ? "OFF" : "Discount"}</span>
+                      <span className="text-slate-400 font-bold ml-1 text-sm uppercase tracking-widest">{discount.percentage ? "OFF" : "Discount"}</span>
                     </div>
+
                     {discount.endDate && (
-                      <div className="flex items-center gap-1.5 text-xs text-slate-500 pt-1">
-                        <Calendar className="h-3.5 w-3.5" />
+                      <div className="flex items-center gap-2 text-xs text-slate-500 font-medium py-2 px-3 bg-slate-50 rounded-xl w-fit">
+                        <CalendarIcon className="h-3.5 w-3.5 text-slate-400" />
                         Valid until {formatDate(discount.endDate)}
                       </div>
                     )}
-                    <div className="flex items-center gap-2 pt-2 border-t border-slate-50">
-                      <Button variant="outline" size="sm" onClick={() => openEdit(discount)} className="flex-1 rounded-xl font-bold h-10 border-slate-200 hover:bg-slate-50">Edit details</Button>
-                      <Button variant="ghost" size="icon" className="h-10 w-10 text-red-500 hover:bg-red-50 rounded-xl" onClick={() => setDeletingDiscount(discount)}><Trash2 className="h-4 w-4" /></Button>
+
+                    <div className="flex items-center gap-3 pt-2">
+                      <Button variant="outline" size="lg" onClick={() => openEdit(discount)} className="flex-1 rounded-2xl font-black h-12 border-slate-200 hover:bg-violet-50 hover:text-violet-600 hover:border-violet-200 transition-all duration-300">
+                        Edit details
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-12 w-12 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-colors" onClick={() => setDeletingDiscount(discount)}>
+                        <Trash2 className="h-5 w-5" />
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -486,12 +613,139 @@ export default function AdminDiscountsPage() {
                 </div>
                 <div className="space-y-2">
                   <Label className="font-bold text-slate-700">Code</Label>
-                  <Input value={editingDiscount?.code || ""} disabled className="h-11 rounded-xl bg-slate-50 opacity-50 font-mono uppercase" />
+                  <Input 
+                    {...register("code")} 
+                    className="h-11 rounded-xl uppercase font-mono" 
+                    placeholder="SUMMER20" 
+                    onChange={(e) => {
+                      e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+                      register("code").onChange(e);
+                    }}
+                  />
+                  {errors.code && <p className="text-sm text-red-500 font-medium">{errors.code.message}</p>}
                 </div>
               </div>
               <div className="space-y-2">
                 <Label className="font-bold text-slate-700">Description</Label>
                 <Input {...register("description")} className="h-11 rounded-xl" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="font-bold text-slate-700">Type</Label>
+                  <Controller
+                    name="discountType"
+                    control={control}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger className="h-11 rounded-xl"><SelectValue /></SelectTrigger>
+                        <SelectContent className="rounded-xl shadow-xl">
+                          <SelectItem value="percentage">Percentage</SelectItem>
+                          <SelectItem value="fixed">Fixed Amount</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-bold text-slate-700">Value</Label>
+                  <div className="relative">
+                    {selectedType === "fixed" ? (
+                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">{symbol === "$" ? "GHS" : symbol}</span>
+                    ) : null}
+                    <Input type="number" {...register("value")} className={`h-11 rounded-xl ${selectedType === "fixed" ? "pl-12" : ""}`} />
+                    {selectedType === "percentage" ? (
+                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">%</span>
+                    ) : null}
+                  </div>
+                  {errors.value && <p className="text-sm text-red-500 font-medium">{errors.value.message}</p>}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="font-bold text-slate-700">Target Organization</Label>
+                <Controller
+                  name="organizationId"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="h-11 rounded-xl shadow-sm border-slate-200"><SelectValue placeholder="Select organization" /></SelectTrigger>
+                      <SelectContent className="rounded-xl shadow-xl">
+                        {orgs.map((org) => (
+                          <SelectItem key={org.id} value={String(org.id)} className="rounded-lg">{org.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.organizationId && <p className="text-sm text-red-500 font-medium">{errors.organizationId.message}</p>}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="font-bold text-slate-700">Start Date</Label>
+                  <Controller
+                    name="startDate"
+                    control={control}
+                    render={({ field }) => (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full h-11 rounded-xl justify-start text-left font-normal border-slate-200",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 rounded-2xl shadow-2xl border-none" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value || undefined}
+                            onSelect={field.onChange}
+                            initialFocus
+                            className="rounded-2xl"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    )}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-bold text-slate-700">End Date</Label>
+                  <Controller
+                    name="endDate"
+                    control={control}
+                    render={({ field }) => (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full h-11 rounded-xl justify-start text-left font-normal border-slate-200",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 rounded-2xl shadow-2xl border-none" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value || undefined}
+                            onSelect={field.onChange}
+                            initialFocus
+                            className="rounded-2xl"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    )}
+                  />
+                </div>
               </div>
               
               <div className="flex items-center space-x-3 pt-4 border-t border-slate-100">

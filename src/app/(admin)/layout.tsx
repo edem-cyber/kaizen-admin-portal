@@ -56,6 +56,10 @@ import {
   Percent,
   Wallet,
   FileText,
+  Home,
+  LayoutGrid,
+  UserPlus,
+  ClipboardList,
 } from "lucide-react";
 
 type NavItem = {
@@ -84,10 +88,13 @@ const NavMenuItem = ({ item }: { item: NavItem }) => {
   if (!item.children || item.children.length === 0) {
     return (
       <SidebarMenuItem>
-        <SidebarMenuButton asChild isActive={isActive}>
-          <Link href={item.href}>
-            <Icon className="size-4" />
-            <span>{item.label}</span>
+        <SidebarMenuButton asChild isActive={isActive} className={cn(
+          "h-11 px-4 rounded-xl transition-all duration-200",
+          isActive ? "bg-sidebar-accent text-sidebar-accent-foreground font-bold" : "text-slate-600 hover:bg-slate-100/50"
+        )}>
+          <Link href={item.href} className="flex items-center gap-3">
+            <Icon className={cn("size-5", isActive ? "text-sidebar-accent-foreground" : "text-slate-400")} strokeWidth={1.5} />
+            <span className="text-[15px]">{item.label}</span>
           </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
@@ -98,17 +105,25 @@ const NavMenuItem = ({ item }: { item: NavItem }) => {
     <Collapsible asChild defaultOpen className="group/collapsible">
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
-          <SidebarMenuButton isActive={isActive}>
-            <Icon className="size-4" />
-            <span>{item.label}</span>
-            <ChevronRight className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+          <SidebarMenuButton isActive={isActive} className={cn(
+            "h-11 px-4 rounded-xl transition-all duration-200",
+            isActive ? "bg-sidebar-accent text-sidebar-accent-foreground font-bold" : "text-slate-600 hover:bg-slate-100/50"
+          )}>
+            <div className="flex items-center gap-3 w-full">
+              <Icon className={cn("size-5", isActive ? "text-sidebar-accent-foreground" : "text-slate-400")} strokeWidth={1.5} />
+              <span className="text-[15px]">{item.label}</span>
+              <ChevronRight className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+            </div>
           </SidebarMenuButton>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <SidebarMenuSub>
+          <SidebarMenuSub className="ml-4 border-l border-slate-100 pl-4 mt-1 space-y-1">
             {item.children.map((child) => (
               <SidebarMenuSubItem key={child.label}>
-                <SidebarMenuSubButton asChild isActive={pathname === child.href}>
+                <SidebarMenuSubButton asChild isActive={pathname === child.href} className={cn(
+                  "h-10 px-4 rounded-lg transition-all duration-200",
+                  pathname === child.href ? "text-sidebar-accent-foreground font-bold" : "text-slate-500 hover:text-slate-900"
+                )}>
                   <Link href={child.href}>{child.label}</Link>
                 </SidebarMenuSubButton>
               </SidebarMenuSubItem>
@@ -138,105 +153,63 @@ export default function AdminLayout({ children }: AdminShellProps) {
 
   const navGroups: NavGroup[] = [
     {
-      title: "Overview",
+      title: "Navigation",
       defaultOpen: true,
       items: [
         {
-          label: "Dashboard",
-          icon: LayoutDashboard,
+          label: "Home",
+          icon: Home,
           href: "/admin",
           isActive: pathname === "/admin",
         },
-      ],
-    },
-    {
-      title: "User Management",
-      defaultOpen: true,
-      items: [
         {
-          label: "Users",
-          icon: Users,
-          href: "/admin/users",
-          isActive: pathname?.startsWith("/admin/users"),
-        },
-        {
-          label: "Roles & Permissions",
-          icon: Shield,
-          href: "/admin/roles",
-          isActive: pathname?.startsWith("/admin/roles"),
-        },
-      ],
-    },
-    {
-      title: "Organization",
-      defaultOpen: true,
-      items: [
-        {
-          label: "Accounts",
-          icon: Building2,
-          href: "/admin/accounts",
-          isActive: pathname?.startsWith("/admin/accounts"),
-        },
-        {
-          label: "Service Categories",
-          icon: Layers,
+          label: "Subject Areas",
+          icon: LayoutGrid,
           href: "/admin/service-categories",
           isActive: pathname?.startsWith("/admin/service-categories"),
         },
-      ],
-    },
-    {
-      title: "Financial",
-      defaultOpen: false,
-      items: [
         {
-          label: "Billing",
-          icon: CreditCard,
-          href: "/admin/billing",
-          isActive: pathname?.startsWith("/admin/billing"),
-        },
-        {
-          label: "Payment Configuration",
-          icon: Wallet,
-          href: "/admin/payment-config",
-          isActive: pathname?.startsWith("/admin/payment-config"),
-        },
-      ],
-    },
-    {
-      title: "Products",
-      defaultOpen: false,
-      items: [
-        {
-          label: "Product Categories",
-          icon: FileText,
-          href: "/admin/product-categories",
-          isActive: pathname?.startsWith("/admin/product-categories"),
-        },
-        {
-          label: "Package Templates",
+          label: "Products / Services",
           icon: Layers,
-          href: "/admin/package-templates",
-          isActive: pathname?.startsWith("/admin/package-templates"),
-        },
-        {
-          label: "Offers",
-          icon: Tag,
           href: "/admin/offers",
-          isActive: pathname?.startsWith("/admin/offers"),
+          isActive: pathname?.startsWith("/admin/offers") || pathname?.startsWith("/admin/discounts") || pathname?.startsWith("/admin/package-templates") || pathname?.startsWith("/admin/product-categories"),
+          children: [
+            { label: "Offers", icon: Tag, href: "/admin/offers" },
+            { label: "Discounts", icon: Percent, href: "/admin/discounts" },
+            { label: "Package Templates", icon: Layers, href: "/admin/package-templates" },
+            { label: "Product Categories", icon: FileText, href: "/admin/product-categories" },
+          ]
         },
         {
-          label: "Discounts",
-          icon: Percent,
-          href: "/admin/discounts",
-          isActive: pathname?.startsWith("/admin/discounts"),
+          label: "Subscription & Billing",
+          icon: FileText,
+          href: "/admin/billing",
+          isActive: pathname?.startsWith("/admin/billing") || pathname?.startsWith("/admin/payment-config"),
+        },
+        {
+          label: "Content Providers",
+          icon: UserPlus,
+          href: "/admin/users",
+          isActive: pathname?.startsWith("/admin/users") || pathname?.startsWith("/admin/roles"),
+        },
+        {
+          label: "Reports",
+          icon: ClipboardList,
+          href: "/admin/reports",
+          isActive: pathname?.startsWith("/admin/reports"),
         },
       ],
     },
     {
-      title: "System",
-      defaultOpen: false,
+      title: "Account",
+      defaultOpen: true,
       items: [
+        {
+          label: "Team",
+          icon: Users,
+          href: "/admin/accounts",
+          isActive: pathname?.startsWith("/admin/accounts"),
+        },
         {
           label: "Settings",
           icon: Settings,
@@ -265,19 +238,14 @@ export default function AdminLayout({ children }: AdminShellProps) {
         <SidebarHeader className="bg-white">
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton size="lg" className="bg-white" asChild>
-                <Link href="/admin">
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
-                    <img
-                      src="/logovar6.svg"
-                      alt="Logo"
-                      className="size-16"
-                    />
+              <SidebarMenuButton size="lg" className="hover:bg-transparent" asChild>
+                <Link href="/admin" className="flex items-center gap-3">
+                  <div className="flex aspect-square size-10 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-blue-500 p-0.5 shadow-lg shadow-violet-500/20">
+                    <div className="flex h-full w-full items-center justify-center rounded-full bg-white">
+                      <div className="h-4 w-4 rounded-full border-2 border-violet-500" />
+                    </div>
                   </div>
-                  <div className="flex flex-col gap-0.5 leading-none">
-                    <span className="font-semibold text-slate-900">KaizenAdmin</span>
-                    <span className="text-xs text-slate-500">Admin Portal</span>
-                  </div>
+                  <span className="text-xl font-bold tracking-tight text-slate-900">Kaizen Ace It!</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -368,19 +336,24 @@ export default function AdminLayout({ children }: AdminShellProps) {
         </SidebarFooter>
 
       </Sidebar>
-      <SidebarInset className="bg-slate-50">
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b border-slate-200 bg-white px-4">
-          <SidebarTrigger className="-ml-1 text-slate-600" />
+      <SidebarInset className="bg-[#F8FAFC]">
+        <header className="flex h-16 shrink-0 items-center gap-2 px-4 md:px-6">
+          <SidebarTrigger className="-ml-1 text-slate-400 hover:text-violet-600 transition-colors" />
+          <div className="h-4 w-px bg-slate-200 mx-2 hidden md:block" />
           <Link href="/admin" className="flex items-center gap-2 md:hidden">
-            <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
-              <img src="/logovar6.svg" alt="Logo" className="size-8" />
+            <div className="flex aspect-square size-8 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-blue-500 p-0.5">
+              <div className="flex h-full w-full items-center justify-center rounded-full bg-white">
+                <div className="h-2 w-2 rounded-full border border-violet-500" />
+              </div>
             </div>
-            <span className="font-semibold text-slate-900">Admin</span>
+            <span className="font-bold text-slate-900">Kaizen</span>
           </Link>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">
-          {children}
-        </div>
+        <main className="flex-1 overflow-auto p-4 md:p-8 lg:p-10">
+          <div className="max-w-7xl mx-auto space-y-8">
+            {children}
+          </div>
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );

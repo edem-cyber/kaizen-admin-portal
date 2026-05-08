@@ -22,7 +22,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { FileText, Search, Loader2, Plus, Pencil, Trash2, AlertCircle } from "lucide-react";
+import { FileText, Search, Loader2, Plus, Pencil, Trash2, AlertCircle, Layers, Sparkles } from "lucide-react";
 import { PaginationController } from "@/components/ui/pagination-controller";
 import { queryClient } from "@/lib/react-query-provider";
 import { toast } from "sonner";
@@ -32,7 +32,7 @@ import * as z from "zod";
 
 const packageTemplateSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  code: z.string().min(2, "Code must be at least 2 characters"),
+  code: z.string().min(2, "Code must be at least 2 characters").regex(/^[a-zA-Z0-9]+$/, "Code must only contain alphanumeric characters"),
   description: z.string().min(1, "Description is required"),
   currencyId: z.string().min(1, "Currency is required"),
   offersRequired: z.string().min(1, "Required offers is required"),
@@ -135,6 +135,7 @@ export default function PackageTemplatesPage() {
     if (editingTemplate) {
       const updateData: UpdateDynamicPackageConfigDto = {
         name: data.name,
+        code: data.code,
         description: data.description,
         offersRequired: parseInt(data.offersRequired),
         validity: validity,
@@ -175,133 +176,153 @@ export default function PackageTemplatesPage() {
   const pagination = configsResp?.pagination;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Package Templates</h1>
-          <p className="text-slate-500 text-lg">Dynamic package configurations for organizations to build from</p>
+    <div className="space-y-8 pb-12">
+      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-primary font-bold text-sm uppercase tracking-wider">
+            <Layers className="h-4 w-4" />
+            Configuration Portal
+          </div>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight">Package Templates</h1>
+          <p className="text-slate-500 text-lg">Define dynamic package structures and offering requirements.</p>
         </div>
-        <Dialog open={isCreateOpen} onOpenChange={(open) => { setIsCreateOpen(open); if (open) reset(); }}>
-          <DialogTrigger asChild>
-            <Button className="bg-violet-600 hover:bg-violet-700 shadow-lg shadow-violet-500/20 h-11 px-6 rounded-xl font-bold">
-              <Plus className="mr-2 h-5 w-5" />
-              Create Template
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-lg rounded-2xl">
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-violet-600" />
-                  New Package Template
-                </DialogTitle>
-                <DialogDescription>Create a dynamic package configuration template.</DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="font-medium">Name</Label>
-                    <Input {...register("name")} placeholder="e.g. Enterprise Suite" className="h-11 rounded-xl" />
-                    {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
+        <div className="flex items-center gap-3">
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+            <Input
+              placeholder="Search templates..."
+              className="pl-12 h-12 rounded-2xl bg-white border-slate-200 focus:ring-violet-500 transition-all shadow-sm"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <Dialog open={isCreateOpen} onOpenChange={(open) => { setIsCreateOpen(open); if (open) reset(); }}>
+            <DialogTrigger asChild>
+              <Button className="bg-gradient-to-r from-primary to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-xl shadow-primary/25 h-12 px-8 rounded-2xl font-black text-base transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
+                <Plus className="mr-2 h-5 w-5 stroke-[3px]" />
+                New Template
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <div className="bg-slate-900 p-10 text-white relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-8 opacity-10">
+                    <Layers className="h-32 w-32 rotate-12" />
+                  </div>
+                  <DialogHeader className="relative z-10">
+                    <DialogTitle className="text-3xl font-black flex items-center gap-3">
+                      <FileText className="h-8 w-8 text-primary" />
+                      Create Template
+                    </DialogTitle>
+                    <DialogDescription className="text-slate-400 text-lg">
+                      Design a new dynamic package configuration.
+                    </DialogDescription>
+                  </DialogHeader>
+                </div>
+                <div className="p-10 space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="font-medium">Name</Label>
+                      <Input {...register("name")} placeholder="e.g. Enterprise Suite" className="h-11 rounded-xl" />
+                      {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-bold text-slate-700">Internal Code</Label>
+                      <Input 
+                        {...register("code")} 
+                        placeholder="PKG-001" 
+                        className="h-11 rounded-xl bg-slate-50 font-mono uppercase" 
+                        onChange={(e) => {
+                          e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+                          register("code").onChange(e);
+                        }}
+                      />
+                      {errors.code && <p className="text-xs text-red-500 font-medium">{errors.code.message}</p>}
+                    </div>
                   </div>
                   <div className="space-y-2">
-                    <Label className="font-medium">Code</Label>
-                    <Input {...register("code")} placeholder="e.g. ENT-SUITE" className="h-11 rounded-xl uppercase font-mono" />
-                    {errors.code && <p className="text-sm text-red-500">{errors.code.message}</p>}
+                    <Label className="font-medium">Description</Label>
+                    <Input {...register("description")} className="h-11 rounded-xl" />
+                    {errors.description && <p className="text-sm text-red-500">{errors.description.message}</p>}
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <Label className="font-medium">Description</Label>
-                  <Input {...register("description")} className="h-11 rounded-xl" />
-                  {errors.description && <p className="text-sm text-red-500">{errors.description.message}</p>}
-                </div>
-                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="font-medium">Currency</Label>
+                      <Controller
+                        name="currencyId"
+                        control={control}
+                        render={({ field }) => (
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Select currency" /></SelectTrigger>
+                            <SelectContent>
+                              {availableCurrencies.map((c: any) => (
+                                <SelectItem key={c.id} value={String(c.id)}>{c.code} ({c.symbol})</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                      {errors.currencyId && <p className="text-sm text-red-500">{errors.currencyId.message}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="font-medium">Required Offers</Label>
+                      <Input {...register("offersRequired")} type="number" min="1" className="h-11 rounded-xl" />
+                      {errors.offersRequired && <p className="text-sm text-red-500">{errors.offersRequired.message}</p>}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="font-medium">Validity</Label>
+                      <Input {...register("validity")} type="number" min="1" className="h-11 rounded-xl" placeholder="e.g. 30" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="font-medium">Time Unit</Label>
+                      <Controller
+                        name="validityTimeUnit"
+                        control={control}
+                        render={({ field }) => (
+                          <Select value={field.value || ""} onValueChange={field.onChange}>
+                            <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Select unit" /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="DAYS">Days</SelectItem>
+                              <SelectItem value="MONTHS">Months</SelectItem>
+                              <SelectItem value="YEARS">Years</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                    </div>
+                  </div>
                   <div className="space-y-2">
-                    <Label className="font-medium">Currency</Label>
+                    <Label className="font-medium">Discount (optional)</Label>
                     <Controller
-                      name="currencyId"
+                      name="discountId"
                       control={control}
                       render={({ field }) => (
-                        <Select value={field.value} onValueChange={field.onChange}>
-                          <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Select currency" /></SelectTrigger>
+                        <Select value={field.value || "none"} onValueChange={field.onChange}>
+                          <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="No discount" /></SelectTrigger>
                           <SelectContent>
-                            {availableCurrencies.map((c: any) => (
-                              <SelectItem key={c.id} value={String(c.id)}>{c.code} ({c.symbol})</SelectItem>
+                            <SelectItem value="none">No Discount</SelectItem>
+                            {availableDiscounts.map((d: any) => (
+                              <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       )}
                     />
-                    {errors.currencyId && <p className="text-sm text-red-500">{errors.currencyId.message}</p>}
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="font-medium">Required Offers</Label>
-                    <Input {...register("offersRequired")} type="number" min="1" className="h-11 rounded-xl" />
-                    {errors.offersRequired && <p className="text-sm text-red-500">{errors.offersRequired.message}</p>}
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="font-medium">Validity</Label>
-                    <Input {...register("validity")} type="number" min="1" className="h-11 rounded-xl" placeholder="e.g. 30" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="font-medium">Time Unit</Label>
-                    <Controller
-                      name="validityTimeUnit"
-                      control={control}
-                      render={({ field }) => (
-                        <Select value={field.value || ""} onValueChange={field.onChange}>
-                          <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Select unit" /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="DAYS">Days</SelectItem>
-                            <SelectItem value="MONTHS">Months</SelectItem>
-                            <SelectItem value="YEARS">Years</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label className="font-medium">Discount (optional)</Label>
-                  <Controller
-                    name="discountId"
-                    control={control}
-                    render={({ field }) => (
-                      <Select value={field.value || "none"} onValueChange={field.onChange}>
-                        <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="No discount" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">No Discount</SelectItem>
-                          {availableDiscounts.map((d: any) => (
-                            <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button type="button" variant="ghost" onClick={() => setIsCreateOpen(false)}>Cancel</Button>
-                <Button type="submit" className="bg-violet-600 hover:bg-violet-700" disabled={createMutation.isPending}>
-                  {createMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
-                  Create
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      <div className="relative w-full md:w-80">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-        <Input
-          placeholder="Search templates..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10 h-11 rounded-xl border-slate-200"
-        />
+                <DialogFooter className="p-10 pt-0">
+                  <Button type="button" variant="ghost" onClick={() => setIsCreateOpen(false)} className="h-12 px-6 rounded-xl">Cancel</Button>
+                  <Button type="submit" className="bg-violet-600 hover:bg-violet-700 h-12 px-8 rounded-xl font-bold" disabled={createMutation.isPending}>
+                    {createMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
+                    Create Template
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {isLoading ? (
@@ -316,55 +337,41 @@ export default function PackageTemplatesPage() {
           <Button variant="link" onClick={() => refetch()} className="block mx-auto mt-2">Try again</Button>
         </div>
       ) : (
-        <div className="space-y-4">
-          <Card className="border-slate-200 shadow-sm overflow-hidden rounded-2xl">
-            <Table>
-              <TableHeader className="bg-slate-50/50">
-                <TableRow>
-                  <TableHead className="font-bold">Name</TableHead>
-                  <TableHead className="font-bold">Code</TableHead>
-                  <TableHead className="font-bold">Offers Req.</TableHead>
-                  <TableHead className="font-bold hidden md:table-cell">Validity</TableHead>
-                  <TableHead className="text-right font-bold">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {configs.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-20 text-slate-500">
-                      <FileText className="h-10 w-10 mx-auto mb-3 text-slate-200" />
-                      No package templates found
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  configs.map((cfg: any) => (
-                    <TableRow key={cfg.id} className="hover:bg-slate-50/50 transition-colors group">
-                      <TableCell className="font-semibold text-slate-900">{cfg.name}</TableCell>
-                      <TableCell>
-                        <code className="text-xs font-mono text-slate-600 bg-slate-100 px-2 py-1 rounded tracking-wider uppercase">
-                          {cfg.code}
-                        </code>
-                      </TableCell>
-                      <TableCell className="text-sm text-slate-600">{cfg.offersRequired || "—"}</TableCell>
-                      <TableCell className="text-sm text-slate-500 hidden md:table-cell">
-                        {cfg.validity ? `${cfg.validity} ${cfg.validityTimeUnit?.toLowerCase() || ""}` : "—"}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-violet-50 hover:text-violet-600" onClick={() => openEdit(cfg)}>
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:bg-red-50" onClick={() => setDeletingTemplate(cfg)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </Card>
+        <div className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {configs.map((template: any) => (
+              <Card key={template.id} className="relative border-none bg-white hover:shadow-2xl transition-all duration-500 rounded-[2rem] overflow-hidden group border border-slate-100/50">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <CardHeader className="pb-4 relative z-10">
+                  <div className="flex items-start justify-between">
+                    <div className="h-14 w-14 rounded-2xl bg-violet-50 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-sm">
+                      <Layers className="h-7 w-7 stroke-[2.5px]" />
+                    </div>
+                    <Badge variant="outline" className="border-primary/20 text-primary bg-primary/5 px-3 py-1 rounded-full font-bold">
+                      {template.offersRequired} Offers Req.
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-6 relative z-10">
+                  <div>
+                    <h3 className="text-2xl font-black text-slate-900 group-hover:text-primary transition-colors line-clamp-1 leading-tight">{template.name}</h3>
+                    <code className="text-[10px] font-mono text-slate-400 tracking-[0.2em] uppercase mt-2 block font-bold">{template.code}</code>
+                  </div>
+                  
+                  <p className="text-slate-500 line-clamp-2 text-sm leading-relaxed">{template.description}</p>
+
+                  <div className="pt-4 border-t border-slate-50 flex items-center gap-3">
+                    <Button variant="outline" size="lg" onClick={() => openEdit(template)} className="flex-1 rounded-2xl font-black h-12 border-slate-200 hover:bg-violet-50 hover:text-primary hover:border-primary/20 transition-all duration-300">
+                      Edit Template
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-12 w-12 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-colors" onClick={() => setDeletingTemplate(template)}>
+                      <Trash2 className="h-5 w-5" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
 
           {pagination && pagination.totalPages > 1 && (
             <PaginationController
@@ -381,39 +388,46 @@ export default function PackageTemplatesPage() {
 
       {/* Edit Dialog */}
       <Dialog open={!!editingTemplate} onOpenChange={(open) => { if (!open) setEditingTemplate(null); }}>
-        <DialogContent className="sm:max-w-lg rounded-2xl">
+        <DialogContent className="sm:max-w-lg rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
           <form onSubmit={handleSubmit(onSubmit)}>
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Pencil className="h-5 w-5 text-violet-600" />
-                Edit Package Template
-              </DialogTitle>
-              <DialogDescription>Editing <span className="font-semibold text-slate-900">{editingTemplate?.name}</span></DialogDescription>
-            </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="font-medium">Name</Label>
-                    <Input {...register("name")} className="h-11 rounded-xl" />
-                    {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="font-medium">Code</Label>
-                    <Input {...register("code")} disabled className="h-11 rounded-xl bg-slate-100 font-mono" />
-                  </div>
+            <div className="bg-slate-900 p-10 text-white relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-8 opacity-10">
+                <Layers className="h-32 w-32 rotate-12" />
+              </div>
+              <DialogHeader className="relative z-10">
+                <DialogTitle className="text-3xl font-black flex items-center gap-3">
+                  <Pencil className="h-8 w-8 text-primary" />
+                  Edit Template
+                </DialogTitle>
+                <DialogDescription className="text-slate-400 text-lg">
+                  Updating <span className="font-semibold text-white">{editingTemplate?.name}</span>
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+            <div className="p-10 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="font-medium">Name</Label>
+                  <Input {...register("name")} className="h-11 rounded-xl" />
+                  {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label className="font-medium">Description</Label>
-                  <Input {...register("description")} className="h-11 rounded-xl" />
+                  <Label className="font-medium">Code</Label>
+                  <Input {...register("code")} disabled className="h-11 rounded-xl bg-slate-100 font-mono" />
                 </div>
-                <div className="space-y-2">
-                  <Label className="font-medium">Currency</Label>
-                  <Input value={editingTemplate?.currency?.code || "—"} disabled className="h-11 rounded-xl bg-slate-100 font-mono" />
-                </div>
-                <div className="space-y-2">
-                  <Label className="font-medium">Required Offers</Label>
-                  <Input {...register("offersRequired")} type="number" min="1" className="h-11 rounded-xl" />
-                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="font-medium">Description</Label>
+                <Input {...register("description")} className="h-11 rounded-xl" />
+              </div>
+              <div className="space-y-2">
+                <Label className="font-medium">Currency</Label>
+                <Input value={editingTemplate?.currency?.code || "—"} disabled className="h-11 rounded-xl bg-slate-100 font-mono" />
+              </div>
+              <div className="space-y-2">
+                <Label className="font-medium">Required Offers</Label>
+                <Input {...register("offersRequired")} type="number" min="1" className="h-11 rounded-xl" />
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="font-medium">Validity</Label>
@@ -456,10 +470,10 @@ export default function PackageTemplatesPage() {
                 />
               </div>
             </div>
-            <DialogFooter>
-              <Button type="button" variant="ghost" onClick={() => setEditingTemplate(null)}>Cancel</Button>
-              <Button type="submit" className="bg-violet-600 hover:bg-violet-700" disabled={updateMutation.isPending}>
-                {updateMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : "Save"}
+            <DialogFooter className="p-10 pt-0">
+              <Button type="button" variant="ghost" onClick={() => setEditingTemplate(null)} className="h-12 px-6 rounded-xl">Cancel</Button>
+              <Button type="submit" className="bg-violet-600 hover:bg-violet-700 h-12 px-8 rounded-xl font-bold" disabled={updateMutation.isPending}>
+                {updateMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : "Save Changes"}
               </Button>
             </DialogFooter>
           </form>
@@ -468,21 +482,26 @@ export default function PackageTemplatesPage() {
 
       {/* Delete Confirmation */}
       <Dialog open={!!deletingTemplate} onOpenChange={(open) => { if (!open) setDeletingTemplate(null); }}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-red-600 flex items-center gap-2">
-              <Trash2 className="h-5 w-5" />
-              Delete Template
-            </DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete <span className="font-semibold text-slate-900">{deletingTemplate?.name}</span>? This cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeletingTemplate(null)}>Cancel</Button>
-            <Button variant="destructive" onClick={() => deletingTemplate && deleteMutation.mutate({ id: deletingTemplate.id })} disabled={deleteMutation.isPending}>
+        <DialogContent className="sm:max-w-md rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl">
+          <div className="bg-red-50 p-8 flex items-center gap-4">
+            <div className="h-12 w-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center">
+              <Trash2 className="h-6 w-6" />
+            </div>
+            <div>
+              <h3 className="text-xl font-black text-slate-900">Delete Template</h3>
+              <p className="text-red-600/60 font-medium text-sm">This action is irreversible.</p>
+            </div>
+          </div>
+          <div className="p-8">
+            <p className="text-slate-600 leading-relaxed">
+              Are you sure you want to delete <span className="font-black text-slate-900">{deletingTemplate?.name}</span>? All organizations using this template will be affected.
+            </p>
+          </div>
+          <DialogFooter className="p-8 pt-0">
+            <Button variant="ghost" onClick={() => setDeletingTemplate(null)} className="h-12 px-6 rounded-xl">Cancel</Button>
+            <Button variant="destructive" onClick={() => deletingTemplate && deleteMutation.mutate({ id: deletingTemplate.id })} disabled={deleteMutation.isPending} className="h-12 px-8 rounded-xl font-black">
               {deleteMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Delete
+              Delete Permanently
             </Button>
           </DialogFooter>
         </DialogContent>
