@@ -143,7 +143,7 @@ function PaymentSuccessContent() {
             {/* Logo */}
             <Link href="/" className="inline-block mb-8">
               <Image
-                src="/logovar6.svg"
+                src="/kaizen-logo.svg"
                 alt="KaizenAdmin"
                 width={80}
                 height={80}

@@ -240,10 +240,8 @@ export default function AdminLayout({ children }: AdminShellProps) {
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" className="hover:bg-transparent" asChild>
                 <Link href="/admin" className="flex items-center gap-3">
-                  <div className="flex aspect-square size-10 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-blue-500 p-0.5 shadow-lg shadow-violet-500/20">
-                    <div className="flex h-full w-full items-center justify-center rounded-full bg-white">
-                      <div className="h-4 w-4 rounded-full border-2 border-violet-500" />
-                    </div>
+                  <div className="flex aspect-square size-10 items-center justify-center rounded-xl bg-violet-50 p-1.5 shadow-sm border border-violet-100">
+                    <img src="/kaizen-logo.svg" alt="Kaizen" className="h-full w-full object-contain" />
                   </div>
                   <span className="text-xl font-bold tracking-tight text-slate-900">Kaizen Ace It!</span>
                 </Link>
@@ -341,10 +339,8 @@ export default function AdminLayout({ children }: AdminShellProps) {
           <SidebarTrigger className="-ml-1 text-slate-400 hover:text-violet-600 transition-colors" />
           <div className="h-4 w-px bg-slate-200 mx-2 hidden md:block" />
           <Link href="/admin" className="flex items-center gap-2 md:hidden">
-            <div className="flex aspect-square size-8 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-blue-500 p-0.5">
-              <div className="flex h-full w-full items-center justify-center rounded-full bg-white">
-                <div className="h-2 w-2 rounded-full border border-violet-500" />
-              </div>
+            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-violet-50 p-1 border border-violet-100">
+              <img src="/kaizen-logo.svg" alt="Kaizen" className="h-full w-full object-contain" />
             </div>
             <span className="font-bold text-slate-900">Kaizen</span>
           </Link>

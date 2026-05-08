@@ -90,7 +90,7 @@ export default function ForgotPasswordPage() {
           <div className="text-center">
             <Link href="/" className="inline-flex items-center justify-center mb-6">
               <Image
-                src="/logovar6.svg"
+                src="/kaizen-logo.svg"
                 alt="KaizenAdmin"
                 width={48}
                 height={48}

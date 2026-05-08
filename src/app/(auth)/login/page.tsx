@@ -57,7 +57,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center">
           <div className="flex items-center justify-center mb-6">
-            <Image src="/logovar6.svg" alt="Kaizen Ace It" width={64} height={64} className="h-16 w-auto" priority />
+            <img src="/kaizen-logo.svg" alt="Kaizen Ace It" className="h-16 w-auto" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-black">Kaizen Ace It</h1>
           <p className="mt-1 text-sm text-[#4A4A4A]">Admin</p>

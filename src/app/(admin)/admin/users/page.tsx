@@ -157,36 +157,69 @@ export default function AdminUsersPage() {
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-violet-600 hover:bg-violet-700">
-              <UserPlus className="mr-2 h-4 w-4" />Add User
+            <Button className="bg-[#8B5CF6] hover:bg-[#7C3AED] text-white shadow-lg shadow-violet-500/20 h-11 px-6 rounded-xl font-black text-sm transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
+              <UserPlus className="mr-2 h-4 w-4 stroke-[3px]" />
+              Add User
             </Button>
           </DialogTrigger>
-          <DialogContent>
-            <DialogHeader><DialogTitle>Add New User</DialogTitle><DialogDescription>Create a new user account.</DialogDescription></DialogHeader>
-            <div className="grid gap-4 py-4">
+          <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
+            <div className="p-10 pb-0">
+              <DialogHeader>
+                <DialogTitle className="text-3xl font-black text-slate-900">
+                  New user account
+                </DialogTitle>
+                <DialogDescription className="text-slate-500 font-medium text-base mt-2">
+                  Create a new user account and assign access.
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+
+            <div className="p-10 space-y-6 max-h-[60vh] overflow-y-auto">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="grid gap-2"><Label>First Name</Label><Input value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} /></div>
-                <div className="grid gap-2"><Label>Last Name</Label><Input value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} /></div>
+                <div className="space-y-2">
+                  <Label className="font-bold text-slate-800">First name</Label>
+                  <Input className="h-12 rounded-xl border-slate-200" placeholder="Eg: John" value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-bold text-slate-800">Last name</Label>
+                  <Input className="h-12 rounded-xl border-slate-200" placeholder="Eg: Doe" value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} />
+                </div>
               </div>
-              <div className="grid gap-2"><Label>Username</Label><Input value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} /></div>
-              <div className="grid gap-2"><Label>Email</Label><Input type="email" value={formData.emailAddress} onChange={(e) => setFormData({ ...formData, emailAddress: e.target.value })} /></div>
-              <div className="grid gap-2"><Label>Organization</Label>
-                <Select value={formData.organizationId} onValueChange={(v) => setFormData({ ...formData, organizationId: v })}>
-                  <SelectTrigger><SelectValue placeholder="Select organization" /></SelectTrigger>
-                  <SelectContent>{orgs.map((org) => (<SelectItem key={org.id} value={String(org.id)}>{org.name}</SelectItem>))}</SelectContent>
-                </Select>
+              <div className="space-y-2">
+                <Label className="font-bold text-slate-800">Username</Label>
+                <Input className="h-12 rounded-xl border-slate-200 bg-slate-50 font-mono" placeholder="johndoe" value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} />
               </div>
-              <div className="grid gap-2"><Label>Role</Label>
-                <Select value={formData.organizationRoleId} onValueChange={(v) => setFormData({ ...formData, organizationRoleId: v })}>
-                  <SelectTrigger><SelectValue placeholder="Select role" /></SelectTrigger>
-                  <SelectContent>{roles.map((role) => (<SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>))}</SelectContent>
-                </Select>
+              <div className="space-y-2">
+                <Label className="font-bold text-slate-800">Email address</Label>
+                <Input className="h-12 rounded-xl border-slate-200" type="email" placeholder="john@example.com" value={formData.emailAddress} onChange={(e) => setFormData({ ...formData, emailAddress: e.target.value })} />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label className="font-bold text-slate-800">Organization</Label>
+                  <Select value={formData.organizationId} onValueChange={(v) => setFormData({ ...formData, organizationId: v })}>
+                    <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectContent className="rounded-xl shadow-xl">
+                      {orgs.map((org) => (<SelectItem key={org.id} value={String(org.id)}>{org.name}</SelectItem>))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-bold text-slate-800">System Role</Label>
+                  <Select value={formData.organizationRoleId} onValueChange={(v) => setFormData({ ...formData, organizationRoleId: v })}>
+                    <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue placeholder="Select" /></SelectTrigger>
+                    <SelectContent className="rounded-xl shadow-xl">
+                      {roles.map((role) => (<SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancel</Button>
-              <Button className="bg-violet-600 hover:bg-violet-700" onClick={handleAddUser} disabled={addUserMutation.isPending}>
-                {addUserMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Creating...</> : "Create"}
+
+            <DialogFooter className="p-10 pt-0 flex items-center justify-end gap-3">
+              <Button variant="ghost" onClick={() => setIsAddDialogOpen(false)} className="h-12 rounded-2xl px-8 font-bold bg-slate-50 text-slate-600">Cancel</Button>
+              <Button className="bg-[#8B5CF6] hover:bg-[#7C3AED] h-12 rounded-2xl px-10 font-black text-white shadow-lg shadow-violet-500/20" onClick={handleAddUser} disabled={addUserMutation.isPending}>
+                {addUserMutation.isPending ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
+                Create User
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -274,39 +307,78 @@ export default function AdminUsersPage() {
       </Card>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Edit User</DialogTitle><DialogDescription>Update user information.</DialogDescription></DialogHeader>
-          <div className="grid gap-4 py-4">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
+          <div className="p-10 pb-0">
+            <DialogHeader>
+              <DialogTitle className="text-3xl font-black text-slate-900">
+                Edit user details
+              </DialogTitle>
+              <DialogDescription className="text-slate-500 font-medium text-base mt-2">
+                Update account information for <span className="text-violet-600 font-bold">@{formData.username}</span>
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+
+          <div className="p-10 space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="grid gap-2"><Label>First Name</Label><Input value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} /></div>
-              <div className="grid gap-2"><Label>Last Name</Label><Input value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} /></div>
+              <div className="space-y-2">
+                <Label className="font-bold text-slate-800">First name</Label>
+                <Input className="h-12 rounded-xl border-slate-200" value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label className="font-bold text-slate-800">Last name</Label>
+                <Input className="h-12 rounded-xl border-slate-200" value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} />
+              </div>
             </div>
-            <div className="grid gap-2"><Label>Email</Label><Input type="email" value={formData.emailAddress} onChange={(e) => setFormData({ ...formData, emailAddress: e.target.value })} /></div>
-            <div className="grid gap-2"><Label>Status</Label>
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-800">Email address</Label>
+              <Input className="h-12 rounded-xl border-slate-200" type="email" value={formData.emailAddress} onChange={(e) => setFormData({ ...formData, emailAddress: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <Label className="font-bold text-slate-800">Account status</Label>
               <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>{statuses.map((s) => (<SelectItem key={s.code} value={s.code}>{s.code}</SelectItem>))}</SelectContent>
+                <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue /></SelectTrigger>
+                <SelectContent className="rounded-xl shadow-xl">
+                  {statuses.map((s) => (<SelectItem key={s.code} value={s.code} className="capitalize">{s.code}</SelectItem>))}
+                </SelectContent>
               </Select>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
-            <Button className="bg-violet-600 hover:bg-violet-700" onClick={handleEditUser} disabled={updateUserMutation.isPending}>
-              {updateUserMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Updating...</> : "Update"}
+
+          <DialogFooter className="p-10 pt-0 flex items-center justify-end gap-3">
+            <Button variant="ghost" onClick={() => setIsEditDialogOpen(false)} className="h-12 rounded-2xl px-8 font-bold bg-slate-50 text-slate-600">Cancel</Button>
+            <Button className="bg-[#8B5CF6] hover:bg-[#7C3AED] h-12 rounded-2xl px-10 font-black text-white shadow-lg shadow-violet-500/20" onClick={handleEditUser} disabled={updateUserMutation.isPending}>
+              {updateUserMutation.isPending ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
+              Update Account
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Delete User</DialogTitle><DialogDescription>Are you sure you want to delete this user? This action cannot be undone.</DialogDescription></DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleDeleteUser} disabled={removeUserMutation.isPending}>
-              {removeUserMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Deleting...</> : "Delete"}
+        <DialogContent className="sm:max-w-[480px] rounded-[2rem] p-10 border-none shadow-2xl bg-white">
+          <DialogHeader>
+            <div className="h-16 w-16 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mb-6">
+              <Trash2 className="h-8 w-8" />
+            </div>
+            <DialogTitle className="text-3xl font-black text-slate-900">
+              Delete user
+            </DialogTitle>
+            <DialogDescription className="text-slate-500 font-medium text-lg mt-2 leading-relaxed">
+              Are you sure you want to delete <span className="text-slate-900 font-bold">{formData.firstName} {formData.lastName}</span>? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col sm:flex-row gap-3 mt-10">
+            <Button variant="ghost" onClick={() => setIsDeleteDialogOpen(false)} className="flex-1 h-12 rounded-2xl font-bold bg-slate-50 text-slate-600">Keep account</Button>
+            <Button 
+              onClick={handleDeleteUser} 
+              disabled={removeUserMutation.isPending}
+              className="flex-1 h-12 rounded-2xl font-black bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/20" 
+            >
+              {removeUserMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Confirm Delete
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

@@ -41,7 +41,7 @@ export default function RootLayout({
         />
         <link
           rel="preload"
-          href="/logovar6.svg"
+          href="/kaizen-logo.svg"
           as="image"
           type="image/svg+xml"
           fetchPriority="high"

@@ -350,90 +350,42 @@ export default function AdminOffersPage() {
                 Create Offer
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-3xl rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
+            <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
               <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="bg-slate-900 p-10 text-white relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-8 opacity-10">
-                    <Tag className="h-32 w-32 rotate-12" />
-                  </div>
-                  <DialogHeader className="relative z-10">
-                    <DialogTitle className="text-3xl font-black flex items-center gap-3">
-                      <Gift className="h-8 w-8 text-violet-400" />
-                      Create New Offer
+                <div className="p-10 pb-0">
+                  <DialogHeader>
+                    <DialogTitle className="text-3xl font-black text-slate-900">
+                      New offer
                     </DialogTitle>
-                    <DialogDescription className="text-slate-400 text-lg">
-                      Define a new product or service offering for your clients.
+                    <DialogDescription className="text-slate-500 font-medium text-base mt-2">
+                      Define the academic areas and pricing for this offering.
                     </DialogDescription>
                   </DialogHeader>
                 </div>
-                <div className="p-8 space-y-6 max-h-[60vh] overflow-y-auto">
+                
+                <div className="p-10 space-y-6 max-h-[60vh] overflow-y-auto">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="name" className="font-bold text-slate-700">Offer Name</Label>
-                      <Input id="name" {...register("name")} className="h-11 rounded-xl" />
+                      <Label htmlFor="name" className="font-bold text-slate-800">Offer Name</Label>
+                      <Input id="name" {...register("name")} placeholder="Eg: Starter" className="h-12 rounded-xl border-slate-200" />
                       {errors.name && <p className="text-sm text-red-500 font-medium">{errors.name.message}</p>}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="code" className="font-bold text-slate-700">Internal Code</Label>
-                      <Input id="code" {...register("code")} className="h-11 rounded-xl uppercase font-mono" />
+                      <Label htmlFor="code" className="font-bold text-slate-800">Internal Code</Label>
+                      <Input id="code" {...register("code")} placeholder="OFF-001" className="h-12 rounded-xl border-slate-200 uppercase font-mono" />
                       {errors.code && <p className="text-sm text-red-500 font-medium">{errors.code.message}</p>}
                     </div>
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="description" className="font-bold text-slate-700">Description</Label>
-                    <Input id="description" {...register("description")} className="h-11 rounded-xl" />
-                  </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="font-bold text-slate-700">Unit Price</Label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">{symbol === "$" ? "GHS" : symbol}</span>
-                        <Input type="number" {...register("unitPrice")} className="h-11 pl-12 rounded-xl" />
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="text-xs text-violet-600 hover:text-violet-700 font-bold"
-                        onClick={() => setShowPriceCalculator(!showPriceCalculator)}
-                      >
-                        <Users className="mr-1 h-3 w-3" />
-                        {showPriceCalculator ? "Hide" : "Calculate from total price"}
-                      </Button>
-                      {showPriceCalculator && (
-                        <div className="mt-2 p-4 bg-violet-50 rounded-2xl border border-violet-100 space-y-3 shadow-sm">
-                          <p className="text-[10px] text-violet-700 font-black uppercase tracking-wider">Price Distribution Calculator</p>
-                          <div className="grid grid-cols-2 gap-3">
-                            <div className="space-y-1">
-                              <Label className="text-xs font-bold text-slate-600">Total Price</Label>
-                              <Input type="number" value={desiredTotalPrice} onChange={(e) => setDesiredTotalPrice(e.target.value)} className="h-9 rounded-lg" />
-                            </div>
-                            <div className="space-y-1">
-                              <Label className="text-xs font-bold text-slate-600">Users</Label>
-                              <Input type="number" value={numberOfUsers} onChange={(e) => setNumberOfUsers(e.target.value)} className="h-9 rounded-lg" />
-                            </div>
-                          </div>
-                          <Button type="button" size="sm" onClick={calculateUnitPrice} className="w-full rounded-lg bg-violet-600 font-bold">Apply Result</Button>
-                        </div>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="font-bold text-slate-700">Max Check-ins</Label>
-                      <Input type="number" {...register("maximumCheckIns")} className="h-11 rounded-xl" />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="font-bold text-slate-700">Currency</Label>
+                      <Label className="font-bold text-slate-800">Currency</Label>
                       <Controller
                         name="currencyId"
                         control={control}
                         render={({ field }) => (
                           <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Select currency" /></SelectTrigger>
+                            <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue placeholder="Select" /></SelectTrigger>
                             <SelectContent className="rounded-xl shadow-xl">
                               {availableCurrencies.map((c) => (
                                 <SelectItem key={c.code} value={String(c.id || c.code)}>{c.code} ({c.symbol})</SelectItem>
@@ -442,19 +394,35 @@ export default function AdminOffersPage() {
                           </Select>
                         )}
                       />
-                      {errors.currencyId && <p className="text-sm text-red-500 font-medium">{errors.currencyId.message}</p>}
                     </div>
-                    <ProductCategorySelect control={control} errors={errors} />
+                    <div className="space-y-2">
+                      <Label className="font-bold text-slate-800">Unit Price</Label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">{symbol === "$" ? "GHS" : symbol}</span>
+                        <Input type="number" {...register("unitPrice")} placeholder="0.00" className="h-12 pl-14 rounded-xl border-slate-200" />
+                      </div>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
+                    <ProductCategorySelect control={control} errors={errors} />
                     <ServiceSubcategorySelect control={control} errors={errors} />
                   </div>
 
-                  <div className="space-y-3 pt-2">
-                    <Label className="font-bold text-slate-700">Link to Packages</Label>
-                    <Card className="border-slate-200 shadow-none overflow-hidden rounded-xl">
-                      <ScrollArea className="h-[140px] p-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="description" className="font-bold text-slate-800">Description</Label>
+                    <textarea 
+                      id="description" 
+                      {...register("description")} 
+                      placeholder="Write a description"
+                      className="flex min-h-[80px] w-full rounded-xl border border-slate-200 bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-500 disabled:cursor-not-allowed disabled:opacity-50"
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label className="font-bold text-slate-800">Link to Packages</Label>
+                    <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                      <ScrollArea className="h-[120px]">
                         <div className="space-y-3">
                           <Controller
                             name="packageIds"
@@ -472,7 +440,7 @@ export default function AdminOffersPage() {
                                           : field.onChange(field.value.filter((val) => val !== pkg.id));
                                       }}
                                     />
-                                    <Label htmlFor={`pkg-${pkg.id}`} className="flex-1 cursor-pointer font-medium text-sm">
+                                    <Label htmlFor={`pkg-${pkg.id}`} className="flex-1 cursor-pointer font-medium text-sm text-slate-700">
                                       {pkg.name} <span className="text-slate-400 font-normal">({pkg.code})</span>
                                     </Label>
                                   </div>
@@ -482,14 +450,25 @@ export default function AdminOffersPage() {
                           />
                         </div>
                       </ScrollArea>
-                    </Card>
+                    </div>
+                  </div>
+
+                  <div className="bg-violet-50/50 p-6 rounded-[2rem] flex items-center justify-between border border-violet-100">
+                    <div>
+                      <p className="font-bold text-slate-900">Enable package</p>
+                      <p className="text-xs text-slate-500 font-medium">This makes the offer available on the platform</p>
+                    </div>
+                    <div className="h-6 w-11 rounded-full bg-slate-200 relative cursor-pointer">
+                      <div className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-sm" />
+                    </div>
                   </div>
                 </div>
-                <DialogFooter className="p-6 bg-slate-50 border-t flex items-center justify-end gap-3">
-                  <Button type="button" variant="ghost" onClick={() => setIsCreateOpen(false)} className="h-11 rounded-xl font-bold">Cancel</Button>
-                  <Button type="submit" className="bg-violet-600 hover:bg-violet-700 h-11 rounded-xl font-black px-8 shadow-md shadow-violet-500/20" disabled={createMutation.isPending}>
-                    {createMutation.isPending ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
-                    Create Offer
+
+                <DialogFooter className="p-10 pt-0 flex items-center justify-end gap-3">
+                  <Button type="button" variant="ghost" onClick={() => setIsCreateOpen(false)} className="h-12 px-8 rounded-2xl font-bold bg-slate-50 text-slate-600 hover:bg-slate-100">Cancel</Button>
+                  <Button type="submit" className="bg-[#8B5CF6] hover:bg-[#7C3AED] h-12 px-10 rounded-2xl font-black text-white shadow-lg shadow-violet-500/20" disabled={createMutation.isPending}>
+                    {createMutation.isPending ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
+                    Add offer
                   </Button>
                 </DialogFooter>
               </form>
@@ -634,7 +613,7 @@ export default function AdminOffersPage() {
 
       {/* Edit Dialog */}
       <Dialog open={!!editingOffer} onOpenChange={(open) => { if (!open) setEditingOffer(null); }}>
-        <DialogContent className="sm:max-w-xl rounded-3xl p-0 border-none shadow-2xl overflow-hidden">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
           {isLoadingDetails ? (
             <div className="p-20 flex flex-col items-center justify-center space-y-4">
               <DialogTitle className="sr-only">Loading Offer Details</DialogTitle>
@@ -643,93 +622,45 @@ export default function AdminOffersPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit(onSubmitWrapper)}>
-              <div className="p-8 border-b">
+              <div className="p-10 pb-0">
                 <DialogHeader>
-                  <DialogTitle className="text-2xl font-black flex items-center gap-3 text-slate-900">
-                    <Pencil className="h-6 w-6 text-violet-600" />
+                  <DialogTitle className="text-3xl font-black text-slate-900">
                     Configure Offer
                   </DialogTitle>
-                  <DialogDescription className="text-slate-500 font-medium text-lg">
-                    Editing <span className="text-slate-900 font-bold">{editingOffer?.name}</span>
+                  <DialogDescription className="text-slate-500 font-medium text-base mt-2">
+                    Editing <span className="text-violet-600 font-bold">{editingOffer?.name}</span>
                   </DialogDescription>
                 </DialogHeader>
               </div>
 
-              <div className="p-8 space-y-6 max-h-[60vh] overflow-y-auto">
+              <div className="p-10 space-y-6 max-h-[60vh] overflow-y-auto">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="font-bold text-slate-700">Offer Name</Label>
-                    <Input {...register("name")} className="h-11 rounded-xl" />
+                    <Label className="font-bold text-slate-800">Offer Name</Label>
+                    <Input {...register("name")} className="h-12 rounded-xl border-slate-200" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-bold text-slate-700">Internal Code</Label>
+                    <Label className="text-sm font-bold text-slate-800">Internal Code</Label>
                     <Input 
                       {...register("code")} 
-                      placeholder="OFF-001" 
-                      className="h-11 rounded-xl bg-slate-50 font-mono uppercase" 
+                      className="h-12 rounded-xl bg-slate-50 font-mono uppercase border-slate-200" 
                       onChange={(e) => {
                         e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
                         register("code").onChange(e);
                       }}
                     />
-                    {errors.code && <p className="text-xs text-red-500 font-medium">{errors.code.message}</p>}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="font-bold text-slate-700">Description</Label>
-                  <Input {...register("description")} className="h-11 rounded-xl" />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="font-bold text-slate-700">Unit Price</Label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">{symbol === "$" ? "GHS" : symbol}</span>
-                      <Input type="number" {...register("unitPrice")} className="h-11 pl-12 rounded-xl" />
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="text-xs text-violet-600 hover:text-violet-700 font-bold"
-                      onClick={() => setShowPriceCalculator(!showPriceCalculator)}
-                    >
-                      <Users className="mr-1 h-3 w-3" />
-                      {showPriceCalculator ? "Hide" : "Calculate from total price"}
-                    </Button>
-                    {showPriceCalculator && (
-                      <div className="mt-2 p-4 bg-violet-50 rounded-2xl border border-violet-100 space-y-3 shadow-sm">
-                        <p className="text-[10px] text-violet-700 font-black uppercase tracking-wider">Price Distribution Calculator</p>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="space-y-1">
-                            <Label className="text-xs font-bold text-slate-600">Total Price</Label>
-                            <Input type="number" value={desiredTotalPrice} onChange={(e) => setDesiredTotalPrice(e.target.value)} className="h-9 rounded-lg" />
-                          </div>
-                          <div className="space-y-1">
-                            <Label className="text-xs font-bold text-slate-600">Users</Label>
-                            <Input type="number" value={numberOfUsers} onChange={(e) => setNumberOfUsers(e.target.value)} className="h-9 rounded-lg" />
-                          </div>
-                        </div>
-                        <Button type="button" size="sm" onClick={calculateUnitPrice} className="w-full rounded-lg bg-violet-600 font-bold">Apply Result</Button>
-                      </div>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="font-bold text-slate-700">Max Check-ins</Label>
-                    <Input type="number" {...register("maximumCheckIns")} className="h-11 rounded-xl" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="font-bold text-slate-700">Currency</Label>
+                    <Label className="font-bold text-slate-800">Currency</Label>
                     <Controller
                       name="currencyId"
                       control={control}
                       render={({ field }) => (
                         <Select value={field.value} onValueChange={field.onChange}>
-                          <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Select currency" /></SelectTrigger>
+                          <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue placeholder="Select" /></SelectTrigger>
                           <SelectContent className="rounded-xl shadow-xl">
                             {availableCurrencies.map((c) => (
                               <SelectItem key={c.code} value={String(c.id || c.code)}>{c.code} ({c.symbol})</SelectItem>
@@ -738,19 +669,33 @@ export default function AdminOffersPage() {
                         </Select>
                       )}
                     />
-                    {errors.currencyId && <p className="text-sm text-red-500 font-medium">{errors.currencyId.message}</p>}
                   </div>
-                  <ProductCategorySelect control={control} errors={errors} />
+                  <div className="space-y-2">
+                    <Label className="font-bold text-slate-800">Unit Price</Label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">{symbol === "$" ? "GHS" : symbol}</span>
+                      <Input type="number" {...register("unitPrice")} className="h-12 pl-14 rounded-xl border-slate-200" />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
+                  <ProductCategorySelect control={control} errors={errors} />
                   <ServiceSubcategorySelect control={control} errors={errors} />
                 </div>
 
-                <div className="space-y-3 pt-2">
-                  <Label className="font-bold text-slate-700">Linked Packages</Label>
-                  <Card className="border-slate-200 shadow-none overflow-hidden rounded-xl">
-                    <ScrollArea className="h-[140px] p-4">
+                <div className="space-y-2">
+                  <Label className="font-bold text-slate-800">Description</Label>
+                  <textarea 
+                    {...register("description")} 
+                    className="flex min-h-[80px] w-full rounded-xl border border-slate-200 bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-500 disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="font-bold text-slate-800">Linked Packages</Label>
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <ScrollArea className="h-[120px]">
                       <div className="space-y-3">
                         <Controller
                           name="packageIds"
@@ -768,7 +713,7 @@ export default function AdminOffersPage() {
                                         : field.onChange(field.value.filter((val) => val !== pkg.id));
                                     }}
                                   />
-                                  <Label htmlFor={`edit-pkg-${pkg.id}`} className="flex-1 cursor-pointer font-medium text-sm">
+                                  <Label htmlFor={`edit-pkg-${pkg.id}`} className="flex-1 cursor-pointer font-medium text-sm text-slate-700">
                                     {pkg.name} <span className="text-slate-400 font-normal">({pkg.code})</span>
                                   </Label>
                                 </div>
@@ -778,14 +723,14 @@ export default function AdminOffersPage() {
                         />
                       </div>
                     </ScrollArea>
-                  </Card>
+                  </div>
                 </div>
               </div>
 
-              <DialogFooter className="p-6 bg-slate-50 border-t flex items-center justify-end gap-3">
-                <Button type="button" variant="ghost" onClick={() => setEditingOffer(null)} className="h-11 rounded-xl font-bold">Cancel</Button>
-                <Button type="submit" className="bg-violet-600 hover:bg-violet-700 h-11 rounded-xl font-black px-8 shadow-md shadow-violet-500/20" disabled={updateMutation.isPending}>
-                  {updateMutation.isPending ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <CheckCircle2 className="h-4 w-4 mr-2" />}
+              <DialogFooter className="p-10 pt-0 flex items-center justify-end gap-3">
+                <Button type="button" variant="ghost" onClick={() => setEditingOffer(null)} className="h-12 px-8 rounded-2xl font-bold bg-slate-50 text-slate-600">Cancel</Button>
+                <Button type="submit" className="bg-[#8B5CF6] hover:bg-[#7C3AED] h-12 px-10 rounded-2xl font-black text-white shadow-lg shadow-violet-500/20" disabled={updateMutation.isPending}>
+                  {updateMutation.isPending ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
                   Save Changes
                 </Button>
               </DialogFooter>
@@ -796,28 +741,25 @@ export default function AdminOffersPage() {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!deletingOffer} onOpenChange={(open) => { if (!open) setDeletingOffer(null); }}>
-        <DialogContent className="sm:max-w-[450px] rounded-3xl p-8 border-none shadow-2xl">
-          <DialogHeader className="mb-6">
-            <DialogTitle className="text-2xl font-black text-red-600 flex items-center gap-2">
-              <Trash2 className="h-7 w-7" />
+        <DialogContent className="sm:max-w-[480px] rounded-[2rem] p-10 border-none shadow-2xl bg-white">
+          <DialogHeader>
+            <div className="h-16 w-16 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mb-6">
+              <Trash2 className="h-8 w-8" />
+            </div>
+            <DialogTitle className="text-3xl font-black text-slate-900">
               Delete Offer
             </DialogTitle>
-            <DialogDescription className="text-slate-500 font-medium text-lg leading-relaxed">
-              Are you sure you want to delete <span className="text-slate-900 font-bold">{deletingOffer?.name}</span>? This action cannot be undone and may affect linked packages.
+            <DialogDescription className="text-slate-500 font-medium text-lg mt-2">
+              Are you sure you want to delete <span className="text-slate-900 font-bold">"{deletingOffer?.name}"</span>? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="gap-3">
-            <Button variant="outline" onClick={() => setDeletingOffer(null)} className="h-12 rounded-xl font-bold flex-1">Keep Offer</Button>
-            <Button 
-              variant="destructive" 
-              className="h-12 rounded-xl font-black flex-1 shadow-md shadow-red-500/20" 
-              onClick={confirmDelete} 
-              disabled={deleteMutation.isPending}
-            >
+          <div className="flex flex-col sm:flex-row gap-3 mt-8">
+            <Button variant="ghost" onClick={() => setDeletingOffer(null)} className="flex-1 h-12 rounded-2xl font-bold bg-slate-50 text-slate-600">Keep Offer</Button>
+            <Button onClick={confirmDelete} className="flex-1 h-12 rounded-2xl font-black bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/20" disabled={deleteMutation.isPending}>
               {deleteMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Yes, Delete
+              Confirm Delete
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

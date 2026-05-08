@@ -476,49 +476,46 @@ export default function AdminAccountsPage() {
         </div>
       )}
 
-      {/* Add Organization Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="sm:max-w-[750px] max-h-[90vh] overflow-hidden flex flex-col p-0 rounded-3xl border-none shadow-2xl">
-          <div className="bg-linear-to-r from-violet-600 to-indigo-600 p-8 text-white relative">
+        <DialogContent className="sm:max-w-[750px] max-h-[90vh] overflow-hidden flex flex-col p-0 rounded-[2rem] border-none shadow-2xl bg-white">
+          <div className="p-10 pb-0">
             <DialogHeader>
-              <DialogTitle className="text-3xl font-black flex items-center gap-3">
-                <Building2 className="h-8 w-8 text-violet-200" />
-                Onboard Organization
+              <DialogTitle className="text-3xl font-black text-slate-900">
+                Onboard organization
               </DialogTitle>
-              <DialogDescription className="text-violet-100 text-lg opacity-90">
-                Initialize a new organizational entity on the platform
+              <DialogDescription className="text-slate-500 font-medium text-base mt-2">
+                Initialize a new organizational entity on the platform.
               </DialogDescription>
             </DialogHeader>
-            <ShieldCheck className="absolute right-8 top-8 h-24 w-24 text-white/10 rotate-12" />
           </div>
           
-          <ScrollArea className="flex-1 p-8">
+          <ScrollArea className="flex-1 p-10">
             <div className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
-                  <Label className="text-sm font-bold text-slate-700">Organization Name *</Label>
-                  <Input placeholder="e.g. Acme Corporation" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="h-12 rounded-xl" />
+                  <Label className="font-bold text-slate-800">Organization name *</Label>
+                  <Input placeholder="Eg: Acme Corporation" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="h-12 rounded-xl border-slate-200" />
                 </div>
                 <div className="space-y-3">
-                  <Label className="text-sm font-bold text-slate-700">Official Domain</Label>
-                  <Input placeholder="acme.com" value={formData.domain} onChange={(e) => setFormData({ ...formData, domain: e.target.value })} className="h-12 rounded-xl" />
+                  <Label className="font-bold text-slate-800">Official domain</Label>
+                  <Input placeholder="acme.com" value={formData.domain} onChange={(e) => setFormData({ ...formData, domain: e.target.value })} className="h-12 rounded-xl border-slate-200" />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
-                  <Label className="text-sm font-bold text-slate-700">Country *</Label>
+                  <Label className="font-bold text-slate-800">Country *</Label>
                   <Select value={formData.countryId} onValueChange={(v) => setFormData({ ...formData, countryId: v })}>
-                    <SelectTrigger className="h-12 rounded-xl"><SelectValue placeholder="Select country" /></SelectTrigger>
+                    <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue placeholder="Select country" /></SelectTrigger>
                     <SelectContent className="rounded-xl shadow-xl">
                       {countries.map((c) => (<SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-3">
-                  <Label className="text-sm font-bold text-slate-700">Organization Type *</Label>
+                  <Label className="font-bold text-slate-800">Organization type *</Label>
                   <Select value={formData.typeId} onValueChange={(v) => setFormData({ ...formData, typeId: v })}>
-                    <SelectTrigger className="h-12 rounded-xl"><SelectValue placeholder="Select type" /></SelectTrigger>
+                    <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue placeholder="Select type" /></SelectTrigger>
                     <SelectContent className="rounded-xl shadow-xl">
                       {types.map((t) => (<SelectItem key={t.id} value={String(t.id)}>{t.name}</SelectItem>))}
                     </SelectContent>
@@ -527,79 +524,76 @@ export default function AdminAccountsPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-3"><Label className="text-sm font-bold text-slate-700">Project ID (Optional)</Label><Input type="number" placeholder="e.g. 102" value={formData.projectId} onChange={(e) => setFormData({ ...formData, projectId: e.target.value })} className="h-12 rounded-xl" /></div>
-                <div className="space-y-3"><Label className="text-sm font-bold text-slate-700">Group ID (Optional)</Label><Input type="number" placeholder="e.g. 5" value={formData.groupId} onChange={(e) => setFormData({ ...formData, groupId: e.target.value })} className="h-12 rounded-xl" /></div>
+                <div className="space-y-3"><Label className="font-bold text-slate-800">Project ID (Optional)</Label><Input type="number" placeholder="Eg: 102" value={formData.projectId} onChange={(e) => setFormData({ ...formData, projectId: e.target.value })} className="h-12 rounded-xl border-slate-200" /></div>
+                <div className="space-y-3"><Label className="font-bold text-slate-800">Group ID (Optional)</Label><Input type="number" placeholder="Eg: 5" value={formData.groupId} onChange={(e) => setFormData({ ...formData, groupId: e.target.value })} className="h-12 rounded-xl border-slate-200" /></div>
               </div>
 
-              <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
-                <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                  <ShieldCheck className="h-5 w-5 text-violet-600" />
-                  Primary Administrator
+              <div className="p-8 bg-slate-50 rounded-[2rem] border border-slate-100 space-y-6">
+                <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
+                  <ShieldCheck className="h-6 w-6 text-violet-600" />
+                  Primary administrator
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label className="text-xs font-bold uppercase text-slate-400">First Name</Label><Input value={formData.adminFirstName} onChange={(e) => setFormData({ ...formData, adminFirstName: e.target.value })} className="bg-white rounded-lg h-10" /></div>
-                  <div className="space-y-2"><Label className="text-xs font-bold uppercase text-slate-400">Last Name</Label><Input value={formData.adminLastName} onChange={(e) => setFormData({ ...formData, adminLastName: e.target.value })} className="bg-white rounded-lg h-10" /></div>
+                  <div className="space-y-2"><Label className="text-xs font-bold uppercase text-slate-400">First Name</Label><Input value={formData.adminFirstName} onChange={(e) => setFormData({ ...formData, adminFirstName: e.target.value })} className="bg-white rounded-xl h-12 border-slate-200" /></div>
+                  <div className="space-y-2"><Label className="text-xs font-bold uppercase text-slate-400">Last Name</Label><Input value={formData.adminLastName} onChange={(e) => setFormData({ ...formData, adminLastName: e.target.value })} className="bg-white rounded-xl h-12 border-slate-200" /></div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label className="text-xs font-bold uppercase text-slate-400">Official Email</Label><Input type="email" value={formData.adminEmail} onChange={(e) => setFormData({ ...formData, adminEmail: e.target.value })} className="bg-white rounded-lg h-10" /></div>
-                  <div className="space-y-2"><Label className="text-xs font-bold uppercase text-slate-400">Username</Label><Input value={formData.adminUsername} onChange={(e) => setFormData({ ...formData, adminUsername: e.target.value })} className="bg-white rounded-lg h-10" /></div>
+                  <div className="space-y-2"><Label className="text-xs font-bold uppercase text-slate-400">Official Email</Label><Input type="email" value={formData.adminEmail} onChange={(e) => setFormData({ ...formData, adminEmail: e.target.value })} className="bg-white rounded-xl h-12 border-slate-200" /></div>
+                  <div className="space-y-2"><Label className="text-xs font-bold uppercase text-slate-400">Username</Label><Input value={formData.adminUsername} onChange={(e) => setFormData({ ...formData, adminUsername: e.target.value })} className="bg-white rounded-xl h-12 border-slate-200" /></div>
                 </div>
               </div>
             </div>
           </ScrollArea>
 
-          <DialogFooter className="p-8 border-t bg-slate-50 flex items-center justify-end gap-3">
-            <Button variant="ghost" onClick={() => setIsAddDialogOpen(false)} className="h-12 rounded-xl px-6 font-bold">Cancel</Button>
+          <DialogFooter className="p-10 pt-4 flex items-center justify-end gap-3">
+            <Button variant="ghost" onClick={() => setIsAddDialogOpen(false)} className="h-12 rounded-2xl px-8 font-bold bg-slate-50 text-slate-600">Cancel</Button>
             <Button 
-              className="bg-violet-600 hover:bg-violet-700 h-12 rounded-2xl px-8 font-black shadow-xl shadow-violet-500/20" 
+              className="bg-[#8B5CF6] hover:bg-[#7C3AED] h-12 rounded-2xl px-10 font-black text-white shadow-lg shadow-violet-500/20" 
               onClick={handleAddOrg} 
               disabled={addOrgMutation.isPending}
             >
-              {addOrgMutation.isPending ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <Plus className="h-5 w-5 mr-2" />}
-              Complete Onboarding
+              {addOrgMutation.isPending ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
+              Onboard Organization
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Edit Organization Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[850px] max-h-[90vh] overflow-hidden flex flex-col p-0 rounded-3xl border-none shadow-2xl">
-          <div className="bg-slate-900 p-8 text-white relative">
+        <DialogContent className="sm:max-w-[850px] max-h-[90vh] overflow-hidden flex flex-col p-0 rounded-[2rem] border-none shadow-2xl bg-white">
+          <div className="p-10 pb-0">
             <DialogHeader>
-              <DialogTitle className="text-3xl font-black flex items-center gap-3">
-                <Pencil className="h-8 w-8 text-violet-400" />
-                Configure Organization
+              <DialogTitle className="text-3xl font-black text-slate-900">
+                Account configuration
               </DialogTitle>
-              <DialogDescription className="text-slate-400 text-lg font-medium">
-                Modifying profile for <span className="text-white font-bold">{selectedOrg?.name}</span>
+              <DialogDescription className="text-slate-500 font-medium text-base mt-2">
+                Modifying profile for <span className="text-violet-600 font-bold">{selectedOrg?.name}</span>
               </DialogDescription>
             </DialogHeader>
-            <Building2 className="absolute right-8 top-8 h-24 w-24 text-white/5 rotate-12" />
           </div>
 
-          <ScrollArea className="flex-1 p-8">
+          <ScrollArea className="flex-1 p-10">
             <Tabs defaultValue="general" className="space-y-8">
-              <TabsList className="bg-slate-100 p-1 rounded-xl w-full max-w-md mx-auto grid grid-cols-2">
-                <TabsTrigger value="general" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">General Info</TabsTrigger>
-                <TabsTrigger value="contact" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">Contact & Access</TabsTrigger>
+              <TabsList className="bg-slate-50 p-1.5 rounded-2xl w-full max-w-md mx-auto grid grid-cols-2 border border-slate-100">
+                <TabsTrigger value="general" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm font-bold text-slate-500 data-[state=active]:text-slate-900 py-2.5">General Info</TabsTrigger>
+                <TabsTrigger value="contact" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm font-bold text-slate-500 data-[state=active]:text-slate-900 py-2.5">Contact & Access</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="general" className="space-y-6">
+              <TabsContent value="general" className="space-y-8 mt-4 outline-none">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-3"><Label className="font-bold text-slate-700">Organization Name</Label><Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="h-11 rounded-xl" /></div>
-                  <div className="space-y-3"><Label className="font-bold text-slate-700">Internal Code</Label><Input value={formData.code} onChange={(e) => setFormData({ ...formData, code: e.target.value })} className="h-11 rounded-xl uppercase font-mono" /></div>
+                  <div className="space-y-2.5"><Label className="font-bold text-slate-800">Organization name</Label><Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="h-12 rounded-xl border-slate-200" /></div>
+                  <div className="space-y-2.5"><Label className="font-bold text-slate-800">Internal code</Label><Input value={formData.code} onChange={(e) => setFormData({ ...formData, code: e.target.value })} className="h-12 rounded-xl border-slate-200 uppercase font-mono bg-slate-50" /></div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-3"><Label className="font-bold text-slate-700">City</Label><Input value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} className="h-11 rounded-xl" /></div>
-                  <div className="space-y-3"><Label className="font-bold text-slate-700">Region</Label><Input value={formData.region} onChange={(e) => setFormData({ ...formData, region: e.target.value })} className="h-11 rounded-xl" /></div>
+                  <div className="space-y-2.5"><Label className="font-bold text-slate-800">City</Label><Input value={formData.city} onChange={(e) => setFormData({ ...formData, city: e.target.value })} className="h-12 rounded-xl border-slate-200" /></div>
+                  <div className="space-y-2.5"><Label className="font-bold text-slate-800">Region</Label><Input value={formData.region} onChange={(e) => setFormData({ ...formData, region: e.target.value })} className="h-12 rounded-xl border-slate-200" /></div>
                 </div>
-                <div className="space-y-3"><Label className="font-bold text-slate-700">Physical Address</Label><Input value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} className="h-11 rounded-xl" /></div>
+                <div className="space-y-2.5"><Label className="font-bold text-slate-800">Physical address</Label><Input value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} className="h-12 rounded-xl border-slate-200" /></div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                   <div className="space-y-3">
-                    <Label className="font-bold text-slate-700">Space Tier</Label>
+                   <div className="space-y-2.5">
+                    <Label className="font-bold text-slate-800">Space tier</Label>
                     <Select value={formData.spaceType || ""} onValueChange={(v) => setFormData({ ...formData, spaceType: v as any })}>
-                      <SelectTrigger className="h-11 rounded-xl"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue /></SelectTrigger>
                       <SelectContent className="rounded-xl shadow-xl">
                         <SelectItem value="LOW">Low Tier</SelectItem>
                         <SelectItem value="MEDIUM">Medium Tier</SelectItem>
@@ -607,10 +601,10 @@ export default function AdminAccountsPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-3">
-                    <Label className="font-bold text-slate-700">Account Status</Label>
+                  <div className="space-y-2.5">
+                    <Label className="font-bold text-slate-800">Account status</Label>
                     <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v as any })}>
-                      <SelectTrigger className="h-11 rounded-xl"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue /></SelectTrigger>
                       <SelectContent className="rounded-xl shadow-xl">
                         <SelectItem value="ACTIVE" className="text-green-600 font-bold">Active</SelectItem>
                         <SelectItem value="INACTIVE" className="text-amber-600 font-bold">Inactive</SelectItem>
@@ -621,68 +615,70 @@ export default function AdminAccountsPage() {
                 </div>
               </TabsContent>
 
-              <TabsContent value="contact" className="space-y-6">
+              <TabsContent value="contact" className="space-y-8 mt-4 outline-none">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-3"><Label className="font-bold text-slate-700">Primary Email</Label><Input type="email" value={formData.contactEmail} onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })} className="h-11 rounded-xl" /></div>
-                  <div className="space-y-3"><Label className="font-bold text-slate-700">Phone Number</Label><Input value={formData.contactMsisdn} onChange={(e) => setFormData({ ...formData, contactMsisdn: e.target.value })} className="h-11 rounded-xl" /></div>
+                  <div className="space-y-2.5"><Label className="font-bold text-slate-800">Primary email</Label><Input type="email" value={formData.contactEmail} onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })} className="h-12 rounded-xl border-slate-200" /></div>
+                  <div className="space-y-2.5"><Label className="font-bold text-slate-800">Phone number</Label><Input value={formData.contactMsisdn} onChange={(e) => setFormData({ ...formData, contactMsisdn: e.target.value })} className="h-12 rounded-xl border-slate-200" /></div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-3"><Label className="font-bold text-slate-700">Official Domain</Label><Input value={formData.domain} onChange={(e) => setFormData({ ...formData, domain: e.target.value })} className="h-11 rounded-xl" /></div>
-                  <div className="space-y-3"><Label className="font-bold text-slate-700">Website URL</Label><Input value={formData.webUrl} onChange={(e) => setFormData({ ...formData, webUrl: e.target.value })} className="h-11 rounded-xl" /></div>
+                  <div className="space-y-2.5"><Label className="font-bold text-slate-800">Official domain</Label><Input value={formData.domain} onChange={(e) => setFormData({ ...formData, domain: e.target.value })} className="h-12 rounded-xl border-slate-200" /></div>
+                  <div className="space-y-2.5"><Label className="font-bold text-slate-800">Website URL</Label><Input value={formData.webUrl} onChange={(e) => setFormData({ ...formData, webUrl: e.target.value })} className="h-12 rounded-xl border-slate-200" /></div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-3"><Label className="font-bold text-slate-700">Alternate Email</Label><Input type="email" value={formData.alternateEmail} onChange={(e) => setFormData({ ...formData, alternateEmail: e.target.value })} className="h-11 rounded-xl" /></div>
-                  <div className="space-y-3"><Label className="font-bold text-slate-700">Logo URL</Label><Input value={formData.logoUrl} onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })} className="h-11 rounded-xl" /></div>
+                  <div className="space-y-2.5"><Label className="font-bold text-slate-800">Alternate email</Label><Input type="email" value={formData.alternateEmail} onChange={(e) => setFormData({ ...formData, alternateEmail: e.target.value })} className="h-12 rounded-xl border-slate-200" /></div>
+                  <div className="space-y-2.5"><Label className="font-bold text-slate-800">Logo URL</Label><Input value={formData.logoUrl} onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })} className="h-12 rounded-xl border-slate-200" /></div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-3"><Label className="font-bold text-slate-700">Status Reason</Label><Input value={formData.statusReason} onChange={(e) => setFormData({ ...formData, statusReason: e.target.value })} className="h-11 rounded-xl" placeholder="If inactive or suspended" /></div>
-                  <div className="space-y-3"><Label className="font-bold text-slate-700">Country ID</Label><Input type="number" value={formData.countryId} onChange={(e) => setFormData({ ...formData, countryId: e.target.value })} className="h-11 rounded-xl" /></div>
+                  <div className="space-y-2.5"><Label className="font-bold text-slate-800">Status reason</Label><Input value={formData.statusReason} onChange={(e) => setFormData({ ...formData, statusReason: e.target.value })} className="h-12 rounded-xl border-slate-200" placeholder="Required if not active" /></div>
+                  <div className="space-y-2.5"><Label className="font-bold text-slate-800">Country ID</Label><Input type="number" value={formData.countryId} onChange={(e) => setFormData({ ...formData, countryId: e.target.value })} className="h-12 rounded-xl border-slate-200" /></div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="space-y-3"><Label className="font-bold text-slate-700">Type ID</Label><Input type="number" value={formData.typeId} onChange={(e) => setFormData({ ...formData, typeId: e.target.value })} className="h-11 rounded-xl" /></div>
-                  <div className="space-y-3"><Label className="font-bold text-slate-700">Project ID</Label><Input type="number" value={formData.projectId} onChange={(e) => setFormData({ ...formData, projectId: e.target.value })} className="h-11 rounded-xl" /></div>
-                  <div className="space-y-3"><Label className="font-bold text-slate-700">Group ID</Label><Input type="number" value={formData.groupId} onChange={(e) => setFormData({ ...formData, groupId: e.target.value })} className="h-11 rounded-xl" /></div>
+                  <div className="space-y-2.5"><Label className="font-bold text-slate-800">Type ID</Label><Input type="number" value={formData.typeId} onChange={(e) => setFormData({ ...formData, typeId: e.target.value })} className="h-12 rounded-xl border-slate-200" /></div>
+                  <div className="space-y-2.5"><Label className="font-bold text-slate-800">Project ID</Label><Input type="number" value={formData.projectId} onChange={(e) => setFormData({ ...formData, projectId: e.target.value })} className="h-12 rounded-xl border-slate-200" /></div>
+                  <div className="space-y-2.5"><Label className="font-bold text-slate-800">Group ID</Label><Input type="number" value={formData.groupId} onChange={(e) => setFormData({ ...formData, groupId: e.target.value })} className="h-12 rounded-xl border-slate-200" /></div>
                 </div>
               </TabsContent>
             </Tabs>
           </ScrollArea>
 
-          <DialogFooter className="p-8 border-t bg-slate-50 flex items-center justify-end gap-3">
-            <Button variant="ghost" onClick={() => setIsEditDialogOpen(false)} className="h-12 rounded-xl px-6 font-bold">Discard Changes</Button>
+          <DialogFooter className="p-10 pt-4 flex items-center justify-end gap-3">
+            <Button variant="ghost" onClick={() => setIsEditDialogOpen(false)} className="h-12 rounded-2xl px-8 font-bold bg-slate-50 text-slate-600">Discard changes</Button>
             <Button 
-              className="bg-violet-600 hover:bg-violet-700 h-12 rounded-2xl px-8 font-black shadow-xl shadow-violet-500/20 min-w-[160px]" 
+              className="bg-[#8B5CF6] hover:bg-[#7C3AED] h-12 rounded-2xl px-10 font-black text-white shadow-lg shadow-violet-500/20" 
               onClick={handleEditOrg} 
               disabled={updateOrgMutation.isPending}
             >
-              {updateOrgMutation.isPending ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : "Save Profile"}
+              {updateOrgMutation.isPending ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
+              Save Configuration
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-[450px] rounded-3xl p-8 border-none shadow-2xl">
-          <DialogHeader className="mb-6">
-            <DialogTitle className="text-2xl font-black text-red-600 flex items-center gap-2">
-              <Trash2 className="h-7 w-7" />
-              Terminate Account
+        <DialogContent className="sm:max-w-[480px] rounded-[2rem] p-10 border-none shadow-2xl bg-white">
+          <DialogHeader>
+            <div className="h-16 w-16 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mb-6">
+              <Trash2 className="h-8 w-8" />
+            </div>
+            <DialogTitle className="text-3xl font-black text-slate-900">
+              Terminate account
             </DialogTitle>
-            <DialogDescription className="text-slate-500 font-medium text-lg leading-relaxed">
+            <DialogDescription className="text-slate-500 font-medium text-lg mt-2 leading-relaxed">
               Are you sure you want to delete <span className="text-slate-900 font-bold">{selectedOrg?.name}</span>? This will permanently remove all associated data and access.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="gap-3">
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} className="h-12 rounded-xl font-bold flex-1">Keep Account</Button>
+          <div className="flex flex-col sm:flex-row gap-3 mt-10">
+            <Button variant="ghost" onClick={() => setIsDeleteDialogOpen(false)} className="flex-1 h-12 rounded-2xl font-bold bg-slate-50 text-slate-600">Keep account</Button>
             <Button 
-              variant="destructive" 
-              className="h-12 rounded-xl font-black flex-1" 
               onClick={handleDeleteOrg} 
               disabled={removeOrgMutation.isPending}
+              className="flex-1 h-12 rounded-2xl font-black bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/20" 
             >
-              {removeOrgMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Yes, Delete"}
+              {removeOrgMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Confirm Delete
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

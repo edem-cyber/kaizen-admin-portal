@@ -404,48 +404,55 @@ export default function AdminPaymentConfigPage() {
         </TabsContent>
       </Tabs>
 
-      {/* Institution Dialog */}
       <Dialog open={isInstitutionOpen} onOpenChange={setIsInstitutionOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{editingInstitution ? "Edit Institution" : "Add Institution"}</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
+          <div className="p-10 pb-0">
+            <DialogHeader>
+              <DialogTitle className="text-3xl font-black text-slate-900">
+                {editingInstitution ? "Edit institution" : "New institution"}
+              </DialogTitle>
+              <DialogDescription className="text-slate-500 font-medium text-base mt-2">
+                Configure payment institution details and connectivity.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+
+          <div className="p-10 space-y-6 max-h-[60vh] overflow-y-auto">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Name</Label>
-                <Input value={institutionForm.name} onChange={(e) => setInstitutionForm({ ...institutionForm, name: e.target.value })} />
+                <Label className="font-bold text-slate-800">Legal name</Label>
+                <Input className="h-12 rounded-xl border-slate-200" placeholder="Eg: Standard Chartered" value={institutionForm.name} onChange={(e) => setInstitutionForm({ ...institutionForm, name: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <Label>Short Name</Label>
-                <Input value={institutionForm.shortName} onChange={(e) => setInstitutionForm({ ...institutionForm, shortName: e.target.value })} />
+                <Label className="font-bold text-slate-800">Short name</Label>
+                <Input className="h-12 rounded-xl border-slate-200 bg-slate-50 font-mono" placeholder="Eg: STANCHART" value={institutionForm.shortName} onChange={(e) => setInstitutionForm({ ...institutionForm, shortName: e.target.value })} />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Code</Label>
-                <Input value={institutionForm.code} onChange={(e) => setInstitutionForm({ ...institutionForm, code: e.target.value })} />
+                <Label className="font-bold text-slate-800">Bank code</Label>
+                <Input className="h-12 rounded-xl border-slate-200" value={institutionForm.code} onChange={(e) => setInstitutionForm({ ...institutionForm, code: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <Label>Swift Code</Label>
-                <Input value={institutionForm.swiftCode} onChange={(e) => setInstitutionForm({ ...institutionForm, swiftCode: e.target.value })} />
+                <Label className="font-bold text-slate-800">Swift code</Label>
+                <Input className="h-12 rounded-xl border-slate-200" value={institutionForm.swiftCode} onChange={(e) => setInstitutionForm({ ...institutionForm, swiftCode: e.target.value })} />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Country</Label>
+                <Label className="font-bold text-slate-800">Country</Label>
                 <Select value={String(institutionForm.countryId)} onValueChange={(v) => setInstitutionForm({ ...institutionForm, countryId: parseInt(v) })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
+                  <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue /></SelectTrigger>
+                  <SelectContent className="rounded-xl shadow-xl">
                     {countries.map((c: any) => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Type</Label>
+                <Label className="font-bold text-slate-800">Inst. type</Label>
                 <Select value={institutionForm.paymentChannelType} onValueChange={(v) => setInstitutionForm({ ...institutionForm, paymentChannelType: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
+                  <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue /></SelectTrigger>
+                  <SelectContent className="rounded-xl shadow-xl">
                     <SelectItem value="BANK">Bank</SelectItem>
                     <SelectItem value="WALLET">Wallet</SelectItem>
                     <SelectItem value="OTHER">Other</SelectItem>
@@ -453,126 +460,149 @@ export default function AdminPaymentConfigPage() {
                 </Select>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`h-2 w-2 rounded-full ${institutionForm.active ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
+                <span className="font-bold text-slate-700">Active status</span>
+              </div>
               <Switch checked={institutionForm.active} onCheckedChange={(v) => setInstitutionForm({ ...institutionForm, active: v })} />
-              <Label>Active</Label>
             </div>
           </div>
-          <DialogFooter>
-            <Button onClick={() => editingInstitution ? updateInst.mutate({ id: editingInstitution.id, data: institutionForm as any }) : addInst.mutate({ data: institutionForm as any })}>
-              {editingInstitution ? "Save" : "Create"}
+
+          <DialogFooter className="p-10 pt-0 flex items-center justify-end gap-3">
+            <Button variant="ghost" onClick={() => setIsInstitutionOpen(false)} className="h-12 rounded-2xl px-8 font-bold bg-slate-50 text-slate-600">Cancel</Button>
+            <Button className="bg-[#8B5CF6] hover:bg-[#7C3AED] h-12 rounded-2xl px-10 font-black text-white shadow-lg shadow-violet-500/20" onClick={() => editingInstitution ? updateInst.mutate({ id: editingInstitution.id, data: institutionForm as any }) : addInst.mutate({ data: institutionForm as any })}>
+              {editingInstitution ? "Save Changes" : "Create Institution"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Channel Dialog */}
       <Dialog open={isChannelOpen} onOpenChange={setIsChannelOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{editingChannel ? "Edit Channel" : "Add Channel"}</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
+          <div className="p-10 pb-0">
+            <DialogHeader>
+              <DialogTitle className="text-3xl font-black text-slate-900">
+                {editingChannel ? "Edit channel" : "New channel"}
+              </DialogTitle>
+              <DialogDescription className="text-slate-500 font-medium text-base mt-2">
+                Configure payment gateway parameters and fees.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+
+          <div className="p-10 space-y-6 max-h-[60vh] overflow-y-auto pr-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Name</Label>
-                <Input value={channelForm.name} onChange={(e) => setChannelForm({ ...channelForm, name: e.target.value })} />
+                <Label className="font-bold text-slate-800">Channel name</Label>
+                <Input className="h-12 rounded-xl border-slate-200" placeholder="Eg: MTN Mobile Money" value={channelForm.name} onChange={(e) => setChannelForm({ ...channelForm, name: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <Label>Code</Label>
-                <Input value={channelForm.code} onChange={(e) => setChannelForm({ ...channelForm, code: e.target.value })} />
+                <Label className="font-bold text-slate-800">System code</Label>
+                <Input className="h-12 rounded-xl border-slate-200 bg-slate-50 font-mono" placeholder="Eg: MTN_MOMO" value={channelForm.code} onChange={(e) => setChannelForm({ ...channelForm, code: e.target.value })} />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Description</Label>
-              <Input value={channelForm.description} onChange={(e) => setChannelForm({ ...channelForm, description: e.target.value })} />
+              <Label className="font-bold text-slate-800">Display description</Label>
+              <Input className="h-12 rounded-xl border-slate-200" value={channelForm.description} onChange={(e) => setChannelForm({ ...channelForm, description: e.target.value })} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Charge Type</Label>
+                <Label className="font-bold text-slate-800">Charge type</Label>
                 <Select value={channelForm.chargeType} onValueChange={(v) => setChannelForm({ ...channelForm, chargeType: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
+                  <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue /></SelectTrigger>
+                  <SelectContent className="rounded-xl shadow-xl">
                     <SelectItem value="FLAT">Flat Fee</SelectItem>
                     <SelectItem value="PERCENT">Percentage</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Charge Rate</Label>
-                <Input type="number" value={channelForm.chargeRate} onChange={(e) => setChannelForm({ ...channelForm, chargeRate: parseFloat(e.target.value) })} />
+                <Label className="font-bold text-slate-800">Rate / Amount</Label>
+                <Input className="h-12 rounded-xl border-slate-200" type="number" value={channelForm.chargeRate} onChange={(e) => setChannelForm({ ...channelForm, chargeRate: parseFloat(e.target.value) })} />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Min Charge</Label>
-                <Input value={channelForm.minimumCharge} onChange={(e) => setChannelForm({ ...channelForm, minimumCharge: e.target.value })} />
+                <Label className="font-bold text-slate-800">Minimum fee</Label>
+                <Input className="h-12 rounded-xl border-slate-200" value={channelForm.minimumCharge} onChange={(e) => setChannelForm({ ...channelForm, minimumCharge: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <Label>Max Charge</Label>
-                <Input value={channelForm.maximumCharge} onChange={(e) => setChannelForm({ ...channelForm, maximumCharge: e.target.value })} />
+                <Label className="font-bold text-slate-800">Maximum fee</Label>
+                <Input className="h-12 rounded-xl border-slate-200" value={channelForm.maximumCharge} onChange={(e) => setChannelForm({ ...channelForm, maximumCharge: e.target.value })} />
               </div>
             </div>
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                <span className="font-bold text-xs text-slate-600">API Support</span>
                 <Switch checked={channelForm.hasThirdPartyApiSupport} onCheckedChange={(v) => setChannelForm({ ...channelForm, hasThirdPartyApiSupport: v })} />
-                <Label>API Support</Label>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                <span className="font-bold text-xs text-slate-600">Apply Tax</span>
                 <Switch checked={channelForm.applyTax} onCheckedChange={(v) => setChannelForm({ ...channelForm, applyTax: v })} />
-                <Label>Apply Tax</Label>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                <span className="font-bold text-xs text-slate-600">Live Status</span>
                 <Switch checked={channelForm.active} onCheckedChange={(v) => setChannelForm({ ...channelForm, active: v })} />
-                <Label>Active</Label>
               </div>
             </div>
           </div>
-          <DialogFooter>
-            <Button onClick={() => editingChannel ? updateChannel.mutate({ id: editingChannel.id, data: channelForm as any }) : addChannel.mutate({ data: channelForm as any })}>
-              {editingChannel ? "Save" : "Create"}
+
+          <DialogFooter className="p-10 pt-0 flex items-center justify-end gap-3">
+            <Button variant="ghost" onClick={() => setIsChannelOpen(false)} className="h-12 rounded-2xl px-8 font-bold bg-slate-50 text-slate-600">Cancel</Button>
+            <Button className="bg-[#8B5CF6] hover:bg-[#7C3AED] h-12 rounded-2xl px-10 font-black text-white shadow-lg shadow-violet-500/20" onClick={() => editingChannel ? updateChannel.mutate({ id: editingChannel.id, data: channelForm as any }) : addChannel.mutate({ data: channelForm as any })}>
+              {editingChannel ? "Save Changes" : "Create Channel"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Branch Dialog */}
       <Dialog open={isBranchOpen} onOpenChange={setIsBranchOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{editingBranch ? "Edit Branch" : "Add Branch"}</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
+          <div className="p-10 pb-0">
+            <DialogHeader>
+              <DialogTitle className="text-3xl font-black text-slate-900">
+                {editingBranch ? "Edit branch" : "New branch"}
+              </DialogTitle>
+              <DialogDescription className="text-slate-500 font-medium text-base mt-2">
+                Add local branch details for the selected institution.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+
+          <div className="p-10 space-y-6">
             <div className="space-y-2">
-              <Label>Institution</Label>
+              <Label className="font-bold text-slate-800">Parent institution</Label>
               <Select 
                 value={String(branchForm.paymentInstitutionId)} 
                 onValueChange={(v) => setBranchForm({ ...branchForm, paymentInstitutionId: parseInt(v) })}
               >
-                <SelectTrigger><SelectValue placeholder="Select institution" /></SelectTrigger>
-                <SelectContent>
+                <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue placeholder="Select institution" /></SelectTrigger>
+                <SelectContent className="rounded-xl shadow-xl">
                   {institutions.map((inst: any) => <SelectItem key={inst.id} value={String(inst.id)}>{inst.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Branch Name</Label>
-                <Input value={branchForm.name} onChange={(e) => setBranchForm({ ...branchForm, name: e.target.value })} />
+                <Label className="font-bold text-slate-800">Branch name</Label>
+                <Input className="h-12 rounded-xl border-slate-200" placeholder="Eg: East Legon Branch" value={branchForm.name} onChange={(e) => setBranchForm({ ...branchForm, name: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <Label>Sort Code</Label>
-                <Input value={branchForm.sortCode} onChange={(e) => setBranchForm({ ...branchForm, sortCode: e.target.value })} />
+                <Label className="font-bold text-slate-800">Sort code</Label>
+                <Input className="h-12 rounded-xl border-slate-200 bg-slate-50 font-mono" placeholder="Eg: 012345" value={branchForm.sortCode} onChange={(e) => setBranchForm({ ...branchForm, sortCode: e.target.value })} />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Description</Label>
-              <Input value={branchForm.description} onChange={(e) => setBranchForm({ ...branchForm, description: e.target.value })} />
+              <Label className="font-bold text-slate-800">Branch description (optional)</Label>
+              <Input className="h-12 rounded-xl border-slate-200" value={branchForm.description} onChange={(e) => setBranchForm({ ...branchForm, description: e.target.value })} />
             </div>
           </div>
-          <DialogFooter>
-            <Button onClick={() => editingBranch ? updateBranch.mutate({ id: editingBranch.id, data: branchForm as any }) : addBranch.mutate({ data: branchForm as any })}>
-              {editingBranch ? "Save" : "Create"}
+
+          <DialogFooter className="p-10 pt-0 flex items-center justify-end gap-3">
+            <Button variant="ghost" onClick={() => setIsBranchOpen(false)} className="h-12 rounded-2xl px-8 font-bold bg-slate-50 text-slate-600">Cancel</Button>
+            <Button className="bg-[#8B5CF6] hover:bg-[#7C3AED] h-12 rounded-2xl px-10 font-black text-white shadow-lg shadow-violet-500/20" onClick={() => editingBranch ? updateBranch.mutate({ id: editingBranch.id, data: branchForm as any }) : addBranch.mutate({ data: branchForm as any })}>
+              {editingBranch ? "Save Changes" : "Create Branch"}
             </Button>
           </DialogFooter>
         </DialogContent>

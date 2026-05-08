@@ -129,37 +129,42 @@ export default function ProductCategoriesPage() {
         </div>
         <Dialog open={isCreateOpen} onOpenChange={(open) => { setIsCreateOpen(open); if (open) reset(); }}>
           <DialogTrigger asChild>
-            <Button className="bg-violet-600 hover:bg-violet-700 shadow-lg shadow-violet-500/20 h-11 px-6 rounded-xl font-bold">
-              <Plus className="mr-2 h-5 w-5" />
+            <Button className="bg-[#8B5CF6] hover:bg-[#7C3AED] text-white shadow-lg shadow-violet-500/20 h-11 px-6 rounded-xl font-black text-sm transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
+              <Plus className="mr-2 h-4 w-4 stroke-[3px]" />
               Create Category
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
             <form onSubmit={handleSubmit(onSubmit)}>
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-violet-600" />
-                  New Product Category
-                </DialogTitle>
-                <DialogDescription>Create a template for organizations to build packages from.</DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
+              <div className="p-10 pb-0">
+                <DialogHeader>
+                  <DialogTitle className="text-3xl font-black text-slate-900">
+                    New product category
+                  </DialogTitle>
+                  <DialogDescription className="text-slate-500 font-medium text-base mt-2">
+                    Create a template for organizations to build packages from.
+                  </DialogDescription>
+                </DialogHeader>
+              </div>
+
+              <div className="p-10 space-y-6">
                 <div className="space-y-2">
-                  <Label className="font-medium">Name</Label>
-                  <Input {...register("name")} placeholder="e.g. Starter Package" className="h-11 rounded-xl" />
-                  {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
+                  <Label className="font-bold text-slate-800">Category name</Label>
+                  <Input {...register("name")} placeholder="Eg: Starter Package" className="h-12 rounded-xl border-slate-200" />
+                  {errors.name && <p className="text-sm font-bold text-red-500">{errors.name.message}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label className="font-medium">Code</Label>
-                  <Input {...register("code")} placeholder="e.g. STARTER" className="h-11 rounded-xl uppercase font-mono" />
-                  {errors.code && <p className="text-sm text-red-500">{errors.code.message}</p>}
+                  <Label className="font-bold text-slate-800">System code</Label>
+                  <Input {...register("code")} placeholder="Eg: STARTER" className="h-12 rounded-xl border-slate-200 bg-slate-50 font-mono uppercase" />
+                  {errors.code && <p className="text-sm font-bold text-red-500">{errors.code.message}</p>}
                 </div>
               </div>
-              <DialogFooter>
-                <Button type="button" variant="ghost" onClick={() => setIsCreateOpen(false)}>Cancel</Button>
-                <Button type="submit" className="bg-violet-600 hover:bg-violet-700" disabled={createMutation.isPending}>
-                  {createMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
-                  Create
+
+              <DialogFooter className="p-10 pt-0 flex items-center justify-end gap-3">
+                <Button type="button" variant="ghost" onClick={() => setIsCreateOpen(false)} className="h-12 rounded-2xl px-8 font-bold bg-slate-50 text-slate-600">Cancel</Button>
+                <Button type="submit" className="bg-[#8B5CF6] hover:bg-[#7C3AED] h-12 rounded-2xl px-10 font-black text-white shadow-lg shadow-violet-500/20" disabled={createMutation.isPending}>
+                  {createMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  Create Category
                 </Button>
               </DialogFooter>
             </form>
@@ -250,57 +255,67 @@ export default function ProductCategoriesPage() {
         </div>
       )}
 
-      {/* Edit Dialog */}
       <Dialog open={!!editingTemplate} onOpenChange={(open) => { if (!open) setEditingTemplate(null); }}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
           <form onSubmit={handleSubmit(onSubmit)}>
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Pencil className="h-5 w-5 text-violet-600" />
-                Edit Product Category
-              </DialogTitle>
-              <DialogDescription>Editing <span className="font-semibold text-slate-900">{editingTemplate?.name}</span></DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
+            <div className="p-10 pb-0">
+              <DialogHeader>
+                <DialogTitle className="text-3xl font-black text-slate-900">
+                  Edit category
+                </DialogTitle>
+                <DialogDescription className="text-slate-500 font-medium text-base mt-2">
+                  Updating information for <span className="text-violet-600 font-bold">{editingTemplate?.name}</span>
+                </DialogDescription>
+              </DialogHeader>
+            </div>
+
+            <div className="p-10 space-y-6">
               <div className="space-y-2">
-                <Label className="font-medium">Name</Label>
-                <Input {...register("name")} className="h-11 rounded-xl" />
-                {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
+                <Label className="font-bold text-slate-800">Category name</Label>
+                <Input {...register("name")} className="h-12 rounded-xl border-slate-200" />
+                {errors.name && <p className="text-sm font-bold text-red-500">{errors.name.message}</p>}
               </div>
               <div className="space-y-2">
-                <Label className="font-medium">Code</Label>
-                <Input {...register("code")} disabled className="h-11 rounded-xl bg-slate-100 font-mono" />
+                <Label className="font-bold text-slate-800">System code</Label>
+                <Input {...register("code")} disabled className="h-12 rounded-xl border-slate-200 bg-slate-50 font-mono" />
               </div>
             </div>
-            <DialogFooter>
-              <Button type="button" variant="ghost" onClick={() => setEditingTemplate(null)}>Cancel</Button>
-              <Button type="submit" className="bg-violet-600 hover:bg-violet-700" disabled={updateMutation.isPending}>
-                {updateMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : "Save"}
+
+            <DialogFooter className="p-10 pt-0 flex items-center justify-end gap-3">
+              <Button type="button" variant="ghost" onClick={() => setEditingTemplate(null)} className="h-12 rounded-2xl px-8 font-bold bg-slate-50 text-slate-600">Cancel</Button>
+              <Button type="submit" className="bg-[#8B5CF6] hover:bg-[#7C3AED] h-12 rounded-2xl px-10 font-black text-white shadow-lg shadow-violet-500/20" disabled={updateMutation.isPending}>
+                {updateMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                Save Changes
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation */}
       <Dialog open={!!deletingTemplate} onOpenChange={(open) => { if (!open) setDeletingTemplate(null); }}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
+        <DialogContent className="sm:max-w-[480px] rounded-[2rem] p-10 border-none shadow-2xl bg-white">
           <DialogHeader>
-            <DialogTitle className="text-red-600 flex items-center gap-2">
-              <Trash2 className="h-5 w-5" />
-              Delete Category
+            <div className="h-16 w-16 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mb-6">
+              <Trash2 className="h-8 w-8" />
+            </div>
+            <DialogTitle className="text-3xl font-black text-slate-900">
+              Delete category
             </DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete <span className="font-semibold text-slate-900">{deletingTemplate?.name}</span>? This cannot be undone.
+            <DialogDescription className="text-slate-500 font-medium text-lg mt-2 leading-relaxed">
+              Are you sure you want to delete <span className="text-slate-900 font-bold">{deletingTemplate?.name}</span>? This cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeletingTemplate(null)}>Cancel</Button>
-            <Button variant="destructive" onClick={() => deletingTemplate && deleteMutation.mutate({ id: deletingTemplate.id })} disabled={deleteMutation.isPending}>
-              {deleteMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Delete
+          <div className="flex flex-col sm:flex-row gap-3 mt-10">
+            <Button variant="ghost" onClick={() => setDeletingTemplate(null)} className="flex-1 h-12 rounded-2xl font-bold bg-slate-50 text-slate-600">Keep category</Button>
+            <Button 
+              onClick={() => deletingTemplate && deleteMutation.mutate({ id: deletingTemplate.id })} 
+              disabled={deleteMutation.isPending}
+              className="flex-1 h-12 rounded-2xl font-black bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/20" 
+            >
+              {deleteMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Confirm Delete
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

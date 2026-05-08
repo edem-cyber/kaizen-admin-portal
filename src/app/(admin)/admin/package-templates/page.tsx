@@ -205,56 +205,59 @@ export default function PackageTemplatesPage() {
             </DialogTrigger>
             <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
               <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="bg-slate-900 p-10 text-white relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-8 opacity-10">
-                    <Layers className="h-32 w-32 rotate-12" />
-                  </div>
-                  <DialogHeader className="relative z-10">
-                    <DialogTitle className="text-3xl font-black flex items-center gap-3">
-                      <FileText className="h-8 w-8 text-primary" />
-                      Create Template
+                <div className="p-10 pb-0">
+                  <DialogHeader>
+                    <DialogTitle className="text-3xl font-black text-slate-900">
+                      New template
                     </DialogTitle>
-                    <DialogDescription className="text-slate-400 text-lg">
+                    <DialogDescription className="text-slate-500 font-medium text-base mt-2">
                       Design a new dynamic package configuration.
                     </DialogDescription>
                   </DialogHeader>
                 </div>
-                <div className="p-10 space-y-4">
+
+                <div className="p-10 space-y-6 max-h-[60vh] overflow-y-auto">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="font-medium">Name</Label>
-                      <Input {...register("name")} placeholder="e.g. Enterprise Suite" className="h-11 rounded-xl" />
-                      {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
+                      <Label className="font-bold text-slate-800">Template name</Label>
+                      <Input {...register("name")} placeholder="Eg: Enterprise Suite" className="h-12 rounded-xl border-slate-200" />
+                      {errors.name && <p className="text-sm text-red-500 font-medium">{errors.name.message}</p>}
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-sm font-bold text-slate-700">Internal Code</Label>
+                      <Label className="font-bold text-slate-800">Internal code</Label>
                       <Input 
                         {...register("code")} 
                         placeholder="PKG-001" 
-                        className="h-11 rounded-xl bg-slate-50 font-mono uppercase" 
+                        className="h-12 rounded-xl border-slate-200 uppercase font-mono bg-slate-50" 
                         onChange={(e) => {
                           e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
                           register("code").onChange(e);
                         }}
                       />
-                      {errors.code && <p className="text-xs text-red-500 font-medium">{errors.code.message}</p>}
+                      {errors.code && <p className="text-sm text-red-500 font-medium">{errors.code.message}</p>}
                     </div>
                   </div>
+
                   <div className="space-y-2">
-                    <Label className="font-medium">Description</Label>
-                    <Input {...register("description")} className="h-11 rounded-xl" />
-                    {errors.description && <p className="text-sm text-red-500">{errors.description.message}</p>}
+                    <Label className="font-bold text-slate-800">Description</Label>
+                    <textarea 
+                      {...register("description")} 
+                      placeholder="Describe this template"
+                      className="flex min-h-[80px] w-full rounded-xl border border-slate-200 bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-500 disabled:cursor-not-allowed disabled:opacity-50"
+                    />
+                    {errors.description && <p className="text-sm text-red-500 font-medium">{errors.description.message}</p>}
                   </div>
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="font-medium">Currency</Label>
+                      <Label className="font-bold text-slate-800">Currency</Label>
                       <Controller
                         name="currencyId"
                         control={control}
                         render={({ field }) => (
                           <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Select currency" /></SelectTrigger>
-                            <SelectContent>
+                            <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue placeholder="Select" /></SelectTrigger>
+                            <SelectContent className="rounded-xl shadow-xl">
                               {availableCurrencies.map((c: any) => (
                                 <SelectItem key={c.id} value={String(c.id)}>{c.code} ({c.symbol})</SelectItem>
                               ))}
@@ -262,28 +265,29 @@ export default function PackageTemplatesPage() {
                           </Select>
                         )}
                       />
-                      {errors.currencyId && <p className="text-sm text-red-500">{errors.currencyId.message}</p>}
+                      {errors.currencyId && <p className="text-sm text-red-500 font-medium">{errors.currencyId.message}</p>}
                     </div>
                     <div className="space-y-2">
-                      <Label className="font-medium">Required Offers</Label>
-                      <Input {...register("offersRequired")} type="number" min="1" className="h-11 rounded-xl" />
-                      {errors.offersRequired && <p className="text-sm text-red-500">{errors.offersRequired.message}</p>}
+                      <Label className="font-bold text-slate-800">Required Offers</Label>
+                      <Input {...register("offersRequired")} type="number" min="1" className="h-12 rounded-xl border-slate-200" />
+                      {errors.offersRequired && <p className="text-sm text-red-500 font-medium">{errors.offersRequired.message}</p>}
                     </div>
                   </div>
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="font-medium">Validity</Label>
-                      <Input {...register("validity")} type="number" min="1" className="h-11 rounded-xl" placeholder="e.g. 30" />
+                      <Label className="font-bold text-slate-800">Validity</Label>
+                      <Input {...register("validity")} type="number" min="1" className="h-12 rounded-xl border-slate-200" placeholder="0" />
                     </div>
                     <div className="space-y-2">
-                      <Label className="font-medium">Time Unit</Label>
+                      <Label className="font-bold text-slate-800">Time Unit</Label>
                       <Controller
                         name="validityTimeUnit"
                         control={control}
                         render={({ field }) => (
                           <Select value={field.value || ""} onValueChange={field.onChange}>
-                            <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Select unit" /></SelectTrigger>
-                            <SelectContent>
+                            <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue placeholder="Select unit" /></SelectTrigger>
+                            <SelectContent className="rounded-xl shadow-xl">
                               <SelectItem value="DAYS">Days</SelectItem>
                               <SelectItem value="MONTHS">Months</SelectItem>
                               <SelectItem value="YEARS">Years</SelectItem>
@@ -293,15 +297,16 @@ export default function PackageTemplatesPage() {
                       />
                     </div>
                   </div>
+
                   <div className="space-y-2">
-                    <Label className="font-medium">Discount (optional)</Label>
+                    <Label className="font-bold text-slate-800">Discount (optional)</Label>
                     <Controller
                       name="discountId"
                       control={control}
                       render={({ field }) => (
                         <Select value={field.value || "none"} onValueChange={field.onChange}>
-                          <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="No discount" /></SelectTrigger>
-                          <SelectContent>
+                          <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue placeholder="No discount" /></SelectTrigger>
+                          <SelectContent className="rounded-xl shadow-xl">
                             <SelectItem value="none">No Discount</SelectItem>
                             {availableDiscounts.map((d: any) => (
                               <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>
@@ -312,10 +317,11 @@ export default function PackageTemplatesPage() {
                     />
                   </div>
                 </div>
-                <DialogFooter className="p-10 pt-0">
-                  <Button type="button" variant="ghost" onClick={() => setIsCreateOpen(false)} className="h-12 px-6 rounded-xl">Cancel</Button>
-                  <Button type="submit" className="bg-violet-600 hover:bg-violet-700 h-12 px-8 rounded-xl font-bold" disabled={createMutation.isPending}>
-                    {createMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
+
+                <DialogFooter className="p-10 pt-0 flex items-center justify-end gap-3">
+                  <Button type="button" variant="ghost" onClick={() => setIsCreateOpen(false)} className="h-12 px-8 rounded-2xl font-bold bg-slate-50 text-slate-600">Cancel</Button>
+                  <Button type="submit" className="bg-[#8B5CF6] hover:bg-[#7C3AED] h-12 px-10 rounded-2xl font-black text-white shadow-lg shadow-violet-500/20" disabled={createMutation.isPending}>
+                    {createMutation.isPending ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
                     Create Template
                   </Button>
                 </DialogFooter>
@@ -388,60 +394,65 @@ export default function PackageTemplatesPage() {
 
       {/* Edit Dialog */}
       <Dialog open={!!editingTemplate} onOpenChange={(open) => { if (!open) setEditingTemplate(null); }}>
-        <DialogContent className="sm:max-w-lg rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="bg-slate-900 p-10 text-white relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-8 opacity-10">
-                <Layers className="h-32 w-32 rotate-12" />
-              </div>
-              <DialogHeader className="relative z-10">
-                <DialogTitle className="text-3xl font-black flex items-center gap-3">
-                  <Pencil className="h-8 w-8 text-primary" />
-                  Edit Template
+            <div className="p-10 pb-0">
+              <DialogHeader>
+                <DialogTitle className="text-3xl font-black text-slate-900">
+                  Edit template
                 </DialogTitle>
-                <DialogDescription className="text-slate-400 text-lg">
-                  Updating <span className="font-semibold text-white">{editingTemplate?.name}</span>
+                <DialogDescription className="text-slate-500 font-medium text-base mt-2">
+                  Updating configuration for <span className="text-violet-600 font-bold">{editingTemplate?.name}</span>
                 </DialogDescription>
               </DialogHeader>
             </div>
-            <div className="p-10 space-y-4">
+
+            <div className="p-10 space-y-6 max-h-[60vh] overflow-y-auto">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="font-medium">Name</Label>
-                  <Input {...register("name")} className="h-11 rounded-xl" />
-                  {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
+                  <Label className="font-bold text-slate-800">Template name</Label>
+                  <Input {...register("name")} className="h-12 rounded-xl border-slate-200" />
+                  {errors.name && <p className="text-sm text-red-500 font-medium">{errors.name.message}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label className="font-medium">Code</Label>
-                  <Input {...register("code")} disabled className="h-11 rounded-xl bg-slate-100 font-mono" />
+                  <Label className="font-bold text-slate-800">Internal code</Label>
+                  <Input {...register("code")} disabled className="h-12 rounded-xl border-slate-200 bg-slate-50 font-mono" />
                 </div>
               </div>
+
               <div className="space-y-2">
-                <Label className="font-medium">Description</Label>
-                <Input {...register("description")} className="h-11 rounded-xl" />
+                <Label className="font-bold text-slate-800">Description</Label>
+                <textarea 
+                  {...register("description")} 
+                  className="flex min-h-[80px] w-full rounded-xl border border-slate-200 bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-500 disabled:cursor-not-allowed disabled:opacity-50"
+                />
               </div>
-              <div className="space-y-2">
-                <Label className="font-medium">Currency</Label>
-                <Input value={editingTemplate?.currency?.code || "—"} disabled className="h-11 rounded-xl bg-slate-100 font-mono" />
-              </div>
-              <div className="space-y-2">
-                <Label className="font-medium">Required Offers</Label>
-                <Input {...register("offersRequired")} type="number" min="1" className="h-11 rounded-xl" />
-              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="font-medium">Validity</Label>
-                  <Input {...register("validity")} type="number" min="1" className="h-11 rounded-xl" />
+                  <Label className="font-bold text-slate-800">Currency</Label>
+                  <Input value={editingTemplate?.currency?.code || "—"} disabled className="h-12 rounded-xl border-slate-200 bg-slate-50 font-mono" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="font-medium">Time Unit</Label>
+                  <Label className="font-bold text-slate-800">Required Offers</Label>
+                  <Input {...register("offersRequired")} type="number" min="1" className="h-12 rounded-xl border-slate-200" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="font-bold text-slate-800">Validity</Label>
+                  <Input {...register("validity")} type="number" min="1" className="h-12 rounded-xl border-slate-200" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-bold text-slate-800">Time Unit</Label>
                   <Controller
                     name="validityTimeUnit"
                     control={control}
                     render={({ field }) => (
                       <Select value={field.value || ""} onValueChange={field.onChange}>
-                        <SelectTrigger className="h-11 rounded-xl"><SelectValue /></SelectTrigger>
-                        <SelectContent>
+                        <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue /></SelectTrigger>
+                        <SelectContent className="rounded-xl shadow-xl">
                           <SelectItem value="DAYS">Days</SelectItem>
                           <SelectItem value="MONTHS">Months</SelectItem>
                           <SelectItem value="YEARS">Years</SelectItem>
@@ -451,15 +462,16 @@ export default function PackageTemplatesPage() {
                   />
                 </div>
               </div>
+
               <div className="space-y-2">
-                <Label className="font-medium">Discount (optional)</Label>
+                <Label className="font-bold text-slate-800">Discount (optional)</Label>
                 <Controller
                   name="discountId"
                   control={control}
                   render={({ field }) => (
                     <Select value={field.value || "none"} onValueChange={field.onChange}>
-                      <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="No discount" /></SelectTrigger>
-                      <SelectContent>
+                      <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue placeholder="No discount" /></SelectTrigger>
+                      <SelectContent className="rounded-xl shadow-xl">
                         <SelectItem value="none">No Discount</SelectItem>
                         {availableDiscounts.map((d: any) => (
                           <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>
@@ -470,10 +482,12 @@ export default function PackageTemplatesPage() {
                 />
               </div>
             </div>
-            <DialogFooter className="p-10 pt-0">
-              <Button type="button" variant="ghost" onClick={() => setEditingTemplate(null)} className="h-12 px-6 rounded-xl">Cancel</Button>
-              <Button type="submit" className="bg-violet-600 hover:bg-violet-700 h-12 px-8 rounded-xl font-bold" disabled={updateMutation.isPending}>
-                {updateMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : "Save Changes"}
+
+            <DialogFooter className="p-10 pt-0 flex items-center justify-end gap-3">
+              <Button type="button" variant="ghost" onClick={() => setEditingTemplate(null)} className="h-12 px-8 rounded-2xl font-bold bg-slate-50 text-slate-600">Cancel</Button>
+              <Button type="submit" className="bg-[#8B5CF6] hover:bg-[#7C3AED] h-12 px-10 rounded-2xl font-black text-white shadow-lg shadow-violet-500/20" disabled={updateMutation.isPending}>
+                {updateMutation.isPending ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
+                Save Changes
               </Button>
             </DialogFooter>
           </form>
@@ -482,28 +496,25 @@ export default function PackageTemplatesPage() {
 
       {/* Delete Confirmation */}
       <Dialog open={!!deletingTemplate} onOpenChange={(open) => { if (!open) setDeletingTemplate(null); }}>
-        <DialogContent className="sm:max-w-md rounded-[2rem] p-0 overflow-hidden border-none shadow-2xl">
-          <div className="bg-red-50 p-8 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center">
-              <Trash2 className="h-6 w-6" />
+        <DialogContent className="sm:max-w-[480px] rounded-[2rem] p-10 border-none shadow-2xl bg-white">
+          <DialogHeader>
+            <div className="h-16 w-16 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mb-6">
+              <Trash2 className="h-8 w-8" />
             </div>
-            <div>
-              <h3 className="text-xl font-black text-slate-900">Delete Template</h3>
-              <p className="text-red-600/60 font-medium text-sm">This action is irreversible.</p>
-            </div>
-          </div>
-          <div className="p-8">
-            <p className="text-slate-600 leading-relaxed">
-              Are you sure you want to delete <span className="font-black text-slate-900">{deletingTemplate?.name}</span>? All organizations using this template will be affected.
-            </p>
-          </div>
-          <DialogFooter className="p-8 pt-0">
-            <Button variant="ghost" onClick={() => setDeletingTemplate(null)} className="h-12 px-6 rounded-xl">Cancel</Button>
-            <Button variant="destructive" onClick={() => deletingTemplate && deleteMutation.mutate({ id: deletingTemplate.id })} disabled={deleteMutation.isPending} className="h-12 px-8 rounded-xl font-black">
+            <DialogTitle className="text-3xl font-black text-slate-900">
+              Delete Template
+            </DialogTitle>
+            <DialogDescription className="text-slate-500 font-medium text-lg mt-2">
+              Are you sure you want to delete <span className="text-slate-900 font-bold">"{deletingTemplate?.name}"</span>? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col sm:flex-row gap-3 mt-8">
+            <Button variant="ghost" onClick={() => setDeletingTemplate(null)} className="flex-1 h-12 rounded-2xl font-bold bg-slate-50 text-slate-600">Keep Template</Button>
+            <Button onClick={() => deletingTemplate && deleteMutation.mutate({ id: deletingTemplate.id })} className="flex-1 h-12 rounded-2xl font-black bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/20" disabled={deleteMutation.isPending}>
               {deleteMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Delete Permanently
+              Confirm Delete
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

@@ -272,32 +272,29 @@ export default function AdminDiscountsPage() {
             </DialogTrigger>
             <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
               <form onSubmit={handleSubmit(onSubmitWrapper)}>
-                <div className="bg-slate-900 p-10 text-white relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-8 opacity-10">
-                    <Tag className="h-32 w-32 rotate-12" />
-                  </div>
-                  <DialogHeader className="relative z-10">
-                    <DialogTitle className="text-3xl font-black flex items-center gap-3">
-                      <Sparkles className="h-8 w-8 text-violet-400" />
-                      Create New Discount
+                <div className="p-10 pb-0">
+                  <DialogHeader>
+                    <DialogTitle className="text-3xl font-black text-slate-900">
+                      New discount
                     </DialogTitle>
-                    <DialogDescription className="text-slate-400 text-lg">
-                      Configure a new promotional rule or code.
+                    <DialogDescription className="text-slate-500 font-medium text-base mt-2">
+                      Configure a new promotional rule or discount code.
                     </DialogDescription>
                   </DialogHeader>
                 </div>
-                <div className="p-8 space-y-6 max-h-[60vh] overflow-y-auto">
+
+                <div className="p-10 space-y-6 max-h-[60vh] overflow-y-auto">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="font-bold text-slate-700">Name</Label>
-                      <Input {...register("name")} className="h-11 rounded-xl" placeholder="Summer Sale" />
+                      <Label className="font-bold text-slate-800">Discount name</Label>
+                      <Input {...register("name")} className="h-12 rounded-xl border-slate-200" placeholder="Eg: Summer Sale" />
                       {errors.name && <p className="text-sm text-red-500 font-medium">{errors.name.message}</p>}
                     </div>
                     <div className="space-y-2">
-                      <Label className="font-bold text-slate-700">Code</Label>
+                      <Label className="font-bold text-slate-800">Internal code</Label>
                       <Input 
                         {...register("code")} 
-                        className="h-11 rounded-xl uppercase font-mono" 
+                        className="h-12 rounded-xl border-slate-200 uppercase font-mono" 
                         placeholder="SUMMER20"
                         onChange={(e) => {
                           e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
@@ -307,21 +304,18 @@ export default function AdminDiscountsPage() {
                       {errors.code && <p className="text-sm text-red-500 font-medium">{errors.code.message}</p>}
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label className="font-bold text-slate-700">Description</Label>
-                    <Input {...register("description")} className="h-11 rounded-xl" />
-                  </div>
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="font-bold text-slate-700">Type</Label>
+                      <Label className="font-bold text-slate-800">Type</Label>
                       <Controller
                         name="discountType"
                         control={control}
                         render={({ field }) => (
                           <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger className="h-11 rounded-xl"><SelectValue /></SelectTrigger>
+                            <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue /></SelectTrigger>
                             <SelectContent className="rounded-xl shadow-xl">
-                              <SelectItem value="percentage">Percentage</SelectItem>
+                              <SelectItem value="percentage">Percentage (%)</SelectItem>
                               <SelectItem value="fixed">Fixed Amount</SelectItem>
                             </SelectContent>
                           </Select>
@@ -329,27 +323,28 @@ export default function AdminDiscountsPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="font-bold text-slate-700">Value</Label>
+                      <Label className="font-bold text-slate-800">Value</Label>
                       <div className="relative">
                         {selectedType === "fixed" ? (
-                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">{symbol === "$" ? "GHS" : symbol}</span>
+                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">{symbol === "$" ? "GHS" : symbol}</span>
                         ) : null}
-                        <Input type="number" {...register("value")} className={`h-11 rounded-xl ${selectedType === "fixed" ? "pl-12" : ""}`} />
+                        <Input type="number" {...register("value")} className={`h-12 rounded-xl border-slate-200 ${selectedType === "fixed" ? "pl-14" : ""}`} placeholder="0" />
                         {selectedType === "percentage" ? (
-                           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">%</span>
+                           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">%</span>
                         ) : null}
                       </div>
                       {errors.value && <p className="text-sm text-red-500 font-medium">{errors.value.message}</p>}
                     </div>
                   </div>
+
                   <div className="space-y-2">
-                    <Label className="font-bold text-slate-700">Target Organization</Label>
+                    <Label className="font-bold text-slate-800">Target Organization</Label>
                     <Controller
                       name="organizationId"
                       control={control}
                       render={({ field }) => (
                         <Select value={field.value} onValueChange={field.onChange}>
-                          <SelectTrigger className="h-11 rounded-xl shadow-sm border-slate-200"><SelectValue placeholder="Select organization" /></SelectTrigger>
+                          <SelectTrigger className="h-12 rounded-xl border-slate-200 shadow-sm"><SelectValue placeholder="Select organization" /></SelectTrigger>
                           <SelectContent className="rounded-xl shadow-xl">
                             {orgs.map((org) => (
                               <SelectItem key={org.id} value={String(org.id)} className="rounded-lg">{org.name}</SelectItem>
@@ -363,7 +358,7 @@ export default function AdminDiscountsPage() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="font-bold text-slate-700">Start Date</Label>
+                      <Label className="font-bold text-slate-800">Start Date</Label>
                       <Controller
                         name="startDate"
                         control={control}
@@ -373,7 +368,7 @@ export default function AdminDiscountsPage() {
                               <Button
                                 variant={"outline"}
                                 className={cn(
-                                  "w-full h-11 rounded-xl justify-start text-left font-normal border-slate-200",
+                                  "w-full h-12 rounded-xl justify-start text-left font-normal border-slate-200 bg-white",
                                   !field.value && "text-muted-foreground"
                                 )}
                               >
@@ -395,7 +390,7 @@ export default function AdminDiscountsPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="font-bold text-slate-700">End Date</Label>
+                      <Label className="font-bold text-slate-800">End Date</Label>
                       <Controller
                         name="endDate"
                         control={control}
@@ -405,7 +400,7 @@ export default function AdminDiscountsPage() {
                               <Button
                                 variant={"outline"}
                                 className={cn(
-                                  "w-full h-11 rounded-xl justify-start text-left font-normal border-slate-200",
+                                  "w-full h-12 rounded-xl justify-start text-left font-normal border-slate-200 bg-white",
                                   !field.value && "text-muted-foreground"
                                 )}
                               >
@@ -427,22 +422,27 @@ export default function AdminDiscountsPage() {
                       />
                     </div>
                   </div>
-                  <div className="flex items-center space-x-3 pt-2">
+
+                  <div className="bg-slate-50 p-6 rounded-3xl flex items-center justify-between border border-slate-100 mt-2">
+                    <div>
+                      <p className="font-bold text-slate-800">Activate immediately</p>
+                      <p className="text-xs text-slate-500 font-medium">Discount will be live upon creation</p>
+                    </div>
                     <Controller
                       name="active"
                       control={control}
                       render={({ field }) => (
-                        <Switch id="active-switch" checked={field.value} onCheckedChange={field.onChange} />
+                        <Switch checked={field.value} onCheckedChange={field.onChange} />
                       )}
                     />
-                    <Label htmlFor="active-switch" className="font-bold text-slate-700 cursor-pointer">Activate Discount Immediately</Label>
                   </div>
                 </div>
-                <DialogFooter className="p-6 bg-slate-50 border-t flex items-center justify-end gap-3">
-                  <Button type="button" variant="ghost" onClick={() => setIsCreateOpen(false)} className="h-11 rounded-xl font-bold">Cancel</Button>
-                  <Button type="submit" className="bg-violet-600 hover:bg-violet-700 h-11 rounded-xl font-black px-8 shadow-md shadow-violet-500/20" disabled={createMutation.isPending}>
-                    {createMutation.isPending ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
-                    Create Discount
+
+                <DialogFooter className="p-10 pt-0 flex items-center justify-end gap-3">
+                  <Button type="button" variant="ghost" onClick={() => setIsCreateOpen(false)} className="h-12 px-8 rounded-2xl font-bold bg-slate-50 text-slate-600">Cancel</Button>
+                  <Button type="submit" className="bg-[#8B5CF6] hover:bg-[#7C3AED] h-12 px-10 rounded-2xl font-black text-white shadow-lg shadow-violet-500/20" disabled={createMutation.isPending}>
+                    {createMutation.isPending ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
+                    Add discount
                   </Button>
                 </DialogFooter>
               </form>
@@ -591,32 +591,31 @@ export default function AdminDiscountsPage() {
 
       {/* Edit Dialog */}
       <Dialog open={!!editingDiscount} onOpenChange={(open) => { if (!open) setEditingDiscount(null); }}>
-        <DialogContent className="sm:max-w-lg rounded-3xl p-0 border-none shadow-2xl overflow-hidden">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
           <form onSubmit={handleSubmit(onSubmitWrapper)}>
-            <div className="bg-slate-900 p-8 text-white">
+            <div className="p-10 pb-0">
               <DialogHeader>
-                <DialogTitle className="text-2xl font-black flex items-center gap-3">
-                  <Pencil className="h-6 w-6 text-violet-400" />
-                  Edit Discount
+                <DialogTitle className="text-3xl font-black text-slate-900">
+                  Edit discount
                 </DialogTitle>
-                <DialogDescription className="text-slate-400">
-                  Modifying configuration for <span className="text-white font-bold">{editingDiscount?.name}</span>
+                <DialogDescription className="text-slate-500 font-medium text-base mt-2">
+                  Modify the configuration for <span className="text-violet-600 font-bold">{editingDiscount?.name}</span>
                 </DialogDescription>
               </DialogHeader>
             </div>
-            <div className="p-8 space-y-6 max-h-[60vh] overflow-y-auto">
+
+            <div className="p-10 space-y-6 max-h-[60vh] overflow-y-auto">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="font-bold text-slate-700">Name</Label>
-                  <Input {...register("name")} className="h-11 rounded-xl" />
+                  <Label className="font-bold text-slate-800">Discount name</Label>
+                  <Input {...register("name")} className="h-12 rounded-xl border-slate-200" />
                   {errors.name && <p className="text-sm text-red-500 font-medium">{errors.name.message}</p>}
                 </div>
                 <div className="space-y-2">
-                  <Label className="font-bold text-slate-700">Code</Label>
+                  <Label className="font-bold text-slate-800">Internal code</Label>
                   <Input 
                     {...register("code")} 
-                    className="h-11 rounded-xl uppercase font-mono" 
-                    placeholder="SUMMER20" 
+                    className="h-12 rounded-xl border-slate-200 uppercase font-mono bg-slate-50" 
                     onChange={(e) => {
                       e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
                       register("code").onChange(e);
@@ -625,22 +624,18 @@ export default function AdminDiscountsPage() {
                   {errors.code && <p className="text-sm text-red-500 font-medium">{errors.code.message}</p>}
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label className="font-bold text-slate-700">Description</Label>
-                <Input {...register("description")} className="h-11 rounded-xl" />
-              </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="font-bold text-slate-700">Type</Label>
+                  <Label className="font-bold text-slate-800">Type</Label>
                   <Controller
                     name="discountType"
                     control={control}
                     render={({ field }) => (
                       <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger className="h-11 rounded-xl"><SelectValue /></SelectTrigger>
+                        <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue /></SelectTrigger>
                         <SelectContent className="rounded-xl shadow-xl">
-                          <SelectItem value="percentage">Percentage</SelectItem>
+                          <SelectItem value="percentage">Percentage (%)</SelectItem>
                           <SelectItem value="fixed">Fixed Amount</SelectItem>
                         </SelectContent>
                       </Select>
@@ -648,14 +643,14 @@ export default function AdminDiscountsPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="font-bold text-slate-700">Value</Label>
+                  <Label className="font-bold text-slate-800">Value</Label>
                   <div className="relative">
                     {selectedType === "fixed" ? (
-                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">{symbol === "$" ? "GHS" : symbol}</span>
+                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">{symbol === "$" ? "GHS" : symbol}</span>
                     ) : null}
-                    <Input type="number" {...register("value")} className={`h-11 rounded-xl ${selectedType === "fixed" ? "pl-12" : ""}`} />
+                    <Input type="number" {...register("value")} className={`h-12 rounded-xl border-slate-200 ${selectedType === "fixed" ? "pl-14" : ""}`} />
                     {selectedType === "percentage" ? (
-                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">%</span>
+                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">%</span>
                     ) : null}
                   </div>
                   {errors.value && <p className="text-sm text-red-500 font-medium">{errors.value.message}</p>}
@@ -663,13 +658,13 @@ export default function AdminDiscountsPage() {
               </div>
 
               <div className="space-y-2">
-                <Label className="font-bold text-slate-700">Target Organization</Label>
+                <Label className="font-bold text-slate-800">Target Organization</Label>
                 <Controller
                   name="organizationId"
                   control={control}
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="h-11 rounded-xl shadow-sm border-slate-200"><SelectValue placeholder="Select organization" /></SelectTrigger>
+                      <SelectTrigger className="h-12 rounded-xl border-slate-200 shadow-sm"><SelectValue placeholder="Select organization" /></SelectTrigger>
                       <SelectContent className="rounded-xl shadow-xl">
                         {orgs.map((org) => (
                           <SelectItem key={org.id} value={String(org.id)} className="rounded-lg">{org.name}</SelectItem>
@@ -678,12 +673,11 @@ export default function AdminDiscountsPage() {
                     </Select>
                   )}
                 />
-                {errors.organizationId && <p className="text-sm text-red-500 font-medium">{errors.organizationId.message}</p>}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="font-bold text-slate-700">Start Date</Label>
+                  <Label className="font-bold text-slate-800">Start Date</Label>
                   <Controller
                     name="startDate"
                     control={control}
@@ -693,7 +687,7 @@ export default function AdminDiscountsPage() {
                           <Button
                             variant={"outline"}
                             className={cn(
-                              "w-full h-11 rounded-xl justify-start text-left font-normal border-slate-200",
+                              "w-full h-12 rounded-xl justify-start text-left font-normal border-slate-200 bg-white",
                               !field.value && "text-muted-foreground"
                             )}
                           >
@@ -715,7 +709,7 @@ export default function AdminDiscountsPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="font-bold text-slate-700">End Date</Label>
+                  <Label className="font-bold text-slate-800">End Date</Label>
                   <Controller
                     name="endDate"
                     control={control}
@@ -725,7 +719,7 @@ export default function AdminDiscountsPage() {
                           <Button
                             variant={"outline"}
                             className={cn(
-                              "w-full h-11 rounded-xl justify-start text-left font-normal border-slate-200",
+                              "w-full h-12 rounded-xl justify-start text-left font-normal border-slate-200 bg-white",
                               !field.value && "text-muted-foreground"
                             )}
                           >
@@ -748,20 +742,24 @@ export default function AdminDiscountsPage() {
                 </div>
               </div>
               
-              <div className="flex items-center space-x-3 pt-4 border-t border-slate-100">
+              <div className="bg-slate-50 p-6 rounded-3xl flex items-center justify-between border border-slate-100 mt-2">
+                <div>
+                  <p className="font-bold text-slate-800">Active status</p>
+                  <p className="text-xs text-slate-500 font-medium">Toggle whether this discount is usable</p>
+                </div>
                 <Controller
                   name="active"
                   control={control}
                   render={({ field }) => (
-                    <Switch id="edit-active-switch" checked={field.value} onCheckedChange={field.onChange} />
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
                   )}
                 />
-                <Label htmlFor="edit-active-switch" className="font-bold text-slate-700 cursor-pointer">Active Status</Label>
               </div>
             </div>
-            <DialogFooter className="p-6 bg-slate-50 border-t flex items-center justify-end gap-3">
-              <Button type="button" variant="ghost" onClick={() => setEditingDiscount(null)} className="h-11 rounded-xl font-bold">Discard</Button>
-              <Button type="submit" className="bg-violet-600 hover:bg-violet-700 h-11 rounded-xl font-black px-8 shadow-md shadow-violet-500/20" disabled={updateMutation.isPending}>
+
+            <DialogFooter className="p-10 pt-0 flex items-center justify-end gap-3">
+              <Button type="button" variant="ghost" onClick={() => setEditingDiscount(null)} className="h-12 px-8 rounded-2xl font-bold bg-slate-50 text-slate-600">Cancel</Button>
+              <Button type="submit" className="bg-[#8B5CF6] hover:bg-[#7C3AED] h-12 px-10 rounded-2xl font-black text-white shadow-lg shadow-violet-500/20" disabled={updateMutation.isPending}>
                 {updateMutation.isPending ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
                 Save Changes
               </Button>
@@ -772,28 +770,25 @@ export default function AdminDiscountsPage() {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!deletingDiscount} onOpenChange={(open) => { if (!open) setDeletingDiscount(null); }}>
-        <DialogContent className="sm:max-w-[450px] rounded-3xl p-8 border-none shadow-2xl">
-          <DialogHeader className="mb-6">
-            <DialogTitle className="text-2xl font-black text-red-600 flex items-center gap-2">
-              <Trash2 className="h-7 w-7" />
+        <DialogContent className="sm:max-w-[480px] rounded-[2rem] p-10 border-none shadow-2xl bg-white">
+          <DialogHeader>
+            <div className="h-16 w-16 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mb-6">
+              <Trash2 className="h-8 w-8" />
+            </div>
+            <DialogTitle className="text-3xl font-black text-slate-900">
               Delete Discount
             </DialogTitle>
-            <DialogDescription className="text-slate-500 font-medium text-lg leading-relaxed">
-              Are you sure you want to delete <span className="text-slate-900 font-bold">{deletingDiscount?.name}</span>? This action cannot be undone.
+            <DialogDescription className="text-slate-500 font-medium text-lg mt-2">
+              Are you sure you want to delete <span className="text-slate-900 font-bold">"{deletingDiscount?.name}"</span>? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="gap-3">
-            <Button variant="outline" onClick={() => setDeletingDiscount(null)} className="h-12 rounded-xl font-bold flex-1">Keep Discount</Button>
-            <Button 
-              variant="destructive" 
-              className="h-12 rounded-xl font-black flex-1 shadow-md shadow-red-500/20" 
-              onClick={confirmDelete} 
-              disabled={deleteMutation.isPending}
-            >
+          <div className="flex flex-col sm:flex-row gap-3 mt-8">
+            <Button variant="ghost" onClick={() => setDeletingDiscount(null)} className="flex-1 h-12 rounded-2xl font-bold bg-slate-50 text-slate-600">Keep Discount</Button>
+            <Button onClick={confirmDelete} className="flex-1 h-12 rounded-2xl font-black bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/20" disabled={deleteMutation.isPending}>
               {deleteMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Yes, Delete
+              Confirm Delete
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

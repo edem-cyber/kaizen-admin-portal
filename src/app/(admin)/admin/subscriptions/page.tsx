@@ -326,88 +326,106 @@ export default function AdminSubscriptionsPage() {
         </TabsContent>
       </Tabs>
 
-      {/* View Details Dialog */}
       <Dialog open={!!selectedSub && !upgradeDialogOpen} onOpenChange={(open) => { if (!open) setSelectedSub(null); }}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Subscription Details</DialogTitle>
-            <DialogDescription>
-              {selectedSub?.orgName}
-            </DialogDescription>
-          </DialogHeader>
-          {selectedSub && (
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <Label className="text-slate-500">Plan</Label>
-                  <div className="font-medium">{selectedSub.plan}</div>
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-slate-500">Status</Label>
-                  <div>{getStatusBadge(selectedSub.status)}</div>
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-slate-500">Amount</Label>
-                  <div className="font-medium">{formatPrice(selectedSub.amount, selectedSub.orgName)}/month</div>
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-slate-500">Billing</Label>
-                  <div className="font-medium capitalize">{selectedSub.billing}</div>
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-slate-500">Users</Label>
-                  <div className="font-medium">{selectedSub.users} / {selectedSub.maxUsers === -1 ? "Unlimited" : selectedSub.maxUsers}</div>
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-slate-500">Started</Label>
-                  <div className="font-medium" suppressHydrationWarning>{formatDate(selectedSub.startedAt)}</div>
-                </div>
+        <DialogContent className="sm:max-w-lg rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
+          <div className="p-10 pb-0">
+            <DialogHeader>
+              <DialogTitle className="text-3xl font-black text-slate-900">
+                Subscription details
+              </DialogTitle>
+              <DialogDescription className="text-slate-500 font-medium text-base mt-2">
+                Managing billing for <span className="text-violet-600 font-bold">{selectedSub?.orgName}</span>
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+
+          <div className="p-10 space-y-8">
+            <div className="grid grid-cols-2 gap-8">
+              <div className="space-y-1">
+                <Label className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Plan</Label>
+                <div className="font-black text-slate-900 text-lg">{selectedSub?.plan}</div>
               </div>
-                {selectedSub.nextBilling && (
-                  <div className="space-y-1">
-                    <Label className="text-slate-500">Next Billing Date</Label>
-                    <div className="font-medium" suppressHydrationWarning>{formatDate(selectedSub.nextBilling)}</div>
-                  </div>
-                )}
+              <div className="space-y-1">
+                <Label className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Status</Label>
+                <div>{selectedSub && getStatusBadge(selectedSub.status)}</div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Amount</Label>
+                <div className="font-black text-slate-900 text-lg">{selectedSub && formatPrice(selectedSub.amount, selectedSub.orgName)}/mo</div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Billing cycle</Label>
+                <div className="font-black text-slate-900 text-lg capitalize">{selectedSub?.billing}</div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Users</Label>
+                <div className="font-black text-slate-900 text-lg">{selectedSub?.users} <span className="text-slate-300">/</span> {selectedSub?.maxUsers === -1 ? "∞" : selectedSub?.maxUsers}</div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Started</Label>
+                <div className="font-black text-slate-900 text-lg" suppressHydrationWarning>{selectedSub && formatDate(selectedSub.startedAt)}</div>
+              </div>
             </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedSub(null)}>Close</Button>
-            <Button className="bg-violet-600 hover:bg-violet-700" onClick={() => setUpgradeDialogOpen(true)}>
+            {selectedSub?.nextBilling && (
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Calendar className="h-5 w-5 text-slate-400" />
+                  <span className="text-slate-600 font-bold text-sm">Next billing date</span>
+                </div>
+                <span className="font-black text-slate-900" suppressHydrationWarning>{formatDate(selectedSub.nextBilling)}</span>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="p-10 pt-0 flex items-center justify-end gap-3">
+            <Button variant="ghost" onClick={() => setSelectedSub(null)} className="h-12 rounded-2xl px-8 font-bold bg-slate-50 text-slate-600">Close</Button>
+            <Button className="bg-[#8B5CF6] hover:bg-[#7C3AED] h-12 rounded-2xl px-8 font-black text-white shadow-lg shadow-violet-500/20" onClick={() => setUpgradeDialogOpen(true)}>
               Change Plan
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Upgrade Dialog */}
       <Dialog open={upgradeDialogOpen} onOpenChange={setUpgradeDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Change Plan</DialogTitle>
-            <DialogDescription>
-              Select a new plan for {selectedSub?.orgName}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-3 py-4">
+        <DialogContent className="sm:max-w-md rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
+          <div className="p-10 pb-0">
+            <DialogHeader>
+              <DialogTitle className="text-3xl font-black text-slate-900">
+                Change plan
+              </DialogTitle>
+              <DialogDescription className="text-slate-500 font-medium text-base mt-2">
+                Select a new billing tier for {selectedSub?.orgName}
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+
+          <div className="p-10 space-y-3">
             {Object.entries(planDetails).map(([name, details]) => (
               <button
                 key={name}
                 onClick={() => setSelectedPlan(name)}
-                className={`flex items-center justify-between rounded-lg border p-3 text-left transition-colors ${selectedPlan === name ? "border-violet-500 bg-violet-50" : "hover:bg-slate-50"
+                className={`flex items-center justify-between w-full rounded-2xl border-2 p-4 text-left transition-all duration-300 ${
+                  selectedPlan === name 
+                    ? "border-[#8B5CF6] bg-violet-50/50 shadow-md scale-[1.02]" 
+                    : "border-slate-100 hover:border-slate-200 hover:bg-slate-50"
                   }`}
               >
                 <div>
-                  <div className="font-medium">{name}</div>
-                  <div className="text-sm text-slate-500">{formatPrice(details.price, name)}/month</div>
+                  <div className={`font-black text-lg ${selectedPlan === name ? "text-violet-900" : "text-slate-900"}`}>{name}</div>
+                  <div className="text-sm font-bold text-slate-500">{formatPrice(details.price, name)}<span className="font-medium">/mo</span></div>
                 </div>
-                {selectedPlan === name && <Check className="h-5 w-5 text-violet-600" />}
+                <div className={`h-6 w-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                  selectedPlan === name ? "border-[#8B5CF6] bg-[#8B5CF6]" : "border-slate-200"
+                }`}>
+                  {selectedPlan === name && <Check className="h-3 w-3 text-white stroke-[4px]" />}
+                </div>
               </button>
             ))}
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setUpgradeDialogOpen(false)}>Cancel</Button>
-            <Button className="bg-violet-600 hover:bg-violet-700" onClick={handleUpgrade}>Confirm Change</Button>
+
+          <DialogFooter className="p-10 pt-0 flex items-center justify-end gap-3">
+            <Button variant="ghost" onClick={() => setUpgradeDialogOpen(false)} className="h-12 rounded-2xl px-8 font-bold bg-slate-50 text-slate-600">Cancel</Button>
+            <Button className="bg-[#8B5CF6] hover:bg-[#7C3AED] h-12 rounded-2xl px-10 font-black text-white shadow-lg shadow-violet-500/20" onClick={handleUpgrade}>Confirm Change</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -454,35 +454,29 @@ export default function AdminBillingPage() {
         </div>
       )}
 
-      {/* Create Invoice Dialog */}
       <Dialog open={isCreateInvoiceOpen} onOpenChange={setIsCreateInvoiceOpen}>
-        <DialogContent className="sm:max-w-[750px] max-h-[90vh] overflow-hidden flex flex-col p-0 rounded-3xl border-none shadow-2xl">
-          <div className="bg-linear-to-r from-violet-600 to-indigo-600 p-8 text-white relative">
+        <DialogContent className="sm:max-w-[800px] max-h-[90vh] rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white flex flex-col">
+          <div className="p-10 pb-0">
             <DialogHeader>
-              <DialogTitle className="text-3xl font-black flex items-center gap-3">
-                <FileText className="h-8 w-8 text-violet-200" />
-                New Invoice
+              <DialogTitle className="text-3xl font-black text-slate-900">
+                New invoice
               </DialogTitle>
-              <DialogDescription className="text-violet-100 text-lg opacity-90">
-                Generate a formal billing request for a client or partner
+              <DialogDescription className="text-slate-500 font-medium text-base mt-2">
+                Generate a formal billing request for a client or partner.
               </DialogDescription>
             </DialogHeader>
-            <Receipt className="absolute right-8 top-8 h-24 w-24 text-white/10 rotate-12" />
           </div>
           
-          <ScrollArea className="flex-1 p-8">
+          <ScrollArea className="flex-1 px-10 py-8">
             <div className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <Label className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                    <Building2 className="h-4 w-4 text-violet-600" />
-                    Target Organization *
-                  </Label>
+                <div className="space-y-2">
+                  <Label className="font-bold text-slate-800">Target organization</Label>
                   <Select 
                     value={String(invoiceFormData.organizationId)} 
                     onValueChange={(v) => setInvoiceFormData({ ...invoiceFormData, organizationId: parseInt(v) })}
                   >
-                    <SelectTrigger className="h-12 rounded-xl border-slate-200 focus:ring-violet-500 shadow-sm"><SelectValue placeholder="Choose organization..." /></SelectTrigger>
+                    <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue placeholder="Choose organization..." /></SelectTrigger>
                     <SelectContent className="rounded-xl shadow-xl">
                       {orgs.map(org => (
                         <SelectItem key={org.id} value={String(org.id)} className="rounded-lg">{org.name}</SelectItem>
@@ -490,13 +484,10 @@ export default function AdminBillingPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-3">
-                  <Label className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                    <CreditCard className="h-4 w-4 text-violet-600" />
-                    Currency *
-                  </Label>
+                <div className="space-y-2">
+                  <Label className="font-bold text-slate-800">Currency</Label>
                   <Select value={String(invoiceFormData.currencyId)} onValueChange={(v) => setInvoiceFormData({ ...invoiceFormData, currencyId: parseInt(v) })}>
-                    <SelectTrigger className="h-12 rounded-xl border-slate-200 focus:ring-violet-500 shadow-sm"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue /></SelectTrigger>
                     <SelectContent className="rounded-xl shadow-xl">
                       <SelectItem value="1" className="rounded-lg">GHS (Ghana Cedi)</SelectItem>
                       <SelectItem value="2" className="rounded-lg">USD (US Dollar)</SelectItem>
@@ -505,59 +496,59 @@ export default function AdminBillingPage() {
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <Label className="text-sm font-bold text-slate-700">Memo / Description *</Label>
+              <div className="space-y-2">
+                <Label className="font-bold text-slate-800">Memo / Description</Label>
                 <Input 
                   placeholder="What is this invoice for?" 
                   value={invoiceFormData.description} 
                   onChange={(e) => setInvoiceFormData({ ...invoiceFormData, description: e.target.value })}
-                  className="h-12 rounded-xl border-slate-200 focus:ring-violet-500 shadow-sm"
+                  className="h-12 rounded-xl border-slate-200"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <Label className="text-sm font-bold text-slate-700">Service Date</Label>
+                <div className="space-y-2">
+                  <Label className="font-bold text-slate-800">Service date</Label>
                   <Input 
                     type="date"
                     value={invoiceFormData.serviceDate} 
                     onChange={(e) => setInvoiceFormData({ ...invoiceFormData, serviceDate: e.target.value })}
-                    className="h-12 rounded-xl border-slate-200 focus:ring-violet-500 shadow-sm"
+                    className="h-12 rounded-xl border-slate-200"
                   />
                 </div>
-                <div className="space-y-3">
-                  <Label className="text-sm font-bold text-slate-700">Reference (Optional)</Label>
+                <div className="space-y-2">
+                  <Label className="font-bold text-slate-800">Reference (optional)</Label>
                   <Input 
                     placeholder="e.g. PO-789" 
                     value={invoiceFormData.clientReference || ""} 
                     onChange={(e) => setInvoiceFormData({ ...invoiceFormData, clientReference: e.target.value })}
-                    className="h-12 rounded-xl border-slate-200 focus:ring-violet-500 shadow-sm"
+                    className="h-12 rounded-xl border-slate-200"
                   />
                 </div>
               </div>
 
               <div className="space-y-4">
-                <div className="flex items-center justify-between px-1">
-                  <h3 className="text-lg font-black text-slate-900">Line Items</h3>
-                  <Button type="button" variant="outline" size="sm" onClick={handleAddItem} className="h-9 rounded-xl border-violet-200 text-violet-600 hover:bg-violet-50 font-bold">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-black text-slate-900">Line items</h3>
+                  <Button type="button" variant="ghost" onClick={handleAddItem} className="h-10 rounded-xl px-4 font-bold bg-slate-50 text-slate-600">
                     <Plus className="mr-2 h-4 w-4" /> Add Item
                   </Button>
                 </div>
                 
                 <div className="space-y-4">
                   {invoiceFormData.invoiceItems.map((item, index) => (
-                    <div key={index} className="p-5 rounded-2xl border border-slate-100 bg-slate-50/50 shadow-inner group relative">
+                    <div key={index} className="p-6 rounded-[1.5rem] border border-slate-100 bg-slate-50/50 group relative">
                       <Button 
                         type="button" 
                         variant="ghost" 
                         size="icon" 
-                        className="absolute -right-2 -top-2 h-8 w-8 rounded-full bg-white border border-slate-100 shadow-md text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all duration-200"
+                        className="absolute -right-2 -top-2 h-8 w-8 rounded-full bg-white border border-slate-100 shadow-sm text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                         onClick={() => handleRemoveItem(index)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                       
-                      <div className="grid grid-cols-1 gap-4">
+                      <div className="space-y-4">
                         <Input 
                           placeholder="Item description (e.g. Monthly Subscription)" 
                           value={item.description} 
@@ -566,26 +557,26 @@ export default function AdminBillingPage() {
                         />
                         <div className="grid grid-cols-3 gap-4">
                           <div className="space-y-1.5">
-                            <Label className="text-[10px] uppercase font-black text-slate-400 px-1">Unit Price</Label>
+                            <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Unit Price</Label>
                             <Input 
                               type="number"
                               value={item.unitPrice} 
                               onChange={(e) => handleItemChange(index, "unitPrice", e.target.value)}
-                              className="bg-white rounded-xl h-11 border-slate-200 font-medium"
+                              className="bg-white rounded-xl h-11 border-slate-200"
                             />
                           </div>
                           <div className="space-y-1.5">
-                            <Label className="text-[10px] uppercase font-black text-slate-400 px-1">Qty</Label>
+                            <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Quantity</Label>
                             <Input 
                               type="number"
                               value={item.quantity} 
                               onChange={(e) => handleItemChange(index, "quantity", e.target.value)}
-                              className="bg-white rounded-xl h-11 border-slate-200 font-medium"
+                              className="bg-white rounded-xl h-11 border-slate-200"
                             />
                           </div>
                           <div className="space-y-1.5">
-                            <Label className="text-[10px] uppercase font-black text-slate-400 px-1 text-right">Total</Label>
-                            <div className="h-11 bg-slate-100/80 rounded-xl flex items-center justify-end px-4 font-black text-slate-900 border border-slate-200">
+                            <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Total</Label>
+                            <div className="h-11 bg-white rounded-xl flex items-center justify-end px-4 font-black text-slate-900 border border-slate-200">
                               {globalSymbol}{(parseFloat(item.amount) || 0).toLocaleString()}
                             </div>
                           </div>
@@ -596,22 +587,24 @@ export default function AdminBillingPage() {
                 </div>
               </div>
 
-              <div className="p-8 rounded-3xl bg-slate-900 text-white flex justify-between items-center shadow-2xl relative overflow-hidden">
-                <div className="relative z-10">
-                  <p className="text-slate-400 text-sm font-bold uppercase tracking-widest mb-1">Total Due</p>
+              <div className="p-8 rounded-[2rem] bg-slate-900 text-white flex justify-between items-center shadow-xl">
+                <div>
+                  <p className="text-slate-400 text-sm font-bold uppercase tracking-widest mb-1">Total Amount Due</p>
                   <p className="text-4xl font-black tracking-tighter">
                     {invoiceFormData.currencyId === 1 ? "GHS" : "USD"} {invoiceFormData.invoiceItems.reduce((acc, item) => acc + (parseFloat(item.amount) || 0), 0).toLocaleString()}
                   </p>
                 </div>
-                <CreditCard className="absolute right-0 bottom-0 h-32 w-32 text-white/5 -mb-8 -mr-8" />
+                <div className="h-16 w-16 rounded-2xl bg-white/10 flex items-center justify-center">
+                  <Receipt className="h-8 w-8 text-white" />
+                </div>
               </div>
             </div>
           </ScrollArea>
 
-          <DialogFooter className="p-8 border-t bg-slate-50 flex items-center justify-end gap-3">
-            <Button variant="ghost" onClick={() => setIsCreateInvoiceOpen(false)} className="h-12 rounded-xl px-6 font-bold text-slate-500 hover:text-slate-900">Discard</Button>
+          <DialogFooter className="p-10 pt-6 flex items-center justify-end gap-3 bg-white border-t border-slate-50">
+            <Button variant="ghost" onClick={() => setIsCreateInvoiceOpen(false)} className="h-12 rounded-2xl px-8 font-bold bg-slate-50 text-slate-600">Cancel</Button>
             <Button 
-              className="bg-violet-600 hover:bg-violet-700 h-12 rounded-2xl px-8 font-black shadow-xl shadow-violet-500/20 min-w-[180px] transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="bg-[#8B5CF6] hover:bg-[#7C3AED] h-12 rounded-2xl px-10 font-black text-white shadow-lg shadow-violet-500/20"
               onClick={handleCreateInvoice}
               disabled={createInvoiceMutation.isPending}
             >
@@ -622,31 +615,34 @@ export default function AdminBillingPage() {
       </Dialog>
 
       <Dialog open={isEditInvoiceOpen} onOpenChange={setIsEditInvoiceOpen}>
-        <DialogContent className="sm:max-w-[450px] rounded-3xl p-8 border-none shadow-2xl">
-          <DialogHeader className="mb-6">
-            <DialogTitle className="text-2xl font-black flex items-center gap-2">
-              <Pencil className="h-6 w-6 text-violet-600" />
-              Edit Memo
-            </DialogTitle>
-            <DialogDescription className="text-slate-500 font-medium">
-              Update the description for invoice <span className="text-slate-900 font-bold">{editingInvoice?.referenceCode}</span>.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 mb-8">
+        <DialogContent className="sm:max-w-[480px] rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
+          <div className="p-10 pb-0">
+            <DialogHeader>
+              <DialogTitle className="text-3xl font-black text-slate-900">
+                Edit memo
+              </DialogTitle>
+              <DialogDescription className="text-slate-500 font-medium text-base mt-2">
+                Updating description for <span className="text-violet-600 font-bold">{editingInvoice?.referenceCode}</span>
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+
+          <div className="p-10 space-y-6">
             <div className="space-y-2">
-              <Label className="font-bold text-slate-700">New Description</Label>
+              <Label className="font-bold text-slate-800">New description</Label>
               <Input 
                 value={editDescription} 
                 onChange={(e) => setEditDescription(e.target.value)} 
                 placeholder="Brief description of charges..."
-                className="h-12 rounded-xl border-slate-200 focus:ring-violet-500"
+                className="h-12 rounded-xl border-slate-200"
               />
             </div>
           </div>
-          <DialogFooter className="gap-3">
-            <Button variant="outline" onClick={() => setIsEditInvoiceOpen(false)} className="h-12 rounded-xl font-bold flex-1">Cancel</Button>
+
+          <DialogFooter className="p-10 pt-0 flex items-center justify-end gap-3">
+            <Button variant="ghost" onClick={() => setIsEditInvoiceOpen(false)} className="h-12 rounded-2xl px-8 font-bold bg-slate-50 text-slate-600">Cancel</Button>
             <Button 
-              className="bg-violet-600 hover:bg-violet-700 h-12 rounded-xl font-black flex-1"
+              className="bg-[#8B5CF6] hover:bg-[#7C3AED] h-12 rounded-2xl px-10 font-black text-white shadow-lg shadow-violet-500/20"
               onClick={handleUpdateInvoice}
               disabled={updateInvoiceMutation.isPending}
             >
@@ -657,37 +653,40 @@ export default function AdminBillingPage() {
       </Dialog>
 
       <Dialog open={isCancelInvoiceOpen} onOpenChange={setIsCancelInvoiceOpen}>
-        <DialogContent className="sm:max-w-[450px] rounded-3xl p-8 border-none shadow-2xl">
-          <DialogHeader className="mb-6">
-            <DialogTitle className="text-2xl font-black text-red-600 flex items-center gap-2">
-              <AlertCircle className="h-7 w-7" />
-              Cancel Invoice
+        <DialogContent className="sm:max-w-[480px] rounded-[2rem] p-10 border-none shadow-2xl bg-white">
+          <DialogHeader>
+            <div className="h-16 w-16 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mb-6">
+              <AlertCircle className="h-8 w-8" />
+            </div>
+            <DialogTitle className="text-3xl font-black text-slate-900">
+              Void invoice
             </DialogTitle>
-            <DialogDescription className="text-slate-500 font-medium text-lg leading-relaxed">
-              Confirming this will void invoice <span className="text-slate-900 font-bold">{cancellingInvoice?.referenceCode}</span>.
+            <DialogDescription className="text-slate-500 font-medium text-lg mt-2 leading-relaxed">
+              Are you sure you want to void invoice <span className="text-slate-900 font-bold">{cancellingInvoice?.referenceCode}</span>?
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 mb-8">
-            <div className="space-y-2">
-              <Label className="font-bold text-slate-700">Reason for Cancellation *</Label>
-              <Input 
-                value={cancelNarration} 
-                onChange={(e) => setCancelNarration(e.target.value)} 
-                placeholder="e.g. Duplicate entry, incorrect details..."
-                className="h-12 rounded-xl border-red-100 bg-red-50/30 focus:ring-red-500"
-              />
-            </div>
+          
+          <div className="mt-8 space-y-2">
+            <Label className="font-bold text-slate-800">Reason for cancellation</Label>
+            <Input 
+              value={cancelNarration} 
+              onChange={(e) => setCancelNarration(e.target.value)} 
+              placeholder="e.g. Duplicate entry, incorrect details..."
+              className="h-12 rounded-xl border-slate-200"
+            />
           </div>
-          <DialogFooter className="gap-3">
-            <Button variant="outline" onClick={() => setIsCancelInvoiceOpen(false)} className="h-12 rounded-xl font-bold flex-1">Keep Active</Button>
+
+          <div className="flex flex-col sm:flex-row gap-3 mt-10">
+            <Button variant="ghost" onClick={() => setIsCancelInvoiceOpen(false)} className="flex-1 h-12 rounded-2xl font-bold bg-slate-50 text-slate-600">Keep active</Button>
             <Button 
-              className="bg-red-600 hover:bg-red-700 text-white h-12 rounded-xl font-black flex-1"
-              onClick={handleCancelInvoice}
+              onClick={handleCancelInvoice} 
               disabled={cancelInvoiceMutation.isPending}
+              className="flex-1 h-12 rounded-2xl font-black bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/20" 
             >
-              {cancelInvoiceMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Void Invoice"}
+              {cancelInvoiceMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Confirm Void
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
