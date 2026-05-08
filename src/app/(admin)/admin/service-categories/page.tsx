@@ -638,7 +638,7 @@ function CategoryCard({
             {isExpanded ? "Hide Subcategories" : "Show Subcategories"}
             {!isExpanded && (
                <Badge className="ml-2 bg-slate-200 text-slate-600 border-none text-[10px] h-5 px-1.5">
-                {subData?.total || 0}
+                {subcategories.length || 0}
               </Badge>
             )}
           </span>
