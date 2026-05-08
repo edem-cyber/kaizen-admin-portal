@@ -304,7 +304,7 @@ export default function AdminLayout({ children }: AdminShellProps) {
                     firstName={user?.name?.split(' ')[0]}
                     lastName={user?.name?.split(' ')[1]}
                     email={user?.email}
-                    size="md"
+                    size="default"
                     className="rounded-xl shadow-sm group-hover:shadow-md transition-shadow"
                   />
                 </button>
@@ -319,7 +319,7 @@ export default function AdminLayout({ children }: AdminShellProps) {
                     firstName={user?.name?.split(' ')[0]}
                     lastName={user?.name?.split(' ')[1]}
                     email={user?.email}
-                    size="md"
+                    size="default"
                     className="rounded-lg"
                   />
                   <div className="flex flex-col min-w-0">

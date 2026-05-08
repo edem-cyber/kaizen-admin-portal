@@ -13,15 +13,12 @@ import {
   useDeleteDynamicPackageConfig,
   getGetDynamicPackageConfigsQueryKey,
 } from "@/lib/generated/billing/dynamic-package-configs/dynamic-package-configs";
-import { useGetOffers } from "@/lib/generated/billing/offers/offers";
 import { useGetCurrencies } from "@/lib/generated/billing/currencies/currencies";
 import { useGetDiscounts } from "@/lib/generated/billing/discounts/discounts";
 import type { CreateDynamicPackageConfigDto, UpdateDynamicPackageConfigDto } from "@/lib/generated/billing/models";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { FileText, Search, Loader2, Plus, Pencil, Trash2, AlertCircle, Layers, Sparkles } from "lucide-react";
 import { PaginationController } from "@/components/ui/pagination-controller";
 import { queryClient } from "@/lib/react-query-provider";
@@ -35,11 +32,10 @@ const packageTemplateSchema = z.object({
   code: z.string().min(2, "Code must be at least 2 characters").regex(/^[a-zA-Z0-9]+$/, "Code must only contain alphanumeric characters"),
   description: z.string().min(1, "Description is required"),
   currencyId: z.string().min(1, "Currency is required"),
-  offersRequired: z.string().min(1, "Required offers is required"),
+  offersRequired: z.string().optional(),
   validity: z.string().optional(),
   validityTimeUnit: z.enum(["DAYS", "MONTHS", "YEARS"]).optional(),
   discountId: z.string().optional(),
-  requiredOfferIds: z.array(z.number()).optional(),
 });
 
 type PackageTemplateFormValues = z.infer<typeof packageTemplateSchema>;
@@ -75,7 +71,6 @@ export default function PackageTemplatesPage() {
       validity: "",
       validityTimeUnit: undefined,
       discountId: "none",
-      requiredOfferIds: [],
     },
   });
 
@@ -85,9 +80,6 @@ export default function PackageTemplatesPage() {
   });
 
   const configs = Array.isArray(configsResp?.data) ? configsResp.data : [];
-
-  const { data: offersData } = useGetOffers({ limit: 100 });
-  const availableOffers = offersData?.data || [];
 
   const { data: currenciesData } = useGetCurrencies({});
   const availableCurrencies = currenciesData?.data || [];
@@ -140,7 +132,7 @@ export default function PackageTemplatesPage() {
         name: data.name,
         code: data.code,
         description: data.description,
-        offersRequired: parseInt(data.offersRequired),
+        offersRequired: data.offersRequired ? parseInt(data.offersRequired) : 0,
         validity: validity,
         validityTimeUnit: data.validityTimeUnit as any,
         discountId: data.discountId && data.discountId !== "none" ? parseInt(data.discountId) : null,
@@ -154,7 +146,7 @@ export default function PackageTemplatesPage() {
         code: data.code,
         description: data.description,
         currencyId: parseInt(data.currencyId),
-        offersRequired: parseInt(data.offersRequired),
+        offersRequired: data.offersRequired ? parseInt(data.offersRequired) : 0,
         validity: validity,
         validityTimeUnit: data.validityTimeUnit as any,
         discountId: data.discountId && data.discountId !== "none" ? parseInt(data.discountId) : undefined,
@@ -175,7 +167,6 @@ export default function PackageTemplatesPage() {
       validity: cfg.validity ? String(cfg.validity) : "",
       validityTimeUnit: cfg.validityTimeUnit as any,
       discountId: cfg.discountId ? String(cfg.discountId) : "none",
-      requiredOfferIds: cfg.requiredOffers?.map((o: any) => o.id) || [],
     });
   };
 
@@ -275,8 +266,7 @@ export default function PackageTemplatesPage() {
                     </div>
                     <div className="space-y-2">
                       <Label className="font-bold text-slate-800">Required Offers</Label>
-                      <Input {...register("offersRequired")} type="number" min="1" className="h-12 rounded-xl border-slate-200" />
-                      {errors.offersRequired && <p className="text-sm text-red-500 font-medium">{errors.offersRequired.message}</p>}
+                      <Input {...register("offersRequired")} type="number" min="0" className="h-12 rounded-xl border-slate-200" />
                     </div>
                   </div>
 
@@ -441,8 +431,7 @@ export default function PackageTemplatesPage() {
                 </div>
                 <div className="space-y-2">
                   <Label className="font-bold text-slate-800">Required Offers</Label>
-                  <Input {...register("offersRequired")} type="number" min="1" className="h-12 rounded-xl border-slate-200" />
-                  {errors.offersRequired && <p className="text-sm text-red-500 font-medium mt-1">{errors.offersRequired.message}</p>}
+                  <Input {...register("offersRequired")} type="number" min="0" className="h-12 rounded-xl border-slate-200" />
                 </div>
               </div>
 
