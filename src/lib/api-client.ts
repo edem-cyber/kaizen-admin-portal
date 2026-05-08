@@ -10,6 +10,7 @@ export const API_CONFIG = {
     userBaseUrl: "https://api.sandbox.kaizen-aceit.com/user",
     billingBaseUrl: "https://api.sandbox.kaizen-aceit.com/billing",
     paymentBaseUrl: "https://api.sandbox.kaizen-aceit.com/payment",
+    contentBaseUrl: "https://api.sandbox.kaizen-aceit.com/content",
     apiPrefix: "/api/v1",
 } as const;
 
@@ -133,6 +134,9 @@ export const billingRequest = <T>(config: AxiosRequestConfig): Promise<T> =>
 
 export const paymentRequest = <T>(config: AxiosRequestConfig): Promise<T> =>
     apiRequest({ ...config, baseURL: API_CONFIG.paymentBaseUrl });
+
+export const contentRequest = <T>(config: AxiosRequestConfig): Promise<T> =>
+    apiRequest({ ...config, baseURL: API_CONFIG.contentBaseUrl });
 
 // Export default for Orval compatibility
 export default apiRequest;

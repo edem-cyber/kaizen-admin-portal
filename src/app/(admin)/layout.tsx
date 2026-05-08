@@ -189,8 +189,8 @@ export default function AdminLayout({ children }: AdminShellProps) {
           isActive: pathname?.startsWith("/admin/billing") || pathname?.startsWith("/admin/payment-config"),
         },
         {
-          label: "Content Providers",
-          icon: UserPlus,
+          label: "Users",
+          icon: Users,
           href: "/admin/users",
           isActive: pathname?.startsWith("/admin/users") || pathname?.startsWith("/admin/roles"),
         },
@@ -207,8 +207,8 @@ export default function AdminLayout({ children }: AdminShellProps) {
       defaultOpen: true,
       items: [
         {
-          label: "Team",
-          icon: Users,
+          label: "Content Providers",
+          icon: Building2,
           href: "/admin/accounts",
           isActive: pathname?.startsWith("/admin/accounts"),
         },

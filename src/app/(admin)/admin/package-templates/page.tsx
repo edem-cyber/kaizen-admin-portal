@@ -131,8 +131,11 @@ export default function PackageTemplatesPage() {
   });
 
   const onSubmit = (data: PackageTemplateFormValues) => {
-    const validity = data.validity ? parseInt(data.validity) : null;
+    console.log("Form submitted with data:", data);
+    const validity = data.validity && data.validity !== "" ? parseInt(data.validity) : null;
+    
     if (editingTemplate) {
+      console.log("Updating template:", editingTemplate.id);
       const updateData: UpdateDynamicPackageConfigDto = {
         name: data.name,
         code: data.code,
@@ -142,8 +145,10 @@ export default function PackageTemplatesPage() {
         validityTimeUnit: data.validityTimeUnit as any,
         discountId: data.discountId && data.discountId !== "none" ? parseInt(data.discountId) : null,
       };
+      console.log("Update payload:", updateData);
       updateMutation.mutate({ id: editingTemplate.id, data: updateData });
     } else {
+      console.log("Creating new template");
       const createData: CreateDynamicPackageConfigDto = {
         name: data.name,
         code: data.code,
@@ -154,6 +159,7 @@ export default function PackageTemplatesPage() {
         validityTimeUnit: data.validityTimeUnit as any,
         discountId: data.discountId && data.discountId !== "none" ? parseInt(data.discountId) : undefined,
       };
+      console.log("Create payload:", createData);
       createMutation.mutate({ data: createData });
     }
   };
@@ -436,6 +442,7 @@ export default function PackageTemplatesPage() {
                 <div className="space-y-2">
                   <Label className="font-bold text-slate-800">Required Offers</Label>
                   <Input {...register("offersRequired")} type="number" min="1" className="h-12 rounded-xl border-slate-200" />
+                  {errors.offersRequired && <p className="text-sm text-red-500 font-medium mt-1">{errors.offersRequired.message}</p>}
                 </div>
               </div>
 
@@ -443,6 +450,7 @@ export default function PackageTemplatesPage() {
                 <div className="space-y-2">
                   <Label className="font-bold text-slate-800">Validity</Label>
                   <Input {...register("validity")} type="number" min="1" className="h-12 rounded-xl border-slate-200" />
+                  {errors.validity && <p className="text-sm text-red-500 font-medium mt-1">{errors.validity.message}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label className="font-bold text-slate-800">Time Unit</Label>

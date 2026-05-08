@@ -38,7 +38,13 @@ import {
   Building,
   LayoutGrid,
   List as ListIcon,
-  CalendarDays
+  List as ListIcon,
+  CalendarDays,
+  UserCheck,
+  UserX,
+  UserPlus2,
+  ChevronDown,
+  User as UserIcon,
 } from "lucide-react";
 import { ViewToggle } from "@/components/ui/view-toggle";
 import { PaginationController } from "@/components/ui/pagination-controller";
@@ -47,6 +53,13 @@ import { toast } from "sonner";
 import type { OrganizationDto } from "@/lib/generated/org/models/organizationDto";
 import type { OrganizationStatus } from "@/lib/generated/org/models/organizationStatus";
 import type { UpdateOrganizationDto, UpdateOrganizationDtoStatus, UpdateOrganizationDtoSpaceType } from "@/lib/generated/org/models";
+import { 
+  useGetSubAccounts, 
+  useEnableSubAccount, 
+  useDisableSubAccount,
+  SubAccount
+} from "@/lib/api/content-api";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 export default function AdminAccountsPage() {
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -267,8 +280,8 @@ export default function AdminAccountsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Accounts</h1>
-          <p className="text-slate-500 text-lg">Manage platform organizations and access</p>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Content Providers</h1>
+          <p className="text-slate-500 text-lg">Manage platform organizations and their associated sub-accounts</p>
         </div>
         <div className="flex items-center gap-3">
           <ViewToggle view={viewMode} onViewChange={setViewMode} />
@@ -277,7 +290,7 @@ export default function AdminAccountsPage() {
             onClick={() => { resetForm(); setIsAddDialogOpen(true); }}
           >
             <Plus className="mr-2 h-5 w-5" />
-            Add Account
+            Add Content Provider
           </Button>
         </div>
       </div>
@@ -329,74 +342,13 @@ export default function AdminAccountsPage() {
                 <TableBody>
                   {orgs.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-20 text-slate-500">
+                      <TableCell colSpan={7} className="text-center py-20 text-slate-500">
                         <Building2 className="h-12 w-12 mx-auto mb-3 text-slate-200" />
                         No organizations found matching your criteria
                       </TableCell>
                     </TableRow>
                   ) : orgs.map((org) => (
-                    <TableRow key={org.id} className="hover:bg-slate-50/50 transition-colors group">
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-xl bg-violet-100 flex items-center justify-center text-violet-600 group-hover:bg-violet-600 group-hover:text-white transition-all duration-300">
-                            {org.logoUrl ? (
-                              <img src={org.logoUrl} alt={org.name} className="h-full w-full object-cover rounded-xl" />
-                            ) : (
-                              <Building2 className="h-5 w-5" />
-                            )}
-                          </div>
-                          <div>
-                            <div className="font-bold text-slate-900">{org.name}</div>
-                            <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">{org.code || 'NO-CODE'}</div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-1.5 text-xs text-slate-600">
-                            <Mail className="h-3 w-3" /> {org.contactEmail || '-'}
-                          </div>
-                          <div className="flex items-center gap-1.5 text-xs text-slate-600">
-                            <Phone className="h-3 w-3" /> {org.contactMsisdn || '-'}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm text-slate-700">{org.city || '-'}</div>
-                        <div className="text-[10px] text-slate-400">{org.country?.name || '-'}</div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none font-medium">
-                          {org.type?.name || 'General'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                          <CalendarDays className="h-3 w-3" />
-                          {formatDate(org.createdAt)}
-                        </div>
-                      </TableCell>
-                      <TableCell>{getStatusBadge(String(org.status))}</TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-violet-50 hover:text-violet-600">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-xl border-slate-200">
-                            <DropdownMenuLabel>Account Actions</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => openEditDialog(org)}>
-                              <Pencil className="mr-2 h-4 w-4" /> Edit Details
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600 focus:text-red-700" onClick={() => { setSelectedOrg(org); setIsDeleteDialogOpen(true); }}>
-                              <Trash2 className="mr-2 h-4 w-4" /> Delete Account
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
+                    <OrganizationRow key={org.id} org={org} onEdit={openEditDialog} onDelete={(o) => { setSelectedOrg(o); setIsDeleteDialogOpen(true); }} />
                   ))}
                 </TableBody>
               </Table>
@@ -682,5 +634,184 @@ export default function AdminAccountsPage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+function OrganizationRow({ org, onEdit, onDelete }: { org: OrganizationDto; onEdit: (org: OrganizationDto) => void; onDelete: (org: OrganizationDto) => void }) {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const { data: subAccountsResp, isLoading: isLoadingSubs } = useGetSubAccounts(org.id, { limit: 5 });
+  const subAccounts = subAccountsResp?.data || [];
+  
+  const enableMutation = useEnableSubAccount(org.id);
+  const disableMutation = useDisableSubAccount(org.id);
+
+  const formatDate = (dateString?: string | null) => {
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "ACTIVE": return <Badge className="bg-green-100 text-green-700 border-green-200">Active</Badge>;
+      case "SUSPENDED": return <Badge className="bg-red-100 text-red-700 border-red-200">Suspended</Badge>;
+      case "INACTIVE": return <Badge className="bg-amber-100 text-amber-700 border-amber-200">Inactive</Badge>;
+      default: return <Badge variant="outline">{status || "unknown"}</Badge>;
+    }
+  };
+
+  return (
+    <React.Fragment>
+      <TableRow className={cn("hover:bg-slate-50/50 transition-colors group cursor-pointer", isOpen && "bg-slate-50/50 border-b-0")} onClick={() => setIsOpen(!isOpen)}>
+        <TableCell>
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-violet-100 flex items-center justify-center text-violet-600 group-hover:bg-violet-600 group-hover:text-white transition-all duration-300">
+              {org.logoUrl ? (
+                <img src={org.logoUrl} alt={org.name} className="h-full w-full object-cover rounded-xl" />
+              ) : (
+                <Building2 className="h-5 w-5" />
+              )}
+            </div>
+            <div>
+              <div className="font-bold text-slate-900 flex items-center gap-2">
+                {org.name}
+                <ChevronDown className={cn("h-4 w-4 text-slate-400 transition-transform duration-200", isOpen && "rotate-180")} />
+              </div>
+              <div className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">{org.code || 'NO-CODE'}</div>
+            </div>
+          </div>
+        </TableCell>
+        <TableCell>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-1.5 text-xs text-slate-600">
+              <Mail className="h-3 w-3" /> {org.contactEmail || '-'}
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-slate-600">
+              <Phone className="h-3 w-3" /> {org.contactMsisdn || '-'}
+            </div>
+          </div>
+        </TableCell>
+        <TableCell>
+          <div className="text-sm text-slate-700">{org.city || '-'}</div>
+          <div className="text-[10px] text-slate-400">{org.country?.name || '-'}</div>
+        </TableCell>
+        <TableCell>
+          <div className="flex flex-col gap-1">
+            <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none font-medium w-fit">
+              {org.type?.name || 'General'}
+            </Badge>
+            {subAccountsResp && (
+              <span className="text-[10px] font-bold text-violet-600 bg-violet-50 px-1.5 py-0.5 rounded-md w-fit">
+                {subAccountsResp.total} users
+              </span>
+            )}
+          </div>
+        </TableCell>
+        <TableCell>
+          <div className="flex items-center gap-1.5 text-xs text-slate-500">
+            <CalendarDays className="h-3 w-3" />
+            {formatDate(org.createdAt)}
+          </div>
+        </TableCell>
+        <TableCell>{getStatusBadge(String(org.status))}</TableCell>
+        <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-violet-50 hover:text-violet-600">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-xl border-slate-200">
+              <DropdownMenuLabel>Provider Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onEdit(org)}>
+                <Pencil className="mr-2 h-4 w-4" /> Edit Details
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-red-600 focus:text-red-700" onClick={() => onDelete(org)}>
+                <Trash2 className="mr-2 h-4 w-4" /> Delete Account
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </TableCell>
+      </TableRow>
+      
+      {isOpen && (
+        <TableRow className="bg-slate-50/30 hover:bg-slate-50/30">
+          <TableCell colSpan={7} className="p-0 border-b-2 border-slate-100">
+            <div className="p-6 pl-20 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                  <Users className="h-4 w-4 text-violet-500" />
+                  Sub-Accounts (Users)
+                </h4>
+                <Button variant="outline" size="sm" className="h-8 rounded-lg text-xs font-bold border-slate-200">
+                  <UserPlus2 className="h-3.5 w-3.5 mr-1.5" /> Invite User
+                </Button>
+              </div>
+              
+              {isLoadingSubs ? (
+                <div className="flex items-center gap-2 py-4">
+                  <Loader2 className="h-4 w-4 animate-spin text-violet-600" />
+                  <span className="text-xs text-slate-500">Loading users...</span>
+                </div>
+              ) : subAccounts.length === 0 ? (
+                <div className="py-8 text-center bg-white rounded-xl border border-dashed border-slate-200">
+                  <UserIcon className="h-8 w-8 mx-auto mb-2 text-slate-200" />
+                  <p className="text-xs text-slate-500">No sub-accounts found for this provider</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {subAccounts.map((sub) => (
+                    <div key={sub.id} className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between group/user">
+                      <div className="flex items-center gap-3">
+                        <div className="h-9 w-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-xs uppercase">
+                          {sub.user?.firstName?.[0]}{sub.user?.lastName?.[0]}
+                        </div>
+                        <div>
+                          <div className="text-sm font-bold text-slate-900 line-clamp-1">{sub.user?.firstName} {sub.user?.lastName}</div>
+                          <div className="text-[10px] text-slate-500 flex items-center gap-1">
+                            <Badge className={cn("text-[8px] h-3 px-1 border-none", 
+                              sub.status === 'ACTIVE' ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-500")}>
+                              {sub.status}
+                            </Badge>
+                            • {sub.revenueSharePercentage}% Share
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 opacity-0 group-hover/user:opacity-100 transition-opacity">
+                        {sub.status === 'ACTIVE' ? (
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 text-amber-500 hover:bg-amber-50" 
+                            onClick={(e) => { e.stopPropagation(); disableMutation.mutate(sub.id); }}
+                            disabled={disableMutation.isPending}
+                          >
+                            <UserX className="h-4 w-4" />
+                          </Button>
+                        ) : (
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 text-green-600 hover:bg-green-50" 
+                            onClick={(e) => { e.stopPropagation(); enableMutation.mutate(sub.id); }}
+                            disabled={enableMutation.isPending}
+                          >
+                            <UserCheck className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </TableCell>
+        </TableRow>
+      )}
+    </React.Fragment>
   );
 }
