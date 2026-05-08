@@ -309,7 +309,7 @@ export default function AdminServiceCategoriesPage() {
       </div>
 
       {/* Stats/Summary Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="bg-gradient-to-br from-violet-500 to-indigo-600 border-none shadow-2xl shadow-violet-500/10 rounded-[2rem] text-white">
           <CardContent className="p-8">
             <div className="flex items-center justify-between">
@@ -328,23 +328,10 @@ export default function AdminServiceCategoriesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-slate-400 font-bold uppercase tracking-wider text-xs mb-1">End User Types</p>
-                <h3 className="text-4xl font-black text-slate-900">{categories.filter(c => c.type === 'END_USER').length}</h3>
+                <h3 className="text-4xl font-black text-slate-900">{categories.filter(c => (c.type as string) === 'END_USER').length}</h3>
               </div>
               <div className="h-14 w-14 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400">
                 <Layers className="h-8 w-8" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-white border-slate-100 shadow-sm rounded-[2rem]">
-          <CardContent className="p-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-slate-400 font-bold uppercase tracking-wider text-xs mb-1">Host Types</p>
-                <h3 className="text-4xl font-black text-slate-900">{categories.filter(c => c.type === 'HOST').length}</h3>
-              </div>
-              <div className="h-14 w-14 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400">
-                <Tag className="h-8 w-8" />
               </div>
             </div>
           </CardContent>
@@ -469,7 +456,6 @@ export default function AdminServiceCategoriesPage() {
                 </SelectTrigger>
                 <SelectContent className="rounded-xl shadow-xl">
                   <SelectItem value="END_USER">End User (B2C/B2B)</SelectItem>
-                  <SelectItem value="HOST">Host (Partners)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -608,11 +594,8 @@ function CategoryCard({
                 <Badge variant="outline" className="font-mono text-[10px] tracking-widest text-slate-400 border-slate-200 px-2 py-0">
                   {category.code}
                 </Badge>
-                <Badge className={cn(
-                  "text-[10px] font-bold px-2 py-0",
-                  category.type === 'END_USER' ? "bg-blue-50 text-blue-600 border-none" : "bg-amber-50 text-amber-600 border-none"
-                )}>
-                  {category.type === 'END_USER' ? 'End User' : 'Host'}
+                <Badge className="text-[10px] font-bold px-2 py-0 bg-blue-50 text-blue-600 border-none">
+                  End User
                 </Badge>
               </div>
             </div>
