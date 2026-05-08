@@ -41,6 +41,8 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import {
+  Bell,
+  Search,
   LayoutDashboard,
   Users,
   Building2,
@@ -224,12 +226,8 @@ export default function AdminLayout({ children }: AdminShellProps) {
 
   const initials = user?.name?.split(' ').map(n => n[0]).join('') || user?.email?.[0]?.toUpperCase() || '?';
 
-  if (!mounted || !isAuthenticated) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-slate-50">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-violet-600 border-t-transparent" />
-      </div>
-    );
+  if (!mounted) {
+    return null;
   }
 
   return (
@@ -265,85 +263,86 @@ export default function AdminLayout({ children }: AdminShellProps) {
             ))}
           </ScrollArea>
         </SidebarContent>
-        <SidebarFooter className="bg-white border-t border-slate-200">
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <SidebarMenuButton
-                    size="lg"
-                    className="data-[state=open]:bg-slate-100 data-[state=open]:text-slate-900"
-                  >
-                    <ProfilePicture
-                      src={user?.imageUrl}
-                      firstName={user?.name?.split(' ')[0]}
-                      lastName={user?.name?.split(' ')[1]}
-                      email={user?.email}
-                      size="sm"
-                      className="rounded-lg"
-                    />
-                    <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-medium text-slate-900">{user?.name || "Admin"}</span>
-                      <span className="truncate text-xs text-slate-500">
-                        {user?.email || "admin@example.com"}
-                      </span>
-                    </div>
-                    <ChevronsUpDown className="ml-auto size-4 text-slate-400" />
-                  </SidebarMenuButton>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg bg-white"
-                  side="bottom"
-                  align="end"
-                  sideOffset={4}
-                >
-                  <DropdownMenuLabel className="p-0 font-normal">
-                    <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                      <ProfilePicture
-                        src={user?.imageUrl}
-                        firstName={user?.name?.split(' ')[0]}
-                        lastName={user?.name?.split(' ')[1]}
-                        email={user?.email}
-                        size="sm"
-                        className="rounded-lg"
-                      />
-                      <div className="grid flex-1 text-left text-sm leading-tight">
-                        <span className="truncate font-medium text-slate-900">{user?.name || "Admin"}</span>
-                        <span className="truncate text-xs text-slate-500">
-                          {user?.email || "admin@example.com"}
-                        </span>
-                      </div>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild className="text-slate-700">
-                    <Link href="/admin/settings">
-                      <User className="mr-2 size-4" />
-                      Account Settings
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout} className="text-red-600">
-                    <LogOut className="mr-2 size-4" />
-                    Log out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </SidebarMenuItem>
-          </SidebarMenu>
+        <SidebarFooter className="bg-white border-t border-slate-200 hidden">
         </SidebarFooter>
 
       </Sidebar>
       <SidebarInset className="bg-[#F8FAFC]">
-        <header className="flex h-16 shrink-0 items-center gap-2 px-4 md:px-6">
+        <header className="flex h-20 shrink-0 items-center gap-4 px-4 md:px-8 bg-white border-b border-slate-100">
           <SidebarTrigger className="-ml-1 text-slate-400 hover:text-violet-600 transition-colors" />
-          <div className="h-4 w-px bg-slate-200 mx-2 hidden md:block" />
-          <Link href="/admin" className="flex items-center gap-2 md:hidden">
-            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-violet-50 p-1 border border-violet-100">
-              <img src="/kaizen-logo.svg" alt="Kaizen" className="h-full w-full object-contain" />
-            </div>
-            <span className="font-bold text-slate-900">Kaizen</span>
-          </Link>
+          <div className="h-6 w-px bg-slate-100 mx-2 hidden md:block" />
+          
+          <div className="flex-1 hidden md:flex items-center max-w-md relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+            <input 
+              type="text" 
+              placeholder="Search courses" 
+              className="w-full h-11 pl-11 pr-4 rounded-xl bg-slate-50 border-none text-sm focus:ring-2 focus:ring-violet-100 outline-none transition-all"
+            />
+          </div>
+
+          <div className="flex-1 md:hidden flex items-center gap-2">
+            <Link href="/admin" className="flex items-center gap-2">
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-violet-50 p-1 border border-violet-100">
+                <img src="/kaizen-logo.svg" alt="Kaizen" className="h-full w-full object-contain" />
+              </div>
+              <span className="font-bold text-slate-900">Kaizen</span>
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-4 ml-auto">
+            <button className="relative size-10 flex items-center justify-center rounded-xl hover:bg-slate-50 text-slate-400 transition-colors">
+              <Bell className="size-5" strokeWidth={1.5} />
+              <span className="absolute top-2.5 right-2.5 size-2 bg-red-500 rounded-full border-2 border-white" />
+            </button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-3 pl-2 pr-1 py-1 rounded-2xl hover:bg-slate-50 transition-all group">
+                  <ProfilePicture
+                    src={user?.imageUrl}
+                    firstName={user?.name?.split(' ')[0]}
+                    lastName={user?.name?.split(' ')[1]}
+                    email={user?.email}
+                    size="md"
+                    className="rounded-xl shadow-sm group-hover:shadow-md transition-shadow"
+                  />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-64 rounded-2xl bg-white p-2 shadow-2xl border-none mt-2"
+                align="end"
+              >
+                <div className="flex items-center gap-3 p-3 mb-2 bg-slate-50 rounded-xl">
+                  <ProfilePicture
+                    src={user?.imageUrl}
+                    firstName={user?.name?.split(' ')[0]}
+                    lastName={user?.name?.split(' ')[1]}
+                    email={user?.email}
+                    size="md"
+                    className="rounded-lg"
+                  />
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-sm font-bold text-slate-900 truncate">{user?.name || "Admin"}</span>
+                    <span className="text-xs text-slate-500 truncate">{user?.email || "admin@example.com"}</span>
+                  </div>
+                </div>
+                <DropdownMenuItem asChild className="rounded-xl h-11 cursor-pointer focus:bg-violet-50 focus:text-violet-600">
+                  <Link href="/admin/settings" className="flex items-center gap-3 w-full px-2">
+                    <User className="size-4" />
+                    <span className="font-bold text-sm">Account Settings</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="my-2 bg-slate-100" />
+                <DropdownMenuItem onClick={logout} className="rounded-xl h-11 cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-700">
+                  <div className="flex items-center gap-3 w-full px-2">
+                    <LogOut className="size-4" />
+                    <span className="font-bold text-sm">Log out</span>
+                  </div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </header>
         <main className="flex-1 overflow-auto p-4 md:p-8 lg:p-10">
           <div className="max-w-7xl mx-auto space-y-8">

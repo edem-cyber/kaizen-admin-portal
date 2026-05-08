@@ -9,7 +9,7 @@ import { CurrencyProvider } from "@/lib/currency";
 
 export const metadata: Metadata = {
   title: "KaizenAdmin",
-  description: "Easy Peasy KaizenAdmins - A comprehensive kaizenAdmin management application",
+  description: "Kaizen Admins - A comprehensive Kaizen Admin management application",
   icons: {
     icon: [
       { url: '/icon1.png', sizes: 'any' },
