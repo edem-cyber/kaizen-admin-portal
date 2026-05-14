@@ -62,6 +62,8 @@ import {
 } from "@/lib/api/content-api";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
+const SELECTABLE_ORG_TYPE_CODES = ["CONTENT_PROVIDER", "FAMILY_SUBSCRIBER", "CORPORATE_SUBSCRIBER"];
+
 export default function AdminAccountsPage() {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<OrganizationStatus | "">("");
@@ -281,7 +283,7 @@ export default function AdminAccountsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Content Providers</h1>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Organizations</h1>
           <p className="text-slate-500 text-lg">Manage platform organizations and their associated sub-accounts</p>
         </div>
         <div className="flex items-center gap-3">
@@ -291,7 +293,7 @@ export default function AdminAccountsPage() {
             onClick={() => { resetForm(); setIsAddDialogOpen(true); }}
           >
             <Plus className="mr-2 h-5 w-5" />
-            Add Content Provider
+            Add Organization
           </Button>
         </div>
       </div>
@@ -470,7 +472,9 @@ export default function AdminAccountsPage() {
                   <Select value={formData.typeId} onValueChange={(v) => setFormData({ ...formData, typeId: v })}>
                     <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue placeholder="Select type" /></SelectTrigger>
                     <SelectContent className="rounded-xl shadow-xl">
-                      {types.map((t) => (<SelectItem key={t.id} value={String(t.id)}>{t.name}</SelectItem>))}
+                      {types
+                        .filter((t) => SELECTABLE_ORG_TYPE_CODES.includes(t.code))
+                        .map((t) => (<SelectItem key={t.id} value={String(t.id)}>{t.name}</SelectItem>))}
                     </SelectContent>
                   </Select>
                 </div>
