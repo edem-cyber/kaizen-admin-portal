@@ -13,22 +13,68 @@ import {
   getGetProductCategoriesQueryKey,
 } from "@/lib/generated/billing/product-categories/product-categories";
 import type { ProductCategory, CreateProductCategoryDto, UpdateProductCategoryDto } from "@/lib/generated/billing/models";
+import { ProductCategoryOrderBy } from "@/lib/generated/billing/models";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { FileText, Search, Loader2, Plus, Pencil, Trash2, AlertCircle } from "lucide-react";
+import { FileText, Search, Loader2, Plus, Pencil, Trash2, AlertCircle, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
 import { PaginationController } from "@/components/ui/pagination-controller";
 import { queryClient } from "@/lib/react-query-provider";
+import { extractErrorMessage } from "@/lib/api-error";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
-const templateSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  code: z.string().min(2, "Code must be at least 2 characters"),
+const categorySchema = z.object({
+  name: z.string().trim().min(2, "Name must be at least 2 characters"),
+  code: z
+    .string()
+    .trim()
+    .min(2, "Code must be at least 2 characters")
+    .transform((value) => value.toUpperCase()),
 });
 
-type TemplateFormValues = z.infer<typeof templateSchema>;
+type CategoryFormValues = z.infer<typeof categorySchema>;
+
+type SortField = "name" | "code" | "createdAt";
+
+function SortableHead({
+  label,
+  field,
+  activeField,
+  direction,
+  onSort,
+  className,
+}: {
+  label: string;
+  field: SortField;
+  activeField: SortField;
+  direction: "asc" | "desc";
+  onSort: (field: SortField) => void;
+  className?: string;
+}) {
+  const isActive = activeField === field;
+  return (
+    <TableHead className={className}>
+      <button
+        type="button"
+        onClick={() => onSort(field)}
+        className="inline-flex items-center gap-1 font-bold hover:text-violet-600 transition-colors"
+      >
+        {label}
+        {isActive ? (
+          direction === "asc" ? (
+            <ChevronUp className="h-3.5 w-3.5" />
+          ) : (
+            <ChevronDown className="h-3.5 w-3.5" />
+          )
+        ) : (
+          <ChevronsUpDown className="h-3.5 w-3.5 text-slate-300" />
+        )}
+      </button>
+    </TableHead>
+  );
+}
 
 export default function ProductCategoriesPage() {
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -36,21 +82,36 @@ export default function ProductCategoriesPage() {
   const [currentPage, setCurrentPage] = React.useState(1);
   const limit = 20;
   const [isCreateOpen, setIsCreateOpen] = React.useState(false);
-  const [editingTemplate, setEditingTemplate] = React.useState<ProductCategory | null>(null);
-  const [deletingTemplate, setDeletingTemplate] = React.useState<ProductCategory | null>(null);
+  const [editingCategory, setEditingCategory] = React.useState<ProductCategory | null>(null);
+  const [deletingCategory, setDeletingCategory] = React.useState<ProductCategory | null>(null);
+  const [sortField, setSortField] = React.useState<SortField>("createdAt");
+  const [sortDir, setSortDir] = React.useState<"asc" | "desc">("desc");
 
   React.useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(searchTerm), 500);
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, sortField, sortDir]);
+
+  const toggleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDir((dir) => (dir === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDir("asc");
+    }
+  };
+
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<TemplateFormValues>({
-    resolver: zodResolver(templateSchema),
+  } = useForm<CategoryFormValues>({
+    resolver: zodResolver(categorySchema),
     defaultValues: { name: "", code: "" },
   });
 
@@ -58,6 +119,7 @@ export default function ProductCategoriesPage() {
     q: debouncedSearch || undefined,
     page: currentPage,
     limit,
+    orderBy: `${sortField}:${sortDir}` as ProductCategoryOrderBy,
   });
 
   const categories = Array.isArray(categoriesResp?.data) ? categoriesResp.data : [];
@@ -65,45 +127,45 @@ export default function ProductCategoriesPage() {
   const createMutation = useAddProductCategory({
     mutation: {
       onSuccess: () => {
-        toast.success("Package template created");
+        toast.success("Product category created");
         queryClient.invalidateQueries({ queryKey: getGetProductCategoriesQueryKey() });
         setIsCreateOpen(false);
         reset();
       },
-      onError: (err: any) => toast.error(err?.response?.data?.message || "Failed to create template"),
+      onError: (err) => toast.error(extractErrorMessage(err, "Failed to create category")),
     },
   });
 
   const updateMutation = useUpdateProductCategory({
     mutation: {
       onSuccess: () => {
-        toast.success("Package template updated");
+        toast.success("Product category updated");
         queryClient.invalidateQueries({ queryKey: getGetProductCategoriesQueryKey() });
-        setEditingTemplate(null);
+        setEditingCategory(null);
         reset();
       },
-      onError: (err: any) => toast.error(err?.response?.data?.message || "Failed to update template"),
+      onError: (err) => toast.error(extractErrorMessage(err, "Failed to update category")),
     },
   });
 
   const deleteMutation = useDeleteProductCategory({
     mutation: {
       onSuccess: () => {
-        toast.success("Package template deleted");
+        toast.success("Product category deleted");
         queryClient.invalidateQueries({ queryKey: getGetProductCategoriesQueryKey() });
-        setDeletingTemplate(null);
+        setDeletingCategory(null);
       },
-      onError: (err: any) => toast.error(err?.response?.data?.message || "Failed to delete template"),
+      onError: (err) => toast.error(extractErrorMessage(err, "Failed to delete category")),
     },
   });
 
-  const onSubmit = (data: TemplateFormValues) => {
-    if (editingTemplate) {
+  const onSubmit = (data: CategoryFormValues) => {
+    if (editingCategory) {
       const updateData: UpdateProductCategoryDto = {
         name: data.name,
         code: data.code,
       };
-      updateMutation.mutate({ id: editingTemplate.id, data: updateData });
+      updateMutation.mutate({ id: editingCategory.id, data: updateData });
     } else {
       const createData: CreateProductCategoryDto = {
         name: data.name,
@@ -114,7 +176,7 @@ export default function ProductCategoriesPage() {
   };
 
   const openEdit = (cat: ProductCategory) => {
-    setEditingTemplate(cat);
+    setEditingCategory(cat);
     reset({ name: cat.name, code: cat.code });
   };
 
@@ -190,7 +252,7 @@ export default function ProductCategoriesPage() {
       ) : error ? (
         <div className="text-center py-20 text-red-500 font-medium bg-red-50 rounded-2xl border border-red-100">
           <AlertCircle className="h-8 w-8 mx-auto mb-2" />
-          Failed to load templates
+          Failed to load categories
           <Button variant="link" onClick={() => refetch()} className="block mx-auto mt-2">Try again</Button>
         </div>
       ) : (
@@ -199,9 +261,9 @@ export default function ProductCategoriesPage() {
             <Table>
               <TableHeader className="bg-slate-50/50">
                 <TableRow>
-                  <TableHead className="font-bold">Name</TableHead>
-                  <TableHead className="font-bold">Code</TableHead>
-                  <TableHead className="font-bold hidden md:table-cell">Created</TableHead>
+                  <SortableHead label="Name" field="name" activeField={sortField} direction={sortDir} onSort={toggleSort} />
+                  <SortableHead label="Code" field="code" activeField={sortField} direction={sortDir} onSort={toggleSort} />
+                  <SortableHead label="Created" field="createdAt" activeField={sortField} direction={sortDir} onSort={toggleSort} className="hidden md:table-cell" />
                   <TableHead className="text-right font-bold">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -230,7 +292,7 @@ export default function ProductCategoriesPage() {
                           <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-violet-50 hover:text-violet-600" onClick={() => openEdit(cat)}>
                             <Pencil className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:bg-red-50" onClick={() => setDeletingTemplate(cat)}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:bg-red-50" onClick={() => setDeletingCategory(cat)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
@@ -255,7 +317,7 @@ export default function ProductCategoriesPage() {
         </div>
       )}
 
-      <Dialog open={!!editingTemplate} onOpenChange={(open) => { if (!open) setEditingTemplate(null); }}>
+      <Dialog open={!!editingCategory} onOpenChange={(open) => { if (!open) setEditingCategory(null); }}>
         <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="p-10 pb-0">
@@ -264,7 +326,7 @@ export default function ProductCategoriesPage() {
                   Edit category
                 </DialogTitle>
                 <DialogDescription className="text-slate-500 font-medium text-base mt-2">
-                  Updating information for <span className="text-violet-600 font-bold">{editingTemplate?.name}</span>
+                  Updating information for <span className="text-violet-600 font-bold">{editingCategory?.name}</span>
                 </DialogDescription>
               </DialogHeader>
             </div>
@@ -282,7 +344,7 @@ export default function ProductCategoriesPage() {
             </div>
 
             <DialogFooter className="p-10 pt-0 flex items-center justify-end gap-3">
-              <Button type="button" variant="ghost" onClick={() => setEditingTemplate(null)} className="h-12 rounded-2xl px-8 font-bold bg-slate-50 text-slate-600">Cancel</Button>
+              <Button type="button" variant="ghost" onClick={() => setEditingCategory(null)} className="h-12 rounded-2xl px-8 font-bold bg-slate-50 text-slate-600">Cancel</Button>
               <Button type="submit" className="bg-[#8B5CF6] hover:bg-[#7C3AED] h-12 rounded-2xl px-10 font-black text-white shadow-lg shadow-violet-500/20" disabled={updateMutation.isPending}>
                 {updateMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                 Save Changes
@@ -292,7 +354,7 @@ export default function ProductCategoriesPage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!deletingTemplate} onOpenChange={(open) => { if (!open) setDeletingTemplate(null); }}>
+      <Dialog open={!!deletingCategory} onOpenChange={(open) => { if (!open) setDeletingCategory(null); }}>
         <DialogContent className="sm:max-w-[480px] rounded-[2rem] p-10 border-none shadow-2xl bg-white">
           <DialogHeader>
             <div className="h-16 w-16 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mb-6">
@@ -302,13 +364,13 @@ export default function ProductCategoriesPage() {
               Delete category
             </DialogTitle>
             <DialogDescription className="text-slate-500 font-medium text-lg mt-2 leading-relaxed">
-              Are you sure you want to delete <span className="text-slate-900 font-bold">{deletingTemplate?.name}</span>? This cannot be undone.
+              Are you sure you want to delete <span className="text-slate-900 font-bold">{deletingCategory?.name}</span>? This cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col sm:flex-row gap-3 mt-10">
-            <Button variant="ghost" onClick={() => setDeletingTemplate(null)} className="flex-1 h-12 rounded-2xl font-bold bg-slate-50 text-slate-600">Keep category</Button>
-            <Button 
-              onClick={() => deletingTemplate && deleteMutation.mutate({ id: deletingTemplate.id })} 
+            <Button variant="ghost" onClick={() => setDeletingCategory(null)} className="flex-1 h-12 rounded-2xl font-bold bg-slate-50 text-slate-600">Keep category</Button>
+            <Button
+              onClick={() => deletingCategory && deleteMutation.mutate({ id: deletingCategory.id })}
               disabled={deleteMutation.isPending}
               className="flex-1 h-12 rounded-2xl font-black bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/20" 
             >
