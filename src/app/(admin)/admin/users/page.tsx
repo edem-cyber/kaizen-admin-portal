@@ -28,10 +28,12 @@ interface TypedStatus {
 interface TypedRole {
   id: string;
   name: string;
+  organizationTypeId: number;
 }
 interface TypedOrg {
   id: number;
   name: string;
+  typeId: number;
 }
 
 const PAGE_SIZE = 10;
@@ -48,16 +50,25 @@ export default function AdminUsersPage() {
 
   const { data: usersData, isLoading, refetch } = useGetUsers({ limit: PAGE_SIZE, page: currentPage, status: statusFilter || undefined });
   const { data: statusesData } = useGetUserStatuses({});
-  const { data: rolesData } = useGetOrganizationRoles({});
   const { data: orgsData } = useGetOrganizations({ limit: 100 });
+
+  const orgs = Array.isArray(orgsData?.data) ? (orgsData.data as unknown as TypedOrg[]) : [];
+  const selectedOrgTypeId = orgs.find((o) => String(o.id) === formData.organizationId)?.typeId;
+
+  const { data: rolesData } = useGetOrganizationRoles(
+    selectedOrgTypeId != null ? { organizationTypeId: selectedOrgTypeId } : {},
+  );
   const addUserMutation = useAddUser();
   const updateUserMutation = useUpdateUser();
   const removeUserMutation = useRemoveUser();
 
   const users = Array.isArray(usersData?.data) ? usersData.data : [];
   const statuses = Array.isArray(statusesData?.data) ? (statusesData.data as unknown as TypedStatus[]) : [];
-  const roles = Array.isArray(rolesData?.data) ? (rolesData.data as unknown as TypedRole[]) : [];
-  const orgs = Array.isArray(orgsData?.data) ? (orgsData.data as unknown as TypedOrg[]) : [];
+  const allRoles = Array.isArray(rolesData?.data) ? (rolesData.data as unknown as TypedRole[]) : [];
+  const roles =
+    selectedOrgTypeId != null
+      ? allRoles.filter((r) => r.organizationTypeId === selectedOrgTypeId)
+      : [];
 
   const filteredUsers = users.filter((user: UserDto) => {
     const matchesSearch = user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -155,7 +166,7 @@ export default function AdminUsersPage() {
           <h1 className="text-3xl font-bold text-slate-900">Users</h1>
           <p className="text-slate-500">Manage platform users</p>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <Dialog open={isAddDialogOpen} onOpenChange={(open) => { setIsAddDialogOpen(open); if (open) resetForm(); }}>
           <DialogTrigger asChild>
             <Button className="bg-[#8B5CF6] hover:bg-[#7C3AED] text-white shadow-lg shadow-violet-500/20 h-11 px-6 rounded-xl font-black text-sm transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
               <UserPlus className="mr-2 h-4 w-4 stroke-[3px]" />
@@ -196,7 +207,7 @@ export default function AdminUsersPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label className="font-bold text-slate-800">Organization</Label>
-                  <Select value={formData.organizationId} onValueChange={(v) => setFormData({ ...formData, organizationId: v })}>
+                  <Select value={formData.organizationId} onValueChange={(v) => setFormData({ ...formData, organizationId: v, organizationRoleId: "" })}>
                     <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue placeholder="Select" /></SelectTrigger>
                     <SelectContent className="rounded-xl shadow-xl">
                       {orgs.map((org) => (<SelectItem key={org.id} value={String(org.id)}>{org.name}</SelectItem>))}
@@ -205,8 +216,8 @@ export default function AdminUsersPage() {
                 </div>
                 <div className="space-y-2">
                   <Label className="font-bold text-slate-800">System Role</Label>
-                  <Select value={formData.organizationRoleId} onValueChange={(v) => setFormData({ ...formData, organizationRoleId: v })}>
-                    <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue placeholder="Select" /></SelectTrigger>
+                  <Select value={formData.organizationRoleId} onValueChange={(v) => setFormData({ ...formData, organizationRoleId: v })} disabled={!formData.organizationId}>
+                    <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue placeholder={formData.organizationId ? "Select" : "Select organization first"} /></SelectTrigger>
                     <SelectContent className="rounded-xl shadow-xl">
                       {roles.map((role) => (<SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>))}
                     </SelectContent>
