@@ -16,10 +16,23 @@ import type { ProductCategory, CreateProductCategoryDto, UpdateProductCategoryDt
 import { ProductCategoryOrderBy } from "@/lib/generated/billing/models";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { FileText, Search, Loader2, Plus, Pencil, Trash2, AlertCircle, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
+import { FileText, Search, Loader2, Plus, Pencil, Trash2, AlertCircle, ChevronUp, ChevronDown, ChevronsUpDown, ChevronRight, Package, MoreHorizontal, Check, CornerUpLeft, Star } from "lucide-react";
 import { PaginationController } from "@/components/ui/pagination-controller";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { queryClient } from "@/lib/react-query-provider";
 import { extractErrorMessage } from "@/lib/api-error";
+import {
+  useGetProductsByCategory,
+  useApproveProduct,
+  useReferProduct,
+  useSetDefaultProduct,
+} from "@/lib/api/content-api";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -76,6 +89,143 @@ function SortableHead({
   );
 }
 
+const PRODUCT_STATUS_STYLES: Record<string, string> = {
+  ACTIVE: "bg-emerald-50 text-emerald-700",
+  DRAFT: "bg-slate-100 text-slate-600",
+  INACTIVE: "bg-amber-50 text-amber-700",
+};
+
+const PRODUCT_REVIEW_STYLES: Record<string, string> = {
+  APPROVED: "bg-emerald-50 text-emerald-700",
+  SUBMITTED: "bg-blue-50 text-blue-700",
+  REFERRED: "bg-red-50 text-red-700",
+  DRAFT: "bg-slate-100 text-slate-600",
+};
+
+function CategoryProductsRow({ categoryId }: { categoryId: number }) {
+  const { data, isLoading, error, refetch } = useGetProductsByCategory(categoryId);
+  const products = data?.data ?? [];
+
+  const approveProduct = useApproveProduct();
+  const referProduct = useReferProduct();
+  const setDefaultProduct = useSetDefaultProduct();
+
+  const actingId =
+    [approveProduct, referProduct, setDefaultProduct].find((m) => m.isPending)?.variables ?? null;
+
+  return (
+    <TableRow className="bg-slate-50/40 hover:bg-slate-50/40">
+      <TableCell colSpan={4} className="p-0">
+        <div className="px-6 py-4">
+          {isLoading ? (
+            <div className="flex items-center gap-2 text-slate-500 text-sm py-4">
+              <Loader2 className="h-4 w-4 animate-spin" /> Loading products...
+            </div>
+          ) : error ? (
+            <div className="flex items-center gap-2 text-sm text-red-500 py-4">
+              <AlertCircle className="h-4 w-4" /> Failed to load products
+              <Button variant="link" className="h-auto p-0 text-sm" onClick={() => refetch()}>
+                Try again
+              </Button>
+            </div>
+          ) : products.length === 0 ? (
+            <div className="flex items-center gap-2 text-sm text-slate-400 py-4">
+              <Package className="h-4 w-4" /> No products in this category
+            </div>
+          ) : (
+            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+              <Table>
+                <TableHeader className="bg-slate-50/50">
+                  <TableRow>
+                    <TableHead className="text-xs font-bold">Product</TableHead>
+                    <TableHead className="text-xs font-bold">Code</TableHead>
+                    <TableHead className="text-xs font-bold">Status</TableHead>
+                    <TableHead className="text-xs font-bold">Review</TableHead>
+                    <TableHead className="text-xs font-bold text-right">Pass criteria</TableHead>
+                    <TableHead className="text-xs font-bold text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {products.map((p) => (
+                    <TableRow key={p.id} className="hover:bg-slate-50/50">
+                      <TableCell className="text-sm font-semibold text-slate-900">
+                        {p.name}
+                        {p.isDefault && (
+                          <span className="ml-2 rounded bg-violet-50 px-1.5 py-0.5 text-[0.625rem] font-bold text-violet-600">
+                            DEFAULT
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <code className="rounded bg-slate-100 px-2 py-1 font-mono text-xs uppercase text-slate-600">
+                          {p.code}
+                        </code>
+                      </TableCell>
+                      <TableCell>
+                        <span className={`rounded-full px-2 py-0.5 text-[0.625rem] font-bold ${PRODUCT_STATUS_STYLES[p.status] ?? "bg-slate-100 text-slate-600"}`}>
+                          {p.status}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span className={`rounded-full px-2 py-0.5 text-[0.625rem] font-bold ${PRODUCT_REVIEW_STYLES[p.reviewStatus] ?? "bg-slate-100 text-slate-600"}`}>
+                          {p.reviewStatus}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right text-sm text-slate-500">{p.passCriteria}%</TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              disabled={actingId === p.id}
+                            >
+                              {actingId === p.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <MoreHorizontal className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-52">
+                            <DropdownMenuItem
+                              disabled={p.reviewStatus === "APPROVED"}
+                              onClick={() => approveProduct.mutate(p.id)}
+                            >
+                              <Check className="mr-2 h-4 w-4 text-emerald-600" />
+                              Approve product
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              disabled={p.reviewStatus === "DRAFT" || p.reviewStatus === "REFERRED"}
+                              onClick={() => referProduct.mutate(p.id)}
+                            >
+                              <CornerUpLeft className="mr-2 h-4 w-4 text-amber-600" />
+                              Refer back for changes
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              disabled={p.isDefault}
+                              onClick={() => setDefaultProduct.mutate(p.id)}
+                            >
+                              <Star className="mr-2 h-4 w-4 text-violet-600" />
+                              Set as default
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+}
+
 export default function ProductCategoriesPage() {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
@@ -86,6 +236,7 @@ export default function ProductCategoriesPage() {
   const [deletingCategory, setDeletingCategory] = React.useState<ProductCategory | null>(null);
   const [sortField, setSortField] = React.useState<SortField>("createdAt");
   const [sortDir, setSortDir] = React.useState<"asc" | "desc">("desc");
+  const [expandedId, setExpandedId] = React.useState<number | null>(null);
 
   React.useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(searchTerm), 500);
@@ -94,6 +245,7 @@ export default function ProductCategoriesPage() {
 
   React.useEffect(() => {
     setCurrentPage(1);
+    setExpandedId(null);
   }, [debouncedSearch, sortField, sortDir]);
 
   const toggleSort = (field: SortField) => {
@@ -277,27 +429,42 @@ export default function ProductCategoriesPage() {
                   </TableRow>
                 ) : (
                   categories.map((cat) => (
-                    <TableRow key={cat.id} className="hover:bg-slate-50/50 transition-colors group">
-                      <TableCell className="font-semibold text-slate-900">{cat.name}</TableCell>
-                      <TableCell>
-                        <code className="text-xs font-mono text-slate-600 bg-slate-100 px-2 py-1 rounded tracking-wider uppercase">
-                          {cat.code}
-                        </code>
-                      </TableCell>
-                      <TableCell className="text-sm text-slate-500 hidden md:table-cell">
-                        {new Date(cat.createdAt).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-violet-50 hover:text-violet-600" onClick={() => openEdit(cat)}>
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:bg-red-50" onClick={() => setDeletingCategory(cat)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
+                    <React.Fragment key={cat.id}>
+                      <TableRow className="hover:bg-slate-50/50 transition-colors group">
+                        <TableCell className="font-semibold text-slate-900">
+                          <button
+                            type="button"
+                            onClick={() => setExpandedId(expandedId === cat.id ? null : cat.id)}
+                            className="inline-flex items-center gap-2 hover:text-violet-600 transition-colors"
+                            aria-expanded={expandedId === cat.id}
+                          >
+                            <ChevronRight
+                              className={`h-4 w-4 text-slate-400 transition-transform ${expandedId === cat.id ? "rotate-90" : ""}`}
+                            />
+                            {cat.name}
+                          </button>
+                        </TableCell>
+                        <TableCell>
+                          <code className="text-xs font-mono text-slate-600 bg-slate-100 px-2 py-1 rounded tracking-wider uppercase">
+                            {cat.code}
+                          </code>
+                        </TableCell>
+                        <TableCell className="text-sm text-slate-500 hidden md:table-cell">
+                          {new Date(cat.createdAt).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-violet-50 hover:text-violet-600" onClick={() => openEdit(cat)}>
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:bg-red-50" onClick={() => setDeletingCategory(cat)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                      {expandedId === cat.id && <CategoryProductsRow categoryId={cat.id} />}
+                    </React.Fragment>
                   ))
                 )}
               </TableBody>
