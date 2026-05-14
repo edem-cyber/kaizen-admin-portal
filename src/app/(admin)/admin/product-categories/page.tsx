@@ -339,7 +339,7 @@ export default function ProductCategoriesPage() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">Product Categories</h1>
-          <p className="text-slate-500 text-lg">Templates that organizations use to create their own packages</p>
+          <p className="text-slate-500 text-lg">Product categories map subjects to examination type</p>
         </div>
         <Dialog open={isCreateOpen} onOpenChange={(open) => { setIsCreateOpen(open); if (open) reset(); }}>
           <DialogTrigger asChild>
