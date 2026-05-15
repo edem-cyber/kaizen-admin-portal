@@ -18,7 +18,7 @@ import {
 } from "@/lib/generated/billing/offers/offers";
 import { useGetServicePackages } from "@/lib/generated/billing/packages/packages";
 import { useGetProductCategories } from "@/lib/generated/billing/product-categories/product-categories";
-import { useGetServiceCategories } from "@/lib/generated/billing/service-categories/service-categories";
+import { useGetServiceCategories, useGetServiceCategoryBySubcategoryId } from "@/lib/generated/billing/service-categories/service-categories";
 import { useGetServiceSubcategories } from "@/lib/generated/billing/service-subcategories/service-subcategories";
 import type { OfferDto, CreateOfferDto, UpdateOfferDto } from "@/lib/generated/billing/models";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -119,12 +119,25 @@ export default function AdminOffersPage() {
 
   const watchedCategoryId = watch("productCategoryId");
 
+  const offerSubcategoryId = detailedOfferResp?.data?.serviceSubcategoryId;
+  const { data: serviceCatBySubResp } = useGetServiceCategoryBySubcategoryId(
+    Number(offerSubcategoryId || 0),
+    { query: { enabled: !!editingOffer?.id && !!offerSubcategoryId } },
+  );
+  const resolvedServiceCategoryId = serviceCatBySubResp?.data?.id;
+
   React.useEffect(() => {
+    if (editingOffer?.id) {
+      if (resolvedServiceCategoryId != null) {
+        setSelectedCategoryId(resolvedServiceCategoryId);
+      }
+      return;
+    }
     const catId = parseInt(watchedCategoryId);
     if (!isNaN(catId)) {
       setSelectedCategoryId(catId);
     }
-  }, [watchedCategoryId]);
+  }, [editingOffer?.id, resolvedServiceCategoryId, watchedCategoryId]);
 
   const calculateUnitPrice = () => {
     const total = parseFloat(desiredTotalPrice);
@@ -145,14 +158,13 @@ export default function AdminOffersPage() {
         code: offer.code || "",
         description: offer.description || "",
         unitPrice: String(offer.unitPrice || ""),
-        currencyId: String(offer.currencyId || "1"),
+        currencyId: offer.currencyId ? String(offer.currencyId) : "",
         maximumCheckIns: String(offer.maximumCheckIns || "-1"),
         serviceSubcategoryId: String(offer.serviceSubcategoryId || ""),
         productCategoryId: String(offer.productCategoryId || ""),
         packageIds: pkgIds,
       });
       setOriginalPackageIds(pkgIds);
-      setSelectedCategoryId(offer.productCategoryId);
     }
   }, [detailedOfferResp?.data, editingOffer?.id, reset]);
 
@@ -317,7 +329,7 @@ export default function AdminOffersPage() {
             <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder={watchedCategoryId ? "Select subcategory" : "Select category first"} /></SelectTrigger>
             <SelectContent className="rounded-xl shadow-xl">
               {serviceSubcategories.map((sub: any) => (
-                <SelectItem key={sub.id} value={String(sub.id)}>{sub.name} ({sub.code})</SelectItem>
+                <SelectItem key={sub.id} value={String(sub.id)}>{sub.code}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -662,9 +674,11 @@ export default function AdminOffersPage() {
                         <Select value={field.value} onValueChange={field.onChange}>
                           <SelectTrigger className="h-12 rounded-xl border-slate-200"><SelectValue placeholder="Select" /></SelectTrigger>
                           <SelectContent className="rounded-xl shadow-xl">
-                            {availableCurrencies.map((c) => (
-                              <SelectItem key={c.code} value={String(c.id || c.code)}>{c.code} ({c.symbol})</SelectItem>
-                            ))}
+                            {availableCurrencies
+                              .filter((c) => c.id != null)
+                              .map((c) => (
+                                <SelectItem key={c.id} value={String(c.id)}>{c.code} ({c.symbol})</SelectItem>
+                              ))}
                           </SelectContent>
                         </Select>
                       )}
