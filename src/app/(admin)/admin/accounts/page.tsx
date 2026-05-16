@@ -162,6 +162,7 @@ export default function AdminAccountsPage() {
         typeId: parseInt(formData.typeId) || 1,
         projectId: formData.projectId ? parseInt(formData.projectId) : undefined,
         groupId: formData.groupId ? parseInt(formData.groupId) : undefined,
+        contactEmail: formData.adminEmail,
         adminProfile: {
           firstName: formData.adminFirstName,
           lastName: formData.adminLastName,
