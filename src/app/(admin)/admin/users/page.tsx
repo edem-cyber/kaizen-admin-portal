@@ -86,7 +86,7 @@ export default function AdminUsersPage() {
           lastName: formData.lastName,
           username: formData.username,
           emailAddress: formData.emailAddress || null,
-          confirmationUrl: `${window.location.origin}/confirm-account`,
+          confirmationUrl: `${window.location.origin}/otp-confirmation`,
           organizationId: parseInt(formData.organizationId),
           organizationRoleId: formData.organizationRoleId,
         }

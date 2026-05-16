@@ -169,7 +169,7 @@ export default function AdminAccountsPage() {
           emailAddress: formData.adminEmail,
           username: formData.adminUsername,
         },
-        confirmationUrl: `${window.location.origin}/confirm`,
+        confirmationUrl: `${window.location.origin}/otp-confirmation`,
       } 
     });
   };
