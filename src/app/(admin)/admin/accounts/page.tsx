@@ -61,7 +61,10 @@ import {
 } from "@/lib/api/content-api";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
-const SELECTABLE_ORG_TYPE_CODES = ["CONTENT_PROVIDER", "FAMILY_SUBSCRIBER", "CORPORATE_SUBSCRIBER"];
+// FAMILY_SUBSCRIBER and CORPORATE_SUBSCRIBER are temporarily hidden; the
+// downstream code (e.g. handleAddOrg's confirmationUrl switch) still
+// handles them so they can be re-enabled by re-adding them here.
+const SELECTABLE_ORG_TYPE_CODES = ["CONTENT_PROVIDER"];
 
 export default function AdminAccountsPage() {
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -150,15 +153,32 @@ export default function AdminAccountsPage() {
   const countries = Array.isArray(countriesData?.data) ? countriesData.data : [];
 
   const handleAddOrg = () => {
-    addOrgMutation.mutate({ 
-      data: { 
-        name: formData.name, 
+    const selectedType = types.find((t) => String(t.id) === formData.typeId);
+    let confirmationUrl: string;
+    switch (selectedType?.code) {
+      case "CONTENT_PROVIDER":
+        confirmationUrl =
+          process.env.NEXT_PUBLIC_CONTENT_PROVIDER_CONFIRMATION_URL ??
+          "https://content.sandbox.kaizen-aceit.com/confirm-account";
+        break;
+      case "FAMILY_SUBSCRIBER":
+        confirmationUrl =
+          process.env.NEXT_PUBLIC_FAMILY_SUBSCRIBER_CONFIRMATION_URL ??
+          "https://app.sandbox.kaizen-aceit.com/confirm";
+        break;
+      default:
+        confirmationUrl = `${window.location.origin}/otp-confirmation`;
+    }
+
+    addOrgMutation.mutate({
+      data: {
+        name: formData.name,
         code: formData.code || undefined,
-        domain: formData.domain || undefined, 
-        address: formData.address, 
-        city: formData.city || undefined, 
+        domain: formData.domain || undefined,
+        address: formData.address,
+        city: formData.city || undefined,
         region: formData.region || undefined,
-        countryId: parseInt(formData.countryId), 
+        countryId: parseInt(formData.countryId),
         typeId: parseInt(formData.typeId) || 1,
         projectId: formData.projectId ? parseInt(formData.projectId) : undefined,
         groupId: formData.groupId ? parseInt(formData.groupId) : undefined,
@@ -169,8 +189,8 @@ export default function AdminAccountsPage() {
           emailAddress: formData.adminEmail,
           username: formData.adminUsername,
         },
-        confirmationUrl: `${window.location.origin}/otp-confirmation`,
-      } 
+        confirmationUrl,
+      }
     });
   };
 
