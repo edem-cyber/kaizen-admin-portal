@@ -10,7 +10,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   useGetOrganizations, 
@@ -432,7 +431,7 @@ export default function AdminAccountsPage() {
       )}
 
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="sm:max-w-[750px] max-h-[90vh] overflow-hidden flex flex-col p-0 rounded-[2rem] border-none shadow-2xl bg-white">
+        <DialogContent className="sm:max-w-[750px] p-0 rounded-[2rem] border-none shadow-2xl bg-white">
           <div className="p-10 pb-0">
             <DialogHeader>
               <DialogTitle className="text-3xl font-black text-slate-900">
@@ -444,7 +443,7 @@ export default function AdminAccountsPage() {
             </DialogHeader>
           </div>
           
-          <ScrollArea className="flex-1 p-10">
+          <div className="p-10 max-h-[60vh] overflow-y-auto">
             <div className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
@@ -500,7 +499,7 @@ export default function AdminAccountsPage() {
                 </div>
               </div>
             </div>
-          </ScrollArea>
+          </div>
 
           <DialogFooter className="p-10 pt-4 flex items-center justify-end gap-3">
             <Button variant="ghost" onClick={() => setIsAddDialogOpen(false)} className="h-12 rounded-2xl px-8 font-bold bg-slate-50 text-slate-600">Cancel</Button>
@@ -529,7 +528,7 @@ export default function AdminAccountsPage() {
             </DialogHeader>
           </div>
 
-          <ScrollArea className="flex-1 p-10">
+          <div className="p-10 max-h-[60vh] overflow-y-auto">
             <Tabs defaultValue="general" className="space-y-8">
               <TabsList className="bg-slate-50 p-1.5 rounded-2xl w-full max-w-md mx-auto grid grid-cols-2 border border-slate-100">
                 <TabsTrigger value="general" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm font-bold text-slate-500 data-[state=active]:text-slate-900 py-2.5">General Info</TabsTrigger>
@@ -596,7 +595,7 @@ export default function AdminAccountsPage() {
                 </div>
               </TabsContent>
             </Tabs>
-          </ScrollArea>
+          </div>
 
           <DialogFooter className="p-10 pt-4 flex items-center justify-end gap-3">
             <Button variant="ghost" onClick={() => setIsEditDialogOpen(false)} className="h-12 rounded-2xl px-8 font-bold bg-slate-50 text-slate-600">Discard changes</Button>
