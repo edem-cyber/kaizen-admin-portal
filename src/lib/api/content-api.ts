@@ -126,6 +126,11 @@ export interface Product {
   passCriteria: number;
   createdAt: string;
   updatedAt: string;
+  serviceSubcategory?: {
+    id: number;
+    code: string;
+    name?: string;
+  };
 }
 
 export interface ProductListResponse {

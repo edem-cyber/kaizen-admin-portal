@@ -89,12 +89,6 @@ function SortableHead({
   );
 }
 
-const PRODUCT_STATUS_STYLES: Record<string, string> = {
-  ACTIVE: "bg-emerald-50 text-emerald-700",
-  DRAFT: "bg-slate-100 text-slate-600",
-  INACTIVE: "bg-amber-50 text-amber-700",
-};
-
 const PRODUCT_REVIEW_STYLES: Record<string, string> = {
   APPROVED: "bg-emerald-50 text-emerald-700",
   SUBMITTED: "bg-blue-50 text-blue-700",
@@ -139,7 +133,7 @@ function CategoryProductsRow({ categoryId }: { categoryId: number }) {
                   <TableRow>
                     <TableHead className="text-xs font-bold">Product</TableHead>
                     <TableHead className="text-xs font-bold">Code</TableHead>
-                    <TableHead className="text-xs font-bold">Status</TableHead>
+                    <TableHead className="text-xs font-bold">Subcategory</TableHead>
                     <TableHead className="text-xs font-bold">Review</TableHead>
                     <TableHead className="text-xs font-bold text-right">Pass criteria</TableHead>
                     <TableHead className="text-xs font-bold text-right">Actions</TableHead>
@@ -162,9 +156,13 @@ function CategoryProductsRow({ categoryId }: { categoryId: number }) {
                         </code>
                       </TableCell>
                       <TableCell>
-                        <span className={`rounded-full px-2 py-0.5 text-[0.625rem] font-bold ${PRODUCT_STATUS_STYLES[p.status] ?? "bg-slate-100 text-slate-600"}`}>
-                          {p.status}
-                        </span>
+                        {p.serviceSubcategory?.code ? (
+                          <code className="rounded bg-slate-100 px-2 py-1 font-mono text-xs uppercase text-slate-600">
+                            {p.serviceSubcategory.code}
+                          </code>
+                        ) : (
+                          <span className="text-xs text-slate-400">—</span>
+                        )}
                       </TableCell>
                       <TableCell>
                         <span className={`rounded-full px-2 py-0.5 text-[0.625rem] font-bold ${PRODUCT_REVIEW_STYLES[p.reviewStatus] ?? "bg-slate-100 text-slate-600"}`}>
