@@ -14,6 +14,8 @@ import {
 } from "@/lib/generated/billing/product-categories/product-categories";
 import type { ProductCategory, CreateProductCategoryDto, UpdateProductCategoryDto } from "@/lib/generated/billing/models";
 import { ProductCategoryOrderBy } from "@/lib/generated/billing/models";
+import { useGetServiceCategories } from "@/lib/generated/billing/service-categories/service-categories";
+import { useGetServiceSubcategories } from "@/lib/generated/billing/service-subcategories/service-subcategories";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { FileText, Search, Loader2, Plus, Pencil, Trash2, AlertCircle, ChevronUp, ChevronDown, ChevronsUpDown, ChevronRight, Package, MoreHorizontal, Check, CornerUpLeft, Star } from "lucide-react";
@@ -25,6 +27,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { queryClient } from "@/lib/react-query-provider";
 import { extractErrorMessage } from "@/lib/api-error";
 import {
@@ -32,6 +35,7 @@ import {
   useApproveProduct,
   useReferProduct,
   useSetDefaultProduct,
+  type ProductReviewStatus,
 } from "@/lib/api/content-api";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
@@ -96,9 +100,46 @@ const PRODUCT_REVIEW_STYLES: Record<string, string> = {
   DRAFT: "bg-slate-100 text-slate-600",
 };
 
+const REVIEW_STATUS_OPTIONS: ProductReviewStatus[] = ["DRAFT", "SUBMITTED", "REFERRED", "APPROVED"];
+
 function CategoryProductsRow({ categoryId }: { categoryId: number }) {
-  const { data, isLoading, error, refetch } = useGetProductsByCategory(categoryId);
+  const [page, setPage] = React.useState(1);
+  const [serviceCategoryFilter, setServiceCategoryFilter] = React.useState<string>("all");
+  const [subcategoryFilter, setSubcategoryFilter] = React.useState<string>("all");
+  const [reviewFilter, setReviewFilter] = React.useState<string>("all");
+
+  React.useEffect(() => {
+    setPage(1);
+  }, [serviceCategoryFilter, subcategoryFilter, reviewFilter]);
+
+  const queryParams = {
+    page,
+    ...(subcategoryFilter !== "all" ? { serviceSubcategoryId: Number(subcategoryFilter) } : {}),
+    ...(reviewFilter !== "all" ? { reviewStatus: reviewFilter as ProductReviewStatus } : {}),
+  };
+  const { data, isLoading, error, refetch } = useGetProductsByCategory(categoryId, queryParams);
   const products = data?.data ?? [];
+  const productsPageSize = data?.pageSize ?? products.length;
+  const productsTotalCount = data?.totalCount ?? products.length;
+  const productsTotalPages = productsPageSize > 0
+    ? Math.ceil(productsTotalCount / productsPageSize)
+    : 1;
+
+  const { data: serviceCatsResp } = useGetServiceCategories({ limit: 100 });
+  const serviceCategoryOptions = (
+    (serviceCatsResp?.data as unknown as Array<{ id: number; code: string; name?: string }> | undefined) ?? []
+  );
+
+  const selectedServiceCategoryId =
+    serviceCategoryFilter !== "all" ? Number(serviceCategoryFilter) : 0;
+  const { data: serviceSubsResp } = useGetServiceSubcategories(
+    selectedServiceCategoryId,
+    { limit: 100 },
+    { query: { enabled: selectedServiceCategoryId > 0 } },
+  );
+  const subcategoryOptions = (
+    (serviceSubsResp?.data as unknown as Array<{ id: number; code: string; name?: string }> | undefined) ?? []
+  );
 
   const approveProduct = useApproveProduct();
   const referProduct = useReferProduct();
@@ -111,6 +152,80 @@ function CategoryProductsRow({ categoryId }: { categoryId: number }) {
     <TableRow className="bg-slate-50/40 hover:bg-slate-50/40">
       <TableCell colSpan={4} className="p-0">
         <div className="px-6 py-4">
+          <div className="mb-3 flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Label className="text-xs font-bold uppercase text-slate-500">Service Category</Label>
+              <Select
+                value={serviceCategoryFilter}
+                onValueChange={(v) => {
+                  setServiceCategoryFilter(v);
+                  setSubcategoryFilter("all");
+                }}
+              >
+                <SelectTrigger className="h-9 w-44 rounded-lg border-slate-200 bg-white text-xs">
+                  <SelectValue placeholder="All" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="all">All</SelectItem>
+                  {serviceCategoryOptions.map((c) => (
+                    <SelectItem key={c.id} value={String(c.id)}>
+                      {c.code}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <Label className="text-xs font-bold uppercase text-slate-500">Subcategory</Label>
+              <Select
+                value={subcategoryFilter}
+                onValueChange={setSubcategoryFilter}
+                disabled={serviceCategoryFilter === "all"}
+              >
+                <SelectTrigger className="h-9 w-44 rounded-lg border-slate-200 bg-white text-xs">
+                  <SelectValue placeholder={serviceCategoryFilter === "all" ? "Pick service category" : "All"} />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="all">All</SelectItem>
+                  {subcategoryOptions.map((s) => (
+                    <SelectItem key={s.id} value={String(s.id)}>
+                      {s.code}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <Label className="text-xs font-bold uppercase text-slate-500">Review Status</Label>
+              <Select value={reviewFilter} onValueChange={setReviewFilter}>
+                <SelectTrigger className="h-9 w-40 rounded-lg border-slate-200 bg-white text-xs">
+                  <SelectValue placeholder="All" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="all">All</SelectItem>
+                  {REVIEW_STATUS_OPTIONS.map((r) => (
+                    <SelectItem key={r} value={r}>
+                      {r}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {(serviceCategoryFilter !== "all" || subcategoryFilter !== "all" || reviewFilter !== "all") && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-9 text-xs text-slate-500 hover:text-slate-900"
+                onClick={() => {
+                  setServiceCategoryFilter("all");
+                  setSubcategoryFilter("all");
+                  setReviewFilter("all");
+                }}
+              >
+                Clear filters
+              </Button>
+            )}
+          </div>
           {isLoading ? (
             <div className="flex items-center gap-2 text-slate-500 text-sm py-4">
               <Loader2 className="h-4 w-4 animate-spin" /> Loading products...
@@ -216,6 +331,18 @@ function CategoryProductsRow({ categoryId }: { categoryId: number }) {
                   ))}
                 </TableBody>
               </Table>
+            </div>
+          )}
+          {!isLoading && !error && productsTotalPages > 1 && (
+            <div className="mt-4">
+              <PaginationController
+                currentPage={page}
+                totalPages={productsTotalPages}
+                totalCount={productsTotalCount}
+                limit={productsPageSize}
+                onPageChange={setPage}
+                itemName="products"
+              />
             </div>
           )}
         </div>
