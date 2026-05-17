@@ -297,6 +297,16 @@ export default function AdminOffersPage() {
 
   const onSubmitWrapper = (data: any) => onSubmit(data as OfferFormValues);
 
+  const getOfferCurrencyLabel = (offer: OfferDto): string => {
+    if (offer.currency?.symbol) return offer.currency.symbol;
+    if (offer.currencyId != null) {
+      const match = availableCurrencies.find((c) => c.id === offer.currencyId);
+      if (match?.symbol) return match.symbol;
+      if (match?.code) return match.code;
+    }
+    return offer.currency?.code ?? "";
+  };
+
   const ProductCategorySelect = ({ control, errors }: { control: any; errors: any; }) => (
     <div className="space-y-2">
       <Label className="font-bold text-slate-700">Product Category</Label>
@@ -541,7 +551,7 @@ export default function AdminOffersPage() {
                       </TableCell>
                       <TableCell><code className="text-[10px] font-mono text-slate-600 bg-slate-100 px-2 py-1 rounded tracking-wider uppercase">{offer.code}</code></TableCell>
                       <TableCell className="font-bold text-slate-900">
-                        {symbol === "$" && offer.name.includes("(GHS)") ? "GHS" : symbol}
+                        {getOfferCurrencyLabel(offer)}
                         {parseFloat(String(offer.unitPrice || "0")).toLocaleString()}
                       </TableCell>
                       <TableCell className="text-sm text-slate-600">
@@ -583,7 +593,7 @@ export default function AdminOffersPage() {
                       <div>
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Unit Price</p>
                         <p className="text-lg font-black text-slate-900">
-                          {symbol === "$" && offer.name.includes("(GHS)") ? "GHS" : symbol}
+                          {getOfferCurrencyLabel(offer)}
                           {parseFloat(String(offer.unitPrice || "0")).toLocaleString()}
                         </p>
                       </div>
