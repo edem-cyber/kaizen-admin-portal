@@ -98,7 +98,6 @@ export default function AdminOffersPage() {
     control,
     reset,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<OfferFormValues>({
     resolver: zodResolver(offerSchema),
@@ -117,8 +116,6 @@ export default function AdminOffersPage() {
 
   const { availableCurrencies } = useCurrency();
 
-  const watchedCategoryId = watch("productCategoryId");
-
   const offerSubcategoryId = detailedOfferResp?.data?.serviceSubcategoryId;
   const { data: serviceCatBySubResp } = useGetServiceCategoryBySubcategoryId(
     Number(offerSubcategoryId || 0),
@@ -127,17 +124,10 @@ export default function AdminOffersPage() {
   const resolvedServiceCategoryId = serviceCatBySubResp?.data?.id;
 
   React.useEffect(() => {
-    if (editingOffer?.id) {
-      if (resolvedServiceCategoryId != null) {
-        setSelectedCategoryId(resolvedServiceCategoryId);
-      }
-      return;
+    if (editingOffer?.id && resolvedServiceCategoryId != null) {
+      setSelectedCategoryId(resolvedServiceCategoryId);
     }
-    const catId = parseInt(watchedCategoryId);
-    if (!isNaN(catId)) {
-      setSelectedCategoryId(catId);
-    }
-  }, [editingOffer?.id, resolvedServiceCategoryId, watchedCategoryId]);
+  }, [editingOffer?.id, resolvedServiceCategoryId]);
 
   const calculateUnitPrice = () => {
     const total = parseFloat(desiredTotalPrice);
@@ -278,7 +268,7 @@ export default function AdminOffersPage() {
         currencyCode: currencyCode,
         serviceSubcategoryId: Number(data.serviceSubcategoryId),
         productCategoryId: Number(data.productCategoryId),
-        maximumCheckIns: Number(data.maximumCheckIns),
+        maximumCheckIns: 1,
         packageIds: data.packageIds.length > 0 ? data.packageIds : undefined,
       };
       createMutation.mutate({ data: createData });
@@ -314,7 +304,7 @@ export default function AdminOffersPage() {
         name="productCategoryId"
         control={control}
         render={({ field }) => (
-          <Select value={field.value} onValueChange={(v) => { field.onChange(v); if (!editingOffer) setValue("serviceSubcategoryId", ""); }}>
+          <Select value={field.value} onValueChange={field.onChange}>
             <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Select category" /></SelectTrigger>
             <SelectContent className="rounded-xl shadow-xl">
               {productCategories.map((cat: any) => (
@@ -328,6 +318,27 @@ export default function AdminOffersPage() {
     </div>
   );
 
+  const ServiceCategorySelect = () => (
+    <div className="space-y-2">
+      <Label className="font-bold text-slate-700">Service Category</Label>
+      <Select
+        value={selectedCategoryId ? String(selectedCategoryId) : ""}
+        onValueChange={(v) => {
+          const id = parseInt(v);
+          setSelectedCategoryId(isNaN(id) ? undefined : id);
+          setValue("serviceSubcategoryId", "");
+        }}
+      >
+        <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Select service category" /></SelectTrigger>
+        <SelectContent className="rounded-xl shadow-xl">
+          {serviceCategories.map((cat: any) => (
+            <SelectItem key={cat.id} value={String(cat.id)}>{cat.name} ({cat.code})</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+
   const ServiceSubcategorySelect = ({ control, errors }: { control: any; errors: any; }) => (
     <div className="space-y-2">
       <Label className="font-bold text-slate-700">Service Subcategory</Label>
@@ -335,8 +346,8 @@ export default function AdminOffersPage() {
         name="serviceSubcategoryId"
         control={control}
         render={({ field }) => (
-          <Select value={field.value} onValueChange={field.onChange} disabled={!watchedCategoryId}>
-            <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder={watchedCategoryId ? "Select subcategory" : "Select category first"} /></SelectTrigger>
+          <Select value={field.value} onValueChange={field.onChange} disabled={!selectedCategoryId}>
+            <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder={selectedCategoryId ? "Select subcategory" : "Pick service category first"} /></SelectTrigger>
             <SelectContent className="rounded-xl shadow-xl">
               {serviceSubcategories.map((sub: any) => (
                 <SelectItem key={sub.id} value={String(sub.id)}>{sub.code}</SelectItem>
@@ -426,8 +437,9 @@ export default function AdminOffersPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <ProductCategorySelect control={control} errors={errors} />
+                    <ServiceCategorySelect />
                     <ServiceSubcategorySelect control={control} errors={errors} />
                   </div>
 
@@ -475,15 +487,6 @@ export default function AdminOffersPage() {
                     </div>
                   </div>
 
-                  <div className="bg-violet-50/50 p-6 rounded-[2rem] flex items-center justify-between border border-violet-100">
-                    <div>
-                      <p className="font-bold text-slate-900">Enable package</p>
-                      <p className="text-xs text-slate-500 font-medium">This makes the offer available on the platform</p>
-                    </div>
-                    <div className="h-6 w-11 rounded-full bg-slate-200 relative cursor-pointer">
-                      <div className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-sm" />
-                    </div>
-                  </div>
                 </div>
 
                 <DialogFooter className="p-10 pt-0 flex items-center justify-end gap-3">
@@ -703,8 +706,9 @@ export default function AdminOffersPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <ProductCategorySelect control={control} errors={errors} />
+                  <ServiceCategorySelect />
                   <ServiceSubcategorySelect control={control} errors={errors} />
                 </div>
 
