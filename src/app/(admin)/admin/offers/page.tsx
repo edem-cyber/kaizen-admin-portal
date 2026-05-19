@@ -25,7 +25,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Tags, 
   Search, 
@@ -238,7 +237,6 @@ export default function AdminOffersPage() {
 
   const onSubmit = (data: OfferFormValues) => {
     const selectedCurrency = availableCurrencies.find(c => c.code === data.currencyId || String(c.id) === data.currencyId);
-    const currencyCode = selectedCurrency?.code || "GHS";
     const currencyId = selectedCurrency?.id || Number(data.currencyId) || 1;
 
     if (editingOffer) {
@@ -265,7 +263,6 @@ export default function AdminOffersPage() {
         description: data.description,
         unitPrice: data.unitPrice,
         currencyId: currencyId,
-        currencyCode: currencyCode,
         serviceSubcategoryId: Number(data.serviceSubcategoryId),
         productCategoryId: Number(data.productCategoryId),
         maximumCheckIns: 1,
@@ -383,7 +380,7 @@ export default function AdminOffersPage() {
                 Create Offer
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
+            <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 gap-0 border-none shadow-2xl overflow-hidden bg-white">
               <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="p-10 pb-0">
                   <DialogHeader>
@@ -396,7 +393,7 @@ export default function AdminOffersPage() {
                   </DialogHeader>
                 </div>
                 
-                <div className="p-10 space-y-6 max-h-[60vh] overflow-y-auto">
+                <div className="p-10 pb-4 space-y-6 max-h-[60vh] overflow-y-auto">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="name" className="font-bold text-slate-800">Offer Name</Label>
@@ -453,40 +450,41 @@ export default function AdminOffersPage() {
                     />
                   </div>
 
-                  <div className="space-y-3">
-                    <Label className="font-bold text-slate-800">Link to Packages</Label>
-                    <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                      <ScrollArea className="h-[120px]">
-                        <div className="space-y-3">
-                          <Controller
-                            name="packageIds"
-                            control={control}
-                            render={({ field }) => (
-                              <>
-                                {availablePackages.map((pkg) => (
-                                  <div key={pkg.id} className="flex items-center space-x-3">
-                                    <Checkbox
-                                      id={`pkg-${pkg.id}`}
-                                      checked={field.value.includes(pkg.id)}
-                                      onCheckedChange={(checked) => {
-                                        return checked
-                                          ? field.onChange([...field.value, pkg.id])
-                                          : field.onChange(field.value.filter((val) => val !== pkg.id));
-                                      }}
-                                    />
-                                    <Label htmlFor={`pkg-${pkg.id}`} className="flex-1 cursor-pointer font-medium text-sm text-slate-700">
-                                      {pkg.name} <span className="text-slate-400 font-normal">({pkg.code})</span>
-                                    </Label>
-                                  </div>
-                                ))}
-                              </>
-                            )}
-                          />
+                  {availablePackages.length > 0 && (
+                    <div className="space-y-3">
+                      <Label className="font-bold text-slate-800">Link to Packages</Label>
+                      <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <div className="max-h-[120px] overflow-y-auto">
+                          <div className="space-y-3">
+                            <Controller
+                              name="packageIds"
+                              control={control}
+                              render={({ field }) => (
+                                <>
+                                  {availablePackages.map((pkg) => (
+                                    <div key={pkg.id} className="flex items-center space-x-3">
+                                      <Checkbox
+                                        id={`pkg-${pkg.id}`}
+                                        checked={field.value.includes(pkg.id)}
+                                        onCheckedChange={(checked) => {
+                                          return checked
+                                            ? field.onChange([...field.value, pkg.id])
+                                            : field.onChange(field.value.filter((val) => val !== pkg.id));
+                                        }}
+                                      />
+                                      <Label htmlFor={`pkg-${pkg.id}`} className="flex-1 cursor-pointer font-medium text-sm text-slate-700">
+                                        {pkg.name} <span className="text-slate-400 font-normal">({pkg.code})</span>
+                                      </Label>
+                                    </div>
+                                  ))}
+                                </>
+                              )}
+                            />
+                          </div>
                         </div>
-                      </ScrollArea>
+                      </div>
                     </div>
-                  </div>
-
+                  )}
                 </div>
 
                 <DialogFooter className="p-10 pt-0 flex items-center justify-end gap-3">
@@ -638,7 +636,7 @@ export default function AdminOffersPage() {
 
       {/* Edit Dialog */}
       <Dialog open={!!editingOffer} onOpenChange={(open) => { if (!open) setEditingOffer(null); }}>
-        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden bg-white">
+        <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 gap-0 border-none shadow-2xl overflow-hidden bg-white">
           {isLoadingDetails ? (
             <div className="p-20 flex flex-col items-center justify-center space-y-4">
               <DialogTitle className="sr-only">Loading Offer Details</DialogTitle>
@@ -658,7 +656,7 @@ export default function AdminOffersPage() {
                 </DialogHeader>
               </div>
 
-              <div className="p-10 space-y-6 max-h-[60vh] overflow-y-auto">
+              <div className="p-10 pb-4 space-y-6 max-h-[60vh] overflow-y-auto">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="font-bold text-slate-800">Offer Name</Label>
@@ -720,39 +718,41 @@ export default function AdminOffersPage() {
                   />
                 </div>
 
-                <div className="space-y-3">
-                  <Label className="font-bold text-slate-800">Linked Packages</Label>
-                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                    <ScrollArea className="h-[120px]">
-                      <div className="space-y-3">
-                        <Controller
-                          name="packageIds"
-                          control={control}
-                          render={({ field }) => (
-                            <>
-                              {availablePackages.map((pkg) => (
-                                <div key={pkg.id} className="flex items-center space-x-3">
-                                  <Checkbox
-                                    id={`edit-pkg-${pkg.id}`}
-                                    checked={field.value.includes(pkg.id)}
-                                    onCheckedChange={(checked) => {
-                                      return checked
-                                        ? field.onChange([...field.value, pkg.id])
-                                        : field.onChange(field.value.filter((val) => val !== pkg.id));
-                                    }}
-                                  />
-                                  <Label htmlFor={`edit-pkg-${pkg.id}`} className="flex-1 cursor-pointer font-medium text-sm text-slate-700">
-                                    {pkg.name} <span className="text-slate-400 font-normal">({pkg.code})</span>
-                                  </Label>
-                                </div>
-                              ))}
-                            </>
-                          )}
-                        />
+                {availablePackages.length > 0 && (
+                  <div className="space-y-3">
+                    <Label className="font-bold text-slate-800">Linked Packages</Label>
+                    <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                      <div className="max-h-[120px] overflow-y-auto">
+                        <div className="space-y-3">
+                          <Controller
+                            name="packageIds"
+                            control={control}
+                            render={({ field }) => (
+                              <>
+                                {availablePackages.map((pkg) => (
+                                  <div key={pkg.id} className="flex items-center space-x-3">
+                                    <Checkbox
+                                      id={`edit-pkg-${pkg.id}`}
+                                      checked={field.value.includes(pkg.id)}
+                                      onCheckedChange={(checked) => {
+                                        return checked
+                                          ? field.onChange([...field.value, pkg.id])
+                                          : field.onChange(field.value.filter((val) => val !== pkg.id));
+                                      }}
+                                    />
+                                    <Label htmlFor={`edit-pkg-${pkg.id}`} className="flex-1 cursor-pointer font-medium text-sm text-slate-700">
+                                      {pkg.name} <span className="text-slate-400 font-normal">({pkg.code})</span>
+                                    </Label>
+                                  </div>
+                                ))}
+                              </>
+                            )}
+                          />
+                        </div>
                       </div>
-                    </ScrollArea>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               <DialogFooter className="p-10 pt-0 flex items-center justify-end gap-3">
