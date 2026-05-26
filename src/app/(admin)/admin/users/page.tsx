@@ -11,13 +11,14 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
-import { useGetUsers, useAddUser, useUpdateUser, useRemoveUser } from "@/lib/generated/user/users/users";
+import { useGetUsers, useAddUser, useUpdateUser } from "@/lib/generated/user/users/users";
 import { useGetUserStatuses } from "@/lib/generated/user/user-statuses/user-statuses";
 import { useGetOrganizationRoles } from "@/lib/generated/user/organization-roles/organization-roles";
 import { useGetOrganizations } from "@/lib/generated/org/organizations/organizations";
+import { useGetOrganizationTypes } from "@/lib/generated/org/organization-types/organization-types";
 import { ProfilePicture } from "@/components/ui/profile-picture";
 import { UserStatusBadge, type UserStatusValue } from "@/components/ui/status-display";
-import { Users, Plus, Search, MoreHorizontal, Pencil, Trash2, UserPlus, Loader2 } from "lucide-react";
+import { Users, Plus, Search, MoreHorizontal, Pencil, UserPlus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import type { UserDto } from "@/lib/generated/user/models/userDto";
 import type { OrganizationDto as OrgServiceDto } from "@/lib/generated/org/models/organizationDto";
@@ -44,13 +45,21 @@ export default function AdminUsersPage() {
   const [currentPage, setCurrentPage] = React.useState(1);
   const [isAddDialogOpen, setIsAddDialogOpen] = React.useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<UserDto | null>(null);
   const [formData, setFormData] = React.useState({ firstName: "", lastName: "", username: "", emailAddress: "", status: "active", organizationId: "", organizationRoleId: "" });
 
   const { data: usersData, isLoading, refetch } = useGetUsers({ limit: PAGE_SIZE, page: currentPage, status: statusFilter || undefined });
   const { data: statusesData } = useGetUserStatuses({});
-  const { data: orgsData } = useGetOrganizations({ limit: 100 });
+  const { data: orgTypesData } = useGetOrganizationTypes();
+  const platformAdminTypeId = React.useMemo(() => {
+    const types = Array.isArray(orgTypesData?.data) ? orgTypesData.data : [];
+    return types.find((t) => t.code === "PLATFORM_ADMIN")?.id;
+  }, [orgTypesData]);
+
+  const { data: orgsData } = useGetOrganizations(
+    { limit: 100, typeId: platformAdminTypeId },
+    { query: { enabled: platformAdminTypeId != null } },
+  );
 
   const orgs = Array.isArray(orgsData?.data) ? (orgsData.data as unknown as TypedOrg[]) : [];
   const selectedOrgTypeId = orgs.find((o) => String(o.id) === formData.organizationId)?.typeId;
@@ -60,7 +69,6 @@ export default function AdminUsersPage() {
   );
   const addUserMutation = useAddUser();
   const updateUserMutation = useUpdateUser();
-  const removeUserMutation = useRemoveUser();
 
   const users = Array.isArray(usersData?.data) ? usersData.data : [];
   const statuses = Array.isArray(statusesData?.data) ? (statusesData.data as unknown as TypedStatus[]) : [];
@@ -121,19 +129,6 @@ export default function AdminUsersPage() {
     }
   };
 
-  const handleDeleteUser = async () => {
-    if (!selectedUser?.id) return;
-    try {
-      await removeUserMutation.mutateAsync({ id: selectedUser.id });
-      toast.success("User deleted successfully");
-      setIsDeleteDialogOpen(false);
-      setSelectedUser(null);
-      refetch();
-    } catch (error) {
-      toast.error("Failed to delete user");
-    }
-  };
-
   const resetForm = () => {
     setFormData({ firstName: "", lastName: "", username: "", emailAddress: "", status: "active", organizationId: "", organizationRoleId: "" });
     setSelectedUser(null);
@@ -151,11 +146,6 @@ export default function AdminUsersPage() {
       organizationRoleId: user.organizationRoleId || "",
     });
     setIsEditDialogOpen(true);
-  };
-
-  const openDeleteDialog = (user: UserDto) => {
-    setSelectedUser(user);
-    setIsDeleteDialogOpen(true);
   };
 
 
@@ -303,8 +293,6 @@ export default function AdminUsersPage() {
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => openEditDialog(user)}><Pencil className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-red-600" onClick={() => openDeleteDialog(user)}><Trash2 className="mr-2 h-4 w-4" />Delete</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -366,32 +354,6 @@ export default function AdminUsersPage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-[480px] rounded-[2rem] p-10 border-none shadow-2xl bg-white">
-          <DialogHeader>
-            <div className="h-16 w-16 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mb-6">
-              <Trash2 className="h-8 w-8" />
-            </div>
-            <DialogTitle className="text-3xl font-black text-slate-900">
-              Delete user
-            </DialogTitle>
-            <DialogDescription className="text-slate-500 font-medium text-lg mt-2 leading-relaxed">
-              Are you sure you want to delete <span className="text-slate-900 font-bold">{formData.firstName} {formData.lastName}</span>? This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col sm:flex-row gap-3 mt-10">
-            <Button variant="ghost" onClick={() => setIsDeleteDialogOpen(false)} className="flex-1 h-12 rounded-2xl font-bold bg-slate-50 text-slate-600">Keep account</Button>
-            <Button 
-              onClick={handleDeleteUser} 
-              disabled={removeUserMutation.isPending}
-              className="flex-1 h-12 rounded-2xl font-black bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/20" 
-            >
-              {removeUserMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Confirm Delete
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
