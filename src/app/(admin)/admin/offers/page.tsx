@@ -14,6 +14,7 @@ import {
   useUpdateOffer,
   useDeleteOffer,
   getGetOffersQueryKey,
+  getGetOfferQueryKey,
   getSearchOffersQueryKey,
 } from "@/lib/generated/billing/offers/offers";
 import { useGetServicePackages } from "@/lib/generated/billing/packages/packages";
@@ -207,8 +208,9 @@ export default function AdminOffersPage() {
 
   const updateMutation = useUpdateOffer({
     mutation: {
-      onSuccess: () => {
+      onSuccess: (response, variables) => {
         toast.success("Offer updated successfully");
+        queryClient.setQueryData(getGetOfferQueryKey(variables.id), response);
         queryClient.invalidateQueries({ queryKey: getGetOffersQueryKey() });
         queryClient.invalidateQueries({ queryKey: getSearchOffersQueryKey() });
         setEditingOffer(null);
