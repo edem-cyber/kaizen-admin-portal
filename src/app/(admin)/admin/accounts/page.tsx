@@ -52,7 +52,7 @@ import { queryClient } from "@/lib/react-query-provider";
 import { toast } from "sonner";
 import type { OrganizationDto } from "@/lib/generated/org/models/organizationDto";
 import type { OrganizationStatus } from "@/lib/generated/org/models/organizationStatus";
-import type { UpdateOrganizationDto, UpdateOrganizationDtoStatus, UpdateOrganizationDtoSpaceType } from "@/lib/generated/org/models";
+import type { UpdateOrganizationDto, UpdateOrganizationDtoStatus, UpdateOrganizationDtoSpaceType, GenericOrganizationConfigDto } from "@/lib/generated/org/models";
 import { 
   useGetSubAccounts, 
   useEnableSubAccount, 
@@ -65,6 +65,20 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 // downstream code (e.g. handleAddOrg's confirmationUrl switch) still
 // handles them so they can be re-enabled by re-adding them here.
 const SELECTABLE_ORG_TYPE_CODES = ["CONTENT_PROVIDER"];
+
+const DEFAULT_CONTENT_PROVIDER_MAX_USERS = 25;
+
+// NEXT_PUBLIC_ vars are inlined at build time, so this has to be a literal lookup.
+// Only a whole number is accepted: a positive seat count, or -1 for unlimited
+// (the convention used by SubscriptionPlan.maxUsers). Anything else — "0",
+// "1e3", "twenty" — falls back to the default rather than silently shipping a
+// bad seat cap that the edit dialog has no way to correct.
+const contentProviderMaxUsers = (() => {
+  const raw = process.env.NEXT_PUBLIC_CONTENT_PROVIDER_MAX_USERS?.trim();
+  if (!raw || !/^-?\d+$/.test(raw)) return DEFAULT_CONTENT_PROVIDER_MAX_USERS;
+  const parsed = Number.parseInt(raw, 10);
+  return parsed > 0 || parsed === -1 ? parsed : DEFAULT_CONTENT_PROVIDER_MAX_USERS;
+})();
 
 export default function AdminAccountsPage() {
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -154,12 +168,45 @@ export default function AdminAccountsPage() {
 
   const handleAddOrg = () => {
     const selectedType = types.find((t) => String(t.id) === formData.typeId);
+    const selectedCountry = countries.find((c) => String(c.id) === formData.countryId);
+
+    // The org type drives both confirmationUrl and config below, so a missing or
+    // unresolved type must block the request rather than silently fall through
+    // to a default type with the wrong confirmation link and no config.
+    const missingField = !formData.name.trim()
+      ? "Organization name"
+      : !formData.address.trim()
+        ? "Physical address"
+        : !selectedCountry
+          ? "Country"
+          : !selectedType
+            ? "Organization type"
+            : !formData.adminFirstName.trim()
+              ? "Admin first name"
+              : !formData.adminLastName.trim()
+                ? "Admin last name"
+                : !formData.adminEmail.trim()
+                  ? "Admin official email"
+                  : !formData.adminUsername.trim()
+                    ? "Admin username"
+                    : null;
+
+    if (missingField || !selectedType || !selectedCountry) {
+      toast.error(`${missingField ?? "A required field"} is required`);
+      return;
+    }
+
     let confirmationUrl: string;
+    let config: GenericOrganizationConfigDto | undefined;
     switch (selectedType?.code) {
       case "CONTENT_PROVIDER":
         confirmationUrl =
           process.env.NEXT_PUBLIC_CONTENT_PROVIDER_CONFIRMATION_URL ??
           "https://content.sandbox.kaizen-aceit.com/confirm-account";
+        config = {
+          maxUsers: contentProviderMaxUsers,
+          enableMonthlyStatementAlerts: true,
+        };
         break;
       case "FAMILY_SUBSCRIBER":
         confirmationUrl =
@@ -178,8 +225,8 @@ export default function AdminAccountsPage() {
         address: formData.address,
         city: formData.city || undefined,
         region: formData.region || undefined,
-        countryId: parseInt(formData.countryId),
-        typeId: parseInt(formData.typeId) || 1,
+        countryId: Number(selectedCountry.id),
+        typeId: Number(selectedType.id),
         projectId: formData.projectId ? parseInt(formData.projectId) : undefined,
         groupId: formData.groupId ? parseInt(formData.groupId) : undefined,
         contactEmail: formData.adminEmail,
@@ -190,6 +237,7 @@ export default function AdminAccountsPage() {
           username: formData.adminUsername,
         },
         confirmationUrl,
+        ...(config ? { config } : {}),
       }
     });
   };
