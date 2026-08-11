@@ -225,6 +225,14 @@ function CategoryProductsRow({ categoryId }: { categoryId: number }) {
                 Clear filters
               </Button>
             )}
+            {serviceCategoryFilter !== "all" && subcategoryFilter === "all" && (
+              // The products endpoint only filters by serviceSubcategoryId, so the
+              // service category alone narrows nothing — say so instead of leaving
+              // an unfiltered list looking filtered.
+              <span className="text-xs font-medium text-amber-600">
+                Pick a subcategory to filter — service category alone shows all products.
+              </span>
+            )}
           </div>
           {isLoading ? (
             <div className="flex items-center gap-2 text-slate-500 text-sm py-4">

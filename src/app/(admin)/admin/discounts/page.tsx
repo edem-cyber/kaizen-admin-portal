@@ -215,7 +215,7 @@ export default function AdminDiscountsPage() {
       code: discount.code,
       description: discount.description || "",
       discountType: discount.percentage ? "percentage" : "fixed",
-      value: discount.percentage ? String(Math.round(Number(discount.percentage) * 100)) : String(discount.fixedValue ?? ""),
+      value: discount.percentage ? formatPercentage(discount.percentage) : String(discount.fixedValue ?? ""),
       startDate: discount.startDate ? new Date(discount.startDate) : null,
       endDate: discount.endDate ? new Date(discount.endDate) : null,
       active: discount.active ?? true,
@@ -236,6 +236,13 @@ export default function AdminDiscountsPage() {
     if (discount.endDate && new Date(discount.endDate) < now) return false;
     return true;
   };
+
+  // Percentages are stored as fractions (0.125 = 12.5%). Rounding here would both
+  // misreport the value and, via openEdit seeding the form from this same
+  // conversion, silently rewrite it on the next save — so keep the fraction and
+  // only trim floating-point noise.
+  const formatPercentage = (percentage: string | number) =>
+    String(Number((Number(percentage) * 100).toFixed(4)));
 
   const formatFixedValue = (value: string | number, discountName?: string) => {
     const numValue = typeof value === "string" ? parseFloat(value) : value;
@@ -523,7 +530,7 @@ export default function AdminDiscountsPage() {
                       </TableCell>
                       <TableCell><code className="text-[10px] font-mono text-slate-600 bg-slate-100 px-2 py-1 rounded tracking-wider uppercase">{discount.code}</code></TableCell>
                       <TableCell className="font-bold text-slate-900">
-                        {discount.percentage ? `${Math.round(Number(discount.percentage) * 100)}% OFF` : formatFixedValue(discount.fixedValue || 0, discount.name)}
+                        {discount.percentage ? `${formatPercentage(discount.percentage)}% OFF` : formatFixedValue(discount.fixedValue || 0, discount.name)}
                       </TableCell>
                       <TableCell className="text-sm text-slate-600 font-medium">
                         {discount.endDate ? (
@@ -572,7 +579,7 @@ export default function AdminDiscountsPage() {
                     
                     <div className="flex items-baseline gap-1 pt-2">
                       <span className="text-4xl font-black text-slate-900 tracking-tight">
-                        {discount.percentage ? `${Math.round(Number(discount.percentage) * 100)}%` : formatFixedValue(discount.fixedValue || 0, discount.name)}
+                        {discount.percentage ? `${formatPercentage(discount.percentage)}%` : formatFixedValue(discount.fixedValue || 0, discount.name)}
                       </span>
                       <span className="text-slate-400 font-bold ml-1 text-sm uppercase tracking-widest">{discount.percentage ? "OFF" : "Discount"}</span>
                     </div>
@@ -677,22 +684,18 @@ export default function AdminDiscountsPage() {
                 </div>
               </div>
 
+              {/* UpdateDiscountDto carries no organizationId, so the target org can
+                  only be set at creation — show it read-only instead of offering a
+                  control whose changes are silently dropped on save. */}
               <div className="space-y-2">
                 <Label className="font-bold text-slate-800">Target Organization</Label>
-                <Controller
-                  name="organizationId"
-                  control={control}
-                  render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="h-12 rounded-xl border-slate-200 shadow-sm"><SelectValue placeholder="Select organization" /></SelectTrigger>
-                      <SelectContent className="rounded-xl shadow-xl">
-                        {orgs.map((org) => (
-                          <SelectItem key={org.id} value={String(org.id)} className="rounded-lg">{org.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
+                <div className="flex h-12 items-center rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-medium text-slate-600">
+                  {editingDiscount?.organizationId
+                    ? orgs.find((org) => String(org.id) === String(editingDiscount.organizationId))?.name
+                      ?? `Organization #${editingDiscount.organizationId}`
+                    : "All organizations"}
+                </div>
+                <p className="text-xs text-slate-400">Set at creation and cannot be changed.</p>
               </div>
 
               <div className="space-y-2">

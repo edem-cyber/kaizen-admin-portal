@@ -210,7 +210,15 @@ export default function AdminOffersPage() {
     mutation: {
       onSuccess: (response, variables) => {
         toast.success("Offer updated successfully");
-        queryClient.setQueryData(getGetOfferQueryKey(variables.id), response);
+        // Only prime the per-offer cache when the PATCH response actually carries
+        // the packages relation — seeding without it would make the edit dialog
+        // reopen with every linked package unchecked (see the reset effect above),
+        // which turns a re-check into a duplicate link and hides real unlinks.
+        if (response?.data?.packages) {
+          queryClient.setQueryData(getGetOfferQueryKey(variables.id), response);
+        } else {
+          queryClient.invalidateQueries({ queryKey: getGetOfferQueryKey(variables.id) });
+        }
         queryClient.invalidateQueries({ queryKey: getGetOffersQueryKey() });
         queryClient.invalidateQueries({ queryKey: getSearchOffersQueryKey() });
         setEditingOffer(null);
@@ -374,7 +382,13 @@ export default function AdminOffersPage() {
           <ViewToggle view={viewMode} onViewChange={setViewMode} />
           <Dialog open={isCreateOpen} onOpenChange={(open) => {
             setIsCreateOpen(open);
-            if (open) reset();
+            if (open) {
+              reset();
+              // selectedCategoryId is shared with the edit dialog; clear it so a
+              // cancelled edit doesn't leave its category preselected here while
+              // serviceSubcategoryId is blank.
+              setSelectedCategoryId(undefined);
+            }
           }}>
             <DialogTrigger asChild>
               <Button className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-xl shadow-violet-500/25 h-12 px-8 rounded-2xl font-black text-base transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
@@ -637,7 +651,7 @@ export default function AdminOffersPage() {
       )}
 
       {/* Edit Dialog */}
-      <Dialog open={!!editingOffer} onOpenChange={(open) => { if (!open) setEditingOffer(null); }}>
+      <Dialog open={!!editingOffer} onOpenChange={(open) => { if (!open) { setEditingOffer(null); setSelectedCategoryId(undefined); } }}>
         <DialogContent className="sm:max-w-xl rounded-[2rem] p-0 gap-0 border-none shadow-2xl overflow-hidden bg-white">
           {isLoadingDetails ? (
             <div className="p-20 flex flex-col items-center justify-center space-y-4">
