@@ -291,10 +291,10 @@ export default function AdminLayout({ children }: AdminShellProps) {
           </div>
 
           <div className="flex items-center gap-4 ml-auto">
-            <button className="relative size-10 flex items-center justify-center rounded-xl hover:bg-slate-50 text-slate-400 transition-colors">
+            <Link href="/admin/notifications" className="relative size-10 flex items-center justify-center rounded-xl hover:bg-slate-50 text-slate-400 transition-colors">
               <Bell className="size-5" strokeWidth={1.5} />
               <span className="absolute top-2.5 right-2.5 size-2 bg-red-500 rounded-full border-2 border-white" />
-            </button>
+            </Link>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

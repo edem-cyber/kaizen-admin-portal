@@ -7,6 +7,7 @@ import {
   CheckCircle,
   Store,
   Users,
+  Bell,
   Settings,
   BarChart3,
   MessageSquare,
@@ -72,6 +73,11 @@ const menuItems = [
     title: "Users",
     url: "/users",
     icon: Users,
+  },
+  {
+    title: "Notifications",
+    url: "/admin/notifications",
+    icon: Bell,
   },
   {
     title: "Settings",
