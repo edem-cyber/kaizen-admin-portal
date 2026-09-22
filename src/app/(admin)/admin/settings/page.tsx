@@ -48,8 +48,14 @@ export default function AdminSettingsPage() {
     try {
       setIsUploadingAvatar(true);
       const uploadedUrl = await uploadFileResource(file);
+      const userEmail = selfUser?.emailAddress || user?.email;
       await updateSelfMutation.mutateAsync({
-        data: { imageUrl: uploadedUrl },
+        data: {
+          emailAddress: userEmail,
+          firstName: selfUser?.firstName || user?.name?.split(" ")[0],
+          lastName: selfUser?.lastName || user?.name?.split(" ")[1],
+          imageUrl: uploadedUrl,
+        },
       });
       if (user) {
         setUser({ ...user, imageUrl: uploadedUrl });
@@ -69,8 +75,14 @@ export default function AdminSettingsPage() {
   const handleRemoveAvatar = async () => {
     try {
       setIsRemovingAvatar(true);
+      const userEmail = selfUser?.emailAddress || user?.email;
       await updateSelfMutation.mutateAsync({
-        data: { imageUrl: null },
+        data: {
+          emailAddress: userEmail,
+          firstName: selfUser?.firstName || user?.name?.split(" ")[0],
+          lastName: selfUser?.lastName || user?.name?.split(" ")[1],
+          imageUrl: null,
+        },
       });
       if (user) {
         setUser({ ...user, imageUrl: null });
@@ -95,7 +107,14 @@ export default function AdminSettingsPage() {
 
   const handleSave = async () => {
     try {
-      await updateSelfMutation.mutateAsync({ data: { firstName: formData.siteName } });
+      const userEmail = selfUser?.emailAddress || user?.email;
+      await updateSelfMutation.mutateAsync({
+        data: {
+          emailAddress: userEmail,
+          firstName: formData.siteName,
+          lastName: selfUser?.lastName || user?.name?.split(" ")[1],
+        },
+      });
       toast.success("Settings saved successfully");
     } catch { toast.error("Failed to save settings"); }
   };
