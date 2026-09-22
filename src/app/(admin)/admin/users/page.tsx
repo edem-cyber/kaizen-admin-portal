@@ -17,8 +17,9 @@ import { useGetOrganizationRoles } from "@/lib/generated/user/organization-roles
 import { useGetOrganizations } from "@/lib/generated/org/organizations/organizations";
 import { ProfilePicture } from "@/components/ui/profile-picture";
 import { UserStatusBadge, type UserStatusValue } from "@/components/ui/status-display";
-import { Users, Plus, Search, MoreHorizontal, Pencil, Trash2, UserPlus, Loader2 } from "lucide-react";
+import { Users, Plus, Search, MoreHorizontal, Pencil, Trash2, UserPlus, Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
+import { uploadFileResource } from "@/lib/file-upload";
 import type { UserDto } from "@/lib/generated/user/models/userDto";
 import type { OrganizationDto as OrgServiceDto } from "@/lib/generated/org/models/organizationDto";
 
@@ -44,7 +45,56 @@ export default function AdminUsersPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<UserDto | null>(null);
-  const [formData, setFormData] = React.useState({ firstName: "", lastName: "", username: "", emailAddress: "", status: "active", organizationId: "", organizationRoleId: "" });
+  const [formData, setFormData] = React.useState<{
+    firstName: string;
+    lastName: string;
+    username: string;
+    emailAddress: string;
+    status: string;
+    organizationId: string;
+    organizationRoleId: string;
+    imageUrl?: string | null;
+  }>({
+    firstName: "",
+    lastName: "",
+    username: "",
+    emailAddress: "",
+    status: "active",
+    organizationId: "",
+    organizationRoleId: "",
+    imageUrl: null,
+  });
+
+  const editFileInputRef = React.useRef<HTMLInputElement>(null);
+  const [isUploadingUserAvatar, setIsUploadingUserAvatar] = React.useState(false);
+
+  const handleUploadUserAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file (PNG, JPG, WebP, GIF).");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image file size must be less than 5MB.");
+      return;
+    }
+
+    try {
+      setIsUploadingUserAvatar(true);
+      const url = await uploadFileResource(file);
+      setFormData(prev => ({ ...prev, imageUrl: url }));
+      toast.success("Picture uploaded. Click 'Update Account' to save changes.");
+    } catch (err: any) {
+      console.error("User avatar upload failed:", err);
+      toast.error(err?.message || "Failed to upload picture.");
+    } finally {
+      setIsUploadingUserAvatar(false);
+      if (editFileInputRef.current) editFileInputRef.current.value = "";
+    }
+  };
 
   const { data: usersData, isLoading, refetch } = useGetUsers({ limit: PAGE_SIZE, page: currentPage, status: statusFilter || undefined });
   const { data: statusesData } = useGetUserStatuses({});
@@ -99,6 +149,7 @@ export default function AdminUsersPage() {
           lastName: formData.lastName,
           emailAddress: formData.emailAddress || null,
           status: formData.status,
+          imageUrl: formData.imageUrl,
         }
       });
       toast.success("User updated successfully");
@@ -124,7 +175,7 @@ export default function AdminUsersPage() {
   };
 
   const resetForm = () => {
-    setFormData({ firstName: "", lastName: "", username: "", emailAddress: "", status: "active", organizationId: "", organizationRoleId: "" });
+    setFormData({ firstName: "", lastName: "", username: "", emailAddress: "", status: "active", organizationId: "", organizationRoleId: "", imageUrl: null });
     setSelectedUser(null);
   };
 
@@ -138,6 +189,7 @@ export default function AdminUsersPage() {
       status: user.status || "active",
       organizationId: String(user.organizationId || ""),
       organizationRoleId: user.organizationRoleId || "",
+      imageUrl: user.imageUrl || null,
     });
     setIsEditDialogOpen(true);
   };
@@ -270,6 +322,7 @@ export default function AdminUsersPage() {
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <ProfilePicture
+                            src={user.imageUrl}
                             firstName={user.firstName}
                             lastName={user.lastName}
                             email={user.emailAddress}
@@ -320,6 +373,58 @@ export default function AdminUsersPage() {
           </div>
 
           <div className="p-10 space-y-6">
+            {/* User Profile Picture in Edit Dialog */}
+            <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+              <ProfilePicture
+                src={formData.imageUrl}
+                firstName={formData.firstName}
+                lastName={formData.lastName}
+                email={formData.emailAddress}
+                size="lg"
+                className="rounded-xl shadow-xs"
+              />
+              <div className="space-y-1">
+                <input
+                  type="file"
+                  ref={editFileInputRef}
+                  onChange={handleUploadUserAvatar}
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  className="hidden"
+                />
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => editFileInputRef.current?.click()}
+                    disabled={isUploadingUserAvatar}
+                    className="h-8 rounded-lg text-xs font-semibold"
+                  >
+                    {isUploadingUserAvatar ? (
+                      <Loader2 className="w-3 h-3 animate-spin mr-1.5 text-violet-600" />
+                    ) : (
+                      <Upload className="w-3 h-3 mr-1.5" />
+                    )}
+                    {formData.imageUrl ? "Change photo" : "Upload photo"}
+                  </Button>
+                  {formData.imageUrl && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setFormData(prev => ({ ...prev, imageUrl: null }))}
+                      disabled={isUploadingUserAvatar}
+                      className="h-8 rounded-lg text-xs font-semibold text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-3 h-3 mr-1" />
+                      Remove
+                    </Button>
+                  )}
+                </div>
+                <p className="text-[11px] text-slate-400">PNG, JPG, WebP up to 5MB.</p>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="font-bold text-slate-800">First name</Label>

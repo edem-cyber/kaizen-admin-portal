@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
+import { useGetSelf } from "@/lib/generated/user/users/users";
 import { cn } from "@/lib/utils";
 import { ProfilePicture } from "@/components/ui/profile-picture";
 
@@ -139,6 +140,11 @@ const NavMenuItem = ({ item }: { item: NavItem }) => {
 
 export default function AdminLayout({ children }: AdminShellProps) {
   const { user, logout, isAuthenticated } = useAuth();
+  const { data: selfData } = useGetSelf({
+    query: { enabled: isAuthenticated },
+  });
+  const currentUser = selfData?.data || user;
+  const avatarUrl = selfData?.data?.imageUrl ?? user?.imageUrl;
   const pathname = usePathname();
   const router = useRouter();
   const [mounted, setMounted] = React.useState(false);
@@ -300,10 +306,10 @@ export default function AdminLayout({ children }: AdminShellProps) {
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-3 pl-2 pr-1 py-1 rounded-2xl hover:bg-slate-50 transition-all group">
                   <ProfilePicture
-                    src={user?.imageUrl}
-                    firstName={user?.name?.split(' ')[0]}
-                    lastName={user?.name?.split(' ')[1]}
-                    email={user?.email}
+                    src={avatarUrl}
+                    firstName={(currentUser as any)?.name?.split(' ')[0] || currentUser?.firstName}
+                    lastName={(currentUser as any)?.name?.split(' ')[1] || currentUser?.lastName}
+                    email={(currentUser as any)?.email || currentUser?.emailAddress}
                     size="default"
                     className="rounded-xl shadow-sm group-hover:shadow-md transition-shadow"
                   />
@@ -315,16 +321,16 @@ export default function AdminLayout({ children }: AdminShellProps) {
               >
                 <div className="flex items-center gap-3 p-3 mb-2 bg-slate-50 rounded-xl">
                   <ProfilePicture
-                    src={user?.imageUrl}
-                    firstName={user?.name?.split(' ')[0]}
-                    lastName={user?.name?.split(' ')[1]}
-                    email={user?.email}
+                    src={avatarUrl}
+                    firstName={(currentUser as any)?.name?.split(' ')[0] || currentUser?.firstName}
+                    lastName={(currentUser as any)?.name?.split(' ')[1] || currentUser?.lastName}
+                    email={(currentUser as any)?.email || currentUser?.emailAddress}
                     size="default"
                     className="rounded-lg"
                   />
                   <div className="flex flex-col min-w-0">
-                    <span className="text-sm font-bold text-slate-900 truncate">{user?.name || "Admin"}</span>
-                    <span className="text-xs text-slate-500 truncate">{user?.email || "admin@example.com"}</span>
+                    <span className="text-sm font-bold text-slate-900 truncate">{(currentUser as any)?.name || currentUser?.username || "Admin"}</span>
+                    <span className="text-xs text-slate-500 truncate">{(currentUser as any)?.email || currentUser?.emailAddress || "admin@example.com"}</span>
                   </div>
                 </div>
                 <DropdownMenuItem asChild className="rounded-xl h-11 cursor-pointer focus:bg-violet-50 focus:text-violet-600">
