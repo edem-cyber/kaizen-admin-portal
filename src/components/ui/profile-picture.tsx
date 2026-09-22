@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "@/lib/utils";
+import { cn, cleanAvatarUrl } from "@/lib/utils";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 // ============================================================================
@@ -123,18 +123,19 @@ export function ProfilePicture({
   const initials = getInitials();
   const bgColor = getBackgroundColor();
   const altText = alt || `${firstName || ""} ${lastName || ""}`.trim() || "User avatar";
+  const validSrc = cleanAvatarUrl(src);
 
   return (
     <Avatar
       size={size === "xs" || size === "xl" ? "default" : size}
       className={cn(profilePictureSizes[size], className)}
     >
-      {src && <AvatarImage src={src} alt={altText} />}
+      {validSrc && <AvatarImage src={validSrc} alt={altText} />}
       <AvatarFallback
         className={cn(
           "font-semibold text-white",
           bgColor,
-          !src && "animate-in fade-in-0 duration-200"
+          !validSrc && "animate-in fade-in-0 duration-200"
         )}
       >
         {initials}
